@@ -14,7 +14,7 @@ function LoginForm() {
 
   if (user)
     return (
-      <div className="card bg-base-100 w-96 shadow-sm">
+      <div className="card bg-ivory outline-khaki outline w-96 shadow-sm">
         <figure className="px-10 pt-10">
           <img
             src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
@@ -36,35 +36,39 @@ function LoginForm() {
     );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend className="fieldset-legend">Login</legend>
+    <div className="bg-ivory border-khaki border-x flex flex-row w-[80%] pr-15 h-[60vh] items-center">
+        <img src="/images/login.jpg" className="h-[60vh]" alt="Login" />
+      <form className="flex flex-col justify-center items-center text-center w-full" onSubmit={handleSubmit}>
+          <h3 className="fieldset-legend text-4xl text-stone-700 font-cormorant font-light mb-5">Welcome Back</h3>
+          <h4 className="text-xl font-coptic text-stone-500">Login to your account</h4>
+        <fieldset className="fieldset rounded-box w-xs text-black p-4 flex flex-col justify-center items-center text-center">
 
-        <label className="label">Username</label>
-        <input
-          type="text"
-          className="input"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+          <label className="label">Username</label>
+          <input
+            type="text"
+            className="input bg-light outline-khaki outline"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <label className="label">Password</label>
-        <input
-          type="password"
-          className="input"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <label className="label">Password</label>
+          <input
+            type="password"
+            className="input bg-light outline-khaki outline"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button className="btn btn-neutral mt-4">Login</button>
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </fieldset>
-    </form>
+          <button className="btn btn-neutral mt-4">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : " "}
+          </button>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+        </fieldset>
+      </form>
+    </div>
   );
 }
 
