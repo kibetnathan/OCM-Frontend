@@ -3,4 +3,26 @@
 
 @theme {
   --color-ivory: #FFFEF6;
+  --color-light: #fffffc;
+  --font-cormorant: "Cormorant Garamond", serif;
+  --font-coptic: "Noto Sans Coptic", "sans";
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/assets/fonts/Cormorant_Garamond/CormorantGaramond-VariableFont_wght.ttf");
+  font-weight: 100 900; /* if the font supports variable weights */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("/assets/fonts/Cormorant_Garamond/CormorantGaramond-Italic-VariableFont_wght.ttf");
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans Coptic";
+  src: url("assets/fonts/Noto_Sans_Coptic/NotoSansCoptic-Regular.ttf");
+  font-weight: 100 900;
 }

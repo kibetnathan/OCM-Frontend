@@ -1,16 +1,16 @@
 import React from "react";
-
+import { Link, NavLink } from "react-router-dom";
 function Navbar() {
   return (
     <div className="fixed w-full flex items-center justify-center z-1 top-5">
       <nav className=" navbar w-[80%] rounded-2xl bg-[#151515]/50 backdrop-blur-sm shadow-lg shadow-black/30">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">OCM</a>
+        <NavLink to="/" className="btn btn-ghost text-xl normal-case"> OCM </NavLink>
         </div>
         <div className="flex-none">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <a>Link</a>
+                <NavLink to="/">Home</NavLink>
             </li>
             <li>
               <details>
