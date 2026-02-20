@@ -7,11 +7,11 @@ function Navbar() {
 
   return (
     <div className="fixed w-full top-5 flex justify-center z-2">
-      <nav className="w-4/5 flex items-center justify-between rounded bg-black/50 backdrop-blur-sm shadow-lg shadow-black/30 px-6 py-5">
+      <nav className="w-4/5 flex items-center justify-between rounded bg-black/60 backdrop-blur-sm  shadow-[0px_0px_50px_inset] shadow-black/40 px-6 py-5">
         {/* Logo */}
         <NavLink to="/" className="text-xl font-cormorant font-semibold text-amber-600  flex items-center gap-1">
           <span className="block text-light text-2xl tracking-widest">
-          O<span className="text-amber-600">C</span>M
+          OCM
           </span>
         </NavLink>
 
@@ -47,9 +47,9 @@ function Navbar() {
         </ul>
 
         {/* CTA */}
-        <a href="#" className="hidden sm:inline-block bg-amber-600 text-black px-4 py-1 text-sm font-dm-sans uppercase tracking-wider hover:bg-khaki transition-colors">
-          Get Started
-        </a>
+        <NavLink to="/auth/login" className="hidden sm:inline-block bg-amber-600 text-black px-4 py-1 text-sm font-dm-sans uppercase tracking-wider hover:bg-khaki transition-colors">
+          Log In
+        </NavLink>
 
         {/* Mobile hamburger */}
         <button
