@@ -14,22 +14,18 @@ function LoginForm() {
 
   if (user)
     return (
-      <div className="card bg-ivory outline-khaki outline w-96 shadow-sm">
+      <div className="card bg-ivory outline-khaki text-stone-600 outline w-96 shadow-sm">
         <figure className="px-10 pt-10">
           <img
-            src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-            alt="Shoes"
-            className="rounded-xl"
+            src="/images/crowd.jpg"
+            alt="crowd"
+            className="object-cover h-48 w-full"
           />
         </figure>
         <div className="card-body items-center text-center">
-          <h2 className="card-title">Card Title</h2>
-          <p>
-            A card component has a figure, a body part, and inside body there
-            are title and actions parts
-          </p>
+          <h2 className="card-title font-coptic text-2xl">Welcome back {user?.username} !</h2>
           <div className="card-actions">
-            <button className="btn btn-primary">Buy Now</button>
+            <button className="btn bg-amber-600 border-0 rounded-none font-coptic tracking-wide text-stone-800 btn-lg">TO HOME</button>
           </div>
         </div>
       </div>
@@ -37,7 +33,7 @@ function LoginForm() {
 
   return (
     <div className="bg-ivory border-khaki border-x flex flex-row w-[80%] pr-15 h-[60vh] items-center">
-        <img src="/images/login.jpg" className="h-[60vh]" alt="Login" />
+        <img src="/images/crowd.jpg" className="h-[60vh] w-[60vh] content-center object-cover" alt="Login" />
       <form className="flex flex-col justify-center items-center text-center w-full" onSubmit={handleSubmit}>
           <h3 className="fieldset-legend text-4xl text-stone-700 font-cormorant font-light mb-5">Welcome Back</h3>
           <h4 className="text-xl font-coptic text-stone-500">Login to your account</h4>
