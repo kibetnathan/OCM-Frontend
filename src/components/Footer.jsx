@@ -2,13 +2,16 @@ import React from 'react'
 
 function Footer() {
   return (
-    <footer className="footer footer-horizontal footer-center bg-base-200 text-base-content rounded p-10">
-  <nav className="grid grid-flow-col gap-4">
-    <a className="link link-hover">About us</a>
-    <a className="link link-hover">Contact</a>
-    <a className="link link-hover">Jobs</a>
-    <a className="link link-hover">Press kit</a>
-  </nav>
+    <footer className="footer footer-horizontal footer-center bg-[#151515] text-primary-content p-10">
+  <aside>
+    <img src="/images/mavuno_logo.png" alt="" />
+    <p className="font-bold">
+      Mavuno Church
+      <br />
+      Turning Ordinary People into Fearless Influencers. 
+    </p>
+    <p>Copyright © {new Date().getFullYear()}</p>
+  </aside>
   <nav>
     <div className="grid grid-flow-col gap-4">
       <a>
@@ -45,10 +48,8 @@ function Footer() {
         </svg>
       </a>
     </div>
+
   </nav>
-  <aside>
-    <p>Copyright © {new Date().getFullYear()} - All right reserved by ACME Industries Ltd</p>
-  </aside>
 </footer>
   )
 }

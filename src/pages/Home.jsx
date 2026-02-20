@@ -1,11 +1,13 @@
 import React from "react";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 
 function Home() {
   return (
     <>
+    <Navbar />
       <header
-        className="hero min-h-screen w-full z-10"
+        className="relative hero min-h-screen w-full z-20"
         style={{
           backgroundImage:
             "url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp)",
