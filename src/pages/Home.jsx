@@ -20,9 +20,9 @@ function Home() {
               --Powered by Mavuno Church
             </span>
             <h1 className="mb-5 text-[4em] font-cormorant font-light text-ivory">
-              This is
+              This is <span />
               <span className="text-amber-600 italic font-bold">
-                Open Church Management
+                 Open Church Management
               </span>
             </h1>
             <p className="mb-5 text-lg text-ivory font-coptic">
@@ -30,7 +30,7 @@ function Home() {
               Manage your church members, leadership and various groups and
               communities.
             </p>
-            <a className="btn text-black rounded-none border-0 bg-amber-600 hover:bg-[#fffffc] hover:text-amber-600 hover:border-2 hover:border-amber-600 btn-lg font-medium">
+            <a className="btn text-black rounded-none border-0 bg-amber-600 hover:bg-light hover:text-amber-600 hover:border-2 hover:border-amber-600 btn-lg font-medium tracking-widest">
               GET STARTED
             </a>
           </div>
