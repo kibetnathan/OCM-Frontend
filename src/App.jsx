@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
+import Feed from "./pages/Feed";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Feed />} />
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginForm />} />
           <Route path="signup" element={<SignUpForm />} />
