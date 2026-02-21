@@ -16,14 +16,14 @@ const SectionLabel = ({ children }) => (
 
 function Sidebar() {
   return (
-    <aside className="hidden md:flex flex-col w-60 min-h-screen bg-[#0f0f0d] border-r border-white/[0.06]">
+    <aside className="fixed hidden md:flex flex-col w-60 min-h-screen bg-[#0f0f0d] border-r border-white/6">
 
       {/* Logo */}
-      <div className="flex items-center justify-between px-6 h-16 border-b border-white/[0.06]">
+      <div className="flex items-center justify-between px-6 h-16 border-b border-white/6">
         <NavLink to="/" className="font-cormorant text-2xl font-semibold tracking-[0.15em] text-stone-100 hover:text-amber-400 transition-colors">
-          O<span className="text-amber-500">C</span>M
+          O<span className="text-amber-600">C</span>M
         </NavLink>
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
       </div>
 
       {/* Nav */}
@@ -108,8 +108,8 @@ function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-white/[0.06]">
-        <p className="text-[0.6rem] tracking-widest uppercase text-stone-600">
+      <div className="px-5 py-4 border-t border-white/6">
+        <p className="text-[0.6rem] tracking-widest uppercase text-amber-600">
           Powered by Mavuno Church
         </p>
       </div>

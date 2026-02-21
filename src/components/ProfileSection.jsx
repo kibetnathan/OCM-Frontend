@@ -5,7 +5,7 @@ function ProfileSection() {
   const profile = useProfileStore((state) => state.profile);
 
   return (
-    <aside>
+    <aside className="fixed right-0 top-0 h-full w-64 bg-[#0f0f0d] border-l border-white/6">
       <div className="card bg-base-100 w-96 shadow-sm">
         <img
           src={profile?.profile_picture || "/images/default-profile.jpg"}
