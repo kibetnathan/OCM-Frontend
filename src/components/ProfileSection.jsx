@@ -15,7 +15,7 @@ function ProfileSection() {
   if (!profile) return <p>Loading profile...</p>;
   console.log("User data:", user);
   return (
-    <aside className="fixed right-0 top-0 h-full min-w-74 bg-[#0f0f0d] border-l border-white/6">
+    <aside className="fixed right-0 top-0 h-full min-w-74 bg-[#0f0f0d] border-l border-white/6 flex flex-col">
       <div className="card w-70 p-10 h-[50vh] shadow-sm flex flex-col bg-ivory text-stone-900 items-center m-2">
         <img
           src={profile?.profile_pic || "/images/defaultavatar.jpg"}
@@ -31,6 +31,12 @@ function ProfileSection() {
             Workplace: {profile?.workplace || "N/A"} <br />
             Role: {user?.groups?.join(", ") || "N/A"}
           </span>
+        </div>
+      </div>
+      <div>
+        <h3>My Groups</h3>
+        <div>
+            {}
         </div>
       </div>
     </aside>
