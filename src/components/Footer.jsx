@@ -2,7 +2,7 @@ import React from 'react'
 
 function Footer() {
   return (
-    <footer className="footer footer-horizontal footer-center bg-[#151515] text-primary-content p-10">
+    <footer className="footer footer-horizontal h-[40vh] footer-center bg-black/95 text-primary-content p-10">
   <aside>
     <img src="/images/mavuno_logo.png" alt="" />
     <p className="font-bold">

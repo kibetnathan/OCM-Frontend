@@ -4,6 +4,8 @@ import useAuthStore from "../zustand/authStore";
 function SignUpForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [DoB, setDoB] = useState("");
   const [campus, setCampus] = useState("");
@@ -62,6 +64,12 @@ function SignUpForm() {
 
         <label className="label">Email</label>
         <input value={email} onChange={(e) => setEmail(e.target.value)} className="input bg-light text-black border border-khaki" />
+
+        <label className="label">First Name</label>
+        <input value={first_name} onChange={(e) => setFirstName(e.target.value)} className="input bg-light text-black border border-khaki" />
+
+        <label className="label">Last Name</label>
+        <input value={last_name} onChange={(e) => setLastName(e.target.value)} className="input bg-light text-black border border-khaki" />
 
         <label className="label">Password</label>
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input bg-light text-black border border-khaki" />
