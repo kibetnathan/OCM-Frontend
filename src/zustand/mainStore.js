@@ -76,7 +76,32 @@ const useMainStore = create((set) => ({
         } catch (err) {
             set({ error: err.message, loading: false });
         }
-    }
+    },
+    fetchPosts: async (token) => {
+        set({ loading: true, error: null });
+        try {
+            const res = await fetch("http://localhost:8000/api/post/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            set({ posts: data, loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
+    fetchComments: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/comment/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            set({ comments: data, loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
 }));
 
 export default useMainStore;

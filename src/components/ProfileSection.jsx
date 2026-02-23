@@ -25,7 +25,7 @@ function ProfileSection() {
 
   if (!profile)
     return (
-      <aside className="fixed right-0 top-0 h-full w-72 bg-[#0f0f0d] border-l border-white/6 flex items-center justify-center">
+      <aside className="sticky right-0 top-0 h-screen w-100 bg-[#0f0f0d] border-l border-white/6 flex items-center justify-center">
         <p className="text-xs tracking-widest uppercase text-stone-600 animate-pulse">
           Loading…
         </p>
@@ -44,7 +44,7 @@ function ProfileSection() {
   );
 
   return (
-    <aside className="fixed right-0 top-0 h-full w-72 bg-[#0f0f0d] border-l border-white/6 flex flex-col overflow-y-auto">
+    <aside className="sticky right-0 top-0 h-screen w-100 bg-[#0f0f0d] border-l border-white/6 flex flex-col overflow-y-auto">
 
       {/* ── Profile Card ── */}
       <div className="flex flex-col items-center px-6 pt-10 pb-7 border-b border-white/6">
