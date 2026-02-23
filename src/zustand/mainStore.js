@@ -7,9 +7,11 @@ const useMainStore = create((set) => ({
     services: [],
     fellowships: [],
     courses: [],
+    posts: [],
+    comments: [],
     loading: false,
     error: null,
-    
+
     fetchLeadershipTeams: async () => {
         set({ loading: true, error: null });
         try {
@@ -37,7 +39,7 @@ const useMainStore = create((set) => ({
         }
     },
     fetchServices: async () => {
-        set({loading: true, error: null});
+        set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
             const res = await fetch("http://localhost:8000/api/services/", {
@@ -50,7 +52,7 @@ const useMainStore = create((set) => ({
         }
     },
     fetchFellowships: async () => {
-        set({loading: true, error: null});
+        set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
             const res = await fetch("http://localhost:8000/api/fellowship-group/", {
@@ -63,7 +65,7 @@ const useMainStore = create((set) => ({
         }
     },
     fetchCourses: async () => {
-        set({loading: true, error: null});
+        set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
             const res = await fetch("http://localhost:8000/api/courses/", {
