@@ -118,6 +118,11 @@ function ProfileSection() {
       </div>
 
       {/* ── Footer ── */}
+      <div className="w-full items-center justify-center">
+        <button className="bg-amber-600 text-stone-800 p-3">
+          Log Out
+        </button>
+      </div>
       <div className="px-6 py-4 border-t border-white/6">
         <p className="text-[0.55rem] tracking-[0.25em] uppercase text-stone-700">
           Open Church Management

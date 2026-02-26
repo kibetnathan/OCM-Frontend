@@ -1,8 +1,10 @@
 import React from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
-
+import { Link } from "react-router-dom";
+import useAuthStore from "../zustand/authStore";
 function Home() {
+  const user = useAuthStore((state) => state.user)
   return (
     <>
       <Navbar />
@@ -30,9 +32,9 @@ function Home() {
               Manage your church members, leadership and various groups and
               communities.
             </p>
-            <a className="btn text-black rounded-none border-0 bg-amber-600 hover:bg-light hover:text-amber-600 hover:border-2 hover:border-amber-600 btn-lg font-medium tracking-widest">
+            <Link to={user ? "/feed" : "/login"} className="btn text-black rounded-none border-0 bg-amber-600 hover:bg-light hover:text-amber-600 hover:border-2 hover:border-amber-600 btn-lg font-medium tracking-widest">
               GET STARTED
-            </a>
+            </Link>
           </div>
         </div>
       </header>
