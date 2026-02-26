@@ -143,6 +143,25 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+    createCourse: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/courses/", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newCourse = await res.json();
+            set((state) => {
+                const current = state.courses?.results ? state.courses.results : (Array.isArray(state.courses) ? state.courses : []);
+                const count = state.courses?.count ?? current.length;
+                return { loading: false, courses: state.courses?.results ? { ...state.courses, count: count + 1, results: [newCourse, ...current] } : [newCourse, ...current] };
+            });
+            return { success: true };
+        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
     fetchPosts: async (token) => {
         set({ loading: true, error: null });
         try {
