@@ -9,6 +9,7 @@ import PostForm from "./components/PostForm";
 import Dashboard from "./pages/Dashboard";
 import DashboardOverview from "./components/DashboardOverview";
 import Fellowships from "./components/Fellowships";
+import CourseDashboard from "./components/CourseDashboard";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard/>}>
           <Route path="/dashboard/" element={<DashboardOverview/>}/>
           <Route path="groups/fellowship" element={<Fellowships/>} />
+          <Route path="groups/courses" element={<CourseDashboard/>} />
         </Route>
       </Routes>
     </Router>
