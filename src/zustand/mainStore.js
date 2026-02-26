@@ -129,6 +129,39 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+    uploadPost: async (formData, token) => {
+    set({ loading: true, error: null });
+    try {
+        const res = await fetch("http://localhost:8000/api/post/", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            // NO Content-Type header here!
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            console.log("Server Error Data:", errData); // Debugging is your friend
+            throw new Error(errData.detail || "Upload failed");
+        }
+
+        const newPost = await res.json();
+        
+        set((state) => {
+            // Check if results exists (Paginated API) or if it's a direct array
+            const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
+            
+            return {
+                loading: false,
+                posts: state.posts?.results 
+                    ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
+                    : [newPost, ...currentPosts] // If simple array
+            };
+        });
+    } catch (err) {
+        set({ error: err.message, loading: false });
+    }
+}
 }));
 
 export default useMainStore;

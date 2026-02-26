@@ -36,7 +36,7 @@ function FeedChannel() {
       {/* ── Tab Bar ── */}
       <ul className="flex flex-row border-b border-stone-200 px-6">
         <li className="font-cormorant text-xl text-stone-800 px-5 py-4 border-b-2 border-amber-500 hover:cursor-pointer">
-          Top Posts
+          Global Posts
         </li>
         <li className="font-cormorant text-xl text-stone-400 px-5 py-4 border-b-2 border-transparent hover:text-stone-700 hover:cursor-pointer transition-colors">
           My Groups
