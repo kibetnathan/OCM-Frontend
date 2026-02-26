@@ -8,6 +8,8 @@ const useMainStore = create((set) => ({
     fellowships: [],
     courses: [],
     posts: [],
+    users: [],
+    profiles: [],
     toggleLike: async (postId, token) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/toggle_like/`, {
@@ -125,6 +127,34 @@ const useMainStore = create((set) => ({
             });
             const data = await res.json();
             set({ comments: data, loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
+    fetchUsers: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/users/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            // Support both paginated { results: [] } and plain array responses
+            set({ users: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
+    fetchProfiles: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/profile/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            // Support both paginated { results: [] } and plain array responses
+            set({ profiles: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
         }
