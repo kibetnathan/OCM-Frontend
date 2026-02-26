@@ -12,7 +12,7 @@ function Home() {
         className="relative hero min-h-screen w-full z-20"
         style={{
           backgroundImage:
-            "url(https://img.daisyui.com/images/stock/photo-1507358522600-9f71e620c44e.webp)",
+            "url(images/mavuno_entrance.jpg)",
         }}
       >
         <div className="hero-overlay backdrop-blur-xs"></div>
