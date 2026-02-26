@@ -8,6 +8,7 @@ import FeedChannel from "./components/FeedChannel";
 import PostForm from "./components/PostForm";
 import Dashboard from "./pages/Dashboard";
 import DashboardOverview from "./components/DashboardOverview";
+import Fellowships from "./components/Fellowships";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         </Route>
         <Route path="/dashboard" element={<Dashboard/>}>
           <Route path="/dashboard/" element={<DashboardOverview/>}/>
+          <Route path="groups/fellowship" element={<Fellowships/>} />
         </Route>
       </Routes>
     </Router>

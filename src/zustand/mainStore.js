@@ -93,6 +93,43 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+
+    // Creates a new fellowship group and prepends it to the fellowships list
+    createFellowship: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/fellowship-group/", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(JSON.stringify(errData));
+            }
+            const newGroup = await res.json();
+            set((state) => {
+                const current = state.fellowships?.results
+                    ? state.fellowships.results
+                    : (Array.isArray(state.fellowships) ? state.fellowships : []);
+                const count = state.fellowships?.count ?? current.length;
+                return {
+                    loading: false,
+                    fellowships: state.fellowships?.results
+                        ? { ...state.fellowships, count: count + 1, results: [newGroup, ...current] }
+                        : [newGroup, ...current],
+                };
+            });
+            return { success: true };
+        } catch (err) {
+            set({ error: err.message, loading: false });
+            return { success: false, error: err.message };
+        }
+    },
     fetchCourses: async () => {
         set({ loading: true, error: null });
         try {
