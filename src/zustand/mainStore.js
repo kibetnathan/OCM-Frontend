@@ -8,6 +8,33 @@ const useMainStore = create((set) => ({
     fellowships: [],
     courses: [],
     posts: [],
+    toggleLike: async (postId, token) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/toggle_like/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            // Update the post in the store's state
+            set((state) => ({
+                posts: {
+                    ...state.posts,
+                    results: state.posts.results.map((p) =>
+                        p.id === postId
+                            ? { ...p, like_count: data.like_count, is_liked: data.is_liked }
+                            : p
+                    ),
+                },
+            }));
+        } catch (error) {
+            console.error("Failed to toggle like:", error);
+        }
+    },
     comments: [],
     loading: false,
     error: null,

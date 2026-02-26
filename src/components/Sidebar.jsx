@@ -16,7 +16,7 @@ const SectionLabel = ({ children }) => (
 
 function Sidebar() {
   return (
-    <aside className="sticky hidden md:flex flex-col w-90 min-h-screen bg-[#0f0f0d] border-r border-white/6">
+    <aside className="sticky top-0 hidden md:flex flex-col w-90 h-screen bg-[#0f0f0d] border-r border-white/6">
 
       {/* Logo */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-white/6">
