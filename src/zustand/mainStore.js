@@ -95,7 +95,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/courses/", {
+            const res = await fetch("http://localhost:8000/api/course/", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
