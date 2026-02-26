@@ -1,7 +1,7 @@
 // components/LoginForm.jsx
 import { useState } from "react";
 import useAuthStore from "../zustand/authStore";
-
+import { Link } from "react-router-dom";
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +25,7 @@ function LoginForm() {
         <div className="card-body items-center text-center">
           <h2 className="card-title font-coptic text-2xl">Welcome back {user?.username} !</h2>
           <div className="card-actions">
-            <button className="btn bg-amber-600 border-0 rounded-none font-coptic tracking-wide text-stone-800 btn-lg">TO HOME</button>
+            <Link to={"/feed/"} className="btn bg-amber-600 border-0 rounded-none font-coptic tracking-wide text-stone-800 btn-lg">TO HOME</Link>
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import LoginForm from "./components/LoginForm";
 import SignUpForm from "./components/SignUpForm";
 import Feed from "./pages/Feed";
 import FeedChannel from "./components/FeedChannel";
+import PostForm from "./components/PostForm";
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/feed" element={<Feed />} >
           <Route path="/feed/" element={<FeedChannel/>}/>
-
+          <Route path="upload/" element={<PostForm/>}/>
         </Route>
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginForm />} />
