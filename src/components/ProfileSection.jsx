@@ -118,8 +118,8 @@ function ProfileSection() {
       </div>
 
       {/* ── Footer ── */}
-      <div className="w-full items-center justify-center">
-        <button className="bg-amber-600 text-stone-800 p-3">
+      <div className="w-full flex items-center justify-center">
+        <button className="bg-orange-500 text-stone-800 p-2 mx-2 w-full uppercase font-coptic text-sm hover:cursor-pointer hover:bg-amber-500">
           Log Out
         </button>
       </div>
