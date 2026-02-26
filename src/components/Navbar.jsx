@@ -6,8 +6,8 @@ function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="fixed w-full top-5 flex justify-center z-2">
-      <nav className="w-4/5 flex items-center justify-between rounded bg-black/60 backdrop-blur-sm  shadow-[0px_0px_50px_inset] shadow-black/40 px-6 py-5">
+    <div className="fixed w-full top-0 flex justify-center z-2">
+      <nav className="w-full flex items-center justify-between rounded-b-2xl bg-black/60 backdrop-blur-sm  shadow-[0px_0px_50px_inset] shadow-black/40 px-6 py-5">
         {/* Logo */}
         <NavLink to="/" className="text-xl font-cormorant font-semibold text-amber-600  flex items-center gap-1">
           <span className="block text-light text-2xl tracking-widest">

@@ -5,7 +5,6 @@ import useMainStore from "../zustand/mainStore";
 
 function ProfileSection() {
   const token = useAuthStore.getState().token;
-
   useEffect(() => {
     if (token) useProfileStore.getState().fetchProfile();
   }, [token]);
@@ -22,6 +21,7 @@ function ProfileSection() {
     user?.first_name && user?.last_name
       ? `${user.first_name} ${user.last_name}`
       : "Guest User";
+  
 
   if (!profile)
     return (

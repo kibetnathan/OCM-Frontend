@@ -6,6 +6,8 @@ import SignUpForm from "./components/SignUpForm";
 import Feed from "./pages/Feed";
 import FeedChannel from "./components/FeedChannel";
 import PostForm from "./components/PostForm";
+import Dashboard from "./pages/Dashboard";
+import DashboardOverview from "./components/DashboardOverview";
 
 function App() {
   return (
@@ -19,6 +21,9 @@ function App() {
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginForm />} />
           <Route path="signup" element={<SignUpForm />} />
+        </Route>
+        <Route path="/dashboard" element={<Dashboard/>}>
+          <Route path="/dashboard/" element={<DashboardOverview/>}/>
         </Route>
       </Routes>
     </Router>
