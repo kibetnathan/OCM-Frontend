@@ -115,7 +115,8 @@ function Sidebar() {
               >
                 <li><NavLink to="/dashboard/groups/fellowship" className={subLinkClass}>Fellowship Groups</NavLink></li>
                 <li><NavLink to="/dashboard/groups/classes" className={subLinkClass}>Classes</NavLink></li>
-                <li><NavLink to="/dashboard/groups/serving-teams" className={subLinkClass}>Serving Teams</NavLink></li>
+                <li><NavLink to="/dashboard/groups/serving-teams" className={subLinkClass}>Serving Departments</NavLink></li>
+                <li><NavLink to="/dashboard/groups/serving-teams" className={subLinkClass}>Church Services</NavLink></li>
               </ExpandableSection>
 
               <ExpandableSection
