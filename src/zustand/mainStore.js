@@ -5,6 +5,7 @@ const useMainStore = create((set) => ({
     leadership_teams: [],
     departments: [],
     services: [],
+    equipment: [],
     fellowships: [],
     courses: [],
     posts: [],
@@ -235,38 +236,87 @@ const useMainStore = create((set) => ({
         }
     },
     uploadPost: async (formData, token) => {
-    set({ loading: true, error: null });
-    try {
-        const res = await fetch("http://localhost:8000/api/post/", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            // NO Content-Type header here!
-            body: formData,
-        });
+        set({ loading: true, error: null });
+        try {
+            const res = await fetch("http://localhost:8000/api/post/", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                // NO Content-Type header here!
+                body: formData,
+            });
 
-        if (!res.ok) {
-            const errData = await res.json();
-            console.log("Server Error Data:", errData); // Debugging is your friend
-            throw new Error(errData.detail || "Upload failed");
+            if (!res.ok) {
+                const errData = await res.json();
+                console.log("Server Error Data:", errData); // Debugging is your friend
+                throw new Error(errData.detail || "Upload failed");
+            }
+
+            const newPost = await res.json();
+
+            set((state) => {
+                // Check if results exists (Paginated API) or if it's a direct array
+                const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
+
+                return {
+                    loading: false,
+                    posts: state.posts?.results
+                        ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
+                        : [newPost, ...currentPosts] // If simple array
+                };
+            });
+        } catch (err) {
+            set({ error: err.message, loading: false });
         }
-
-        const newPost = await res.json();
-        
-        set((state) => {
-            // Check if results exists (Paginated API) or if it's a direct array
-            const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
-            
-            return {
-                loading: false,
-                posts: state.posts?.results 
-                    ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
-                    : [newPost, ...currentPosts] // If simple array
-            };
-        });
-    } catch (err) {
-        set({ error: err.message, loading: false });
-    }
-}
+    },
+    createService: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/services/", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newService = await res.json();
+            set((state) => {
+                const current = state.services?.results ? state.services.results : (Array.isArray(state.services) ? state.services : []);
+                const count = state.services?.count ?? current.length;
+                return { loading: false, services: state.services?.results ? { ...state.services, count: count + 1, results: [newService, ...current] } : [newService, ...current] };
+            });
+            return { success: true };
+        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
+    fetchEquipment: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/equipment/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            set({ equipment: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
+        } catch (err) { set({ error: err.message, loading: false }); }
+    },
+    createEquipment: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const isFormData = payload instanceof FormData;
+            const res = await fetch("http://localhost:8000/api/equipment/", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    ...(!isFormData && { "Content-Type": "application/json" }),
+                },
+                body: isFormData ? payload : JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newEquipment = await res.json();
+            set((state) => ({ loading: false, equipment: [newEquipment, ...state.equipment] }));
+            return { success: true };
+        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
 }));
 
 export default useMainStore;

@@ -3,6 +3,7 @@ import useProfileStore from "../zustand/profileStore";
 import useAuthStore from "../zustand/authStore";
 import useMainStore from "../zustand/mainStore";
 
+
 function ProfileSection() {
   const token = useAuthStore.getState().token;
   useEffect(() => {
@@ -119,9 +120,7 @@ function ProfileSection() {
 
       {/* ── Footer ── */}
       <div className="w-full flex items-center justify-center">
-        <button className="bg-orange-500 text-stone-800 p-2 mx-2 w-full uppercase tracking-widest font-coptic text-sm hover:cursor-pointer hover:bg-amber-500">
-          Log Out
-        </button>
+        
       </div>
       <div className="px-6 py-4 border-t border-white/6">
         <p className="text-[0.55rem] tracking-[0.25em] uppercase text-stone-700">

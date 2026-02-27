@@ -1,7 +1,7 @@
-// components/LoginForm.jsx
 import { useState } from "react";
 import useAuthStore from "../zustand/authStore";
 import { Link } from "react-router-dom";
+
 function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,58 +12,130 @@ function LoginForm() {
     login(username, password);
   };
 
-  if (user)
-    return (
-      <div className="card bg-ivory outline-khaki text-stone-600 outline w-96 shadow-sm">
-        <figure className="px-10 pt-10">
-          <img
-            src="/images/crowd.jpg"
-            alt="crowd"
-            className="object-cover h-48 w-full"
-          />
-        </figure>
-        <div className="card-body items-center text-center">
-          <h2 className="card-title font-coptic text-2xl">Welcome back {user?.username} !</h2>
-          <div className="card-actions">
-            <Link to={"/feed/"} className="btn bg-amber-600 border-0 rounded-none font-coptic tracking-wide text-stone-800 btn-lg">TO HOME</Link>
+  if (user) return (
+    <div className="min-h-screen w-full bg-[#faf8f3] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-6 text-center">
+        <div className="w-8 h-0.5 bg-amber-500" />
+        <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-400 font-coptic">Welcome back</p>
+        <h2 className="font-cormorant text-4xl font-semibold text-stone-800">
+          {user?.username}
+        </h2>
+        <div className="w-8 h-0.5 bg-amber-500" />
+        <Link
+          to="/feed/"
+          className="mt-2 font-coptic text-[0.65rem] uppercase tracking-widest bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 transition-colors"
+        >
+          Enter
+        </Link>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen w-full bg-[#faf8f3] flex items-stretch">
+
+      {/* ── Left panel — stock image with overlay ── */}
+      <div className="hidden lg:block relative w-[45%] shrink-0 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1519491050282-cf00c82424b4?w=1200&q=80"
+          alt="Congregation"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-linear-to-r from-[#0f0f0d]/80 via-[#0f0f0d]/40 to-transparent" />
+        {/* Content on image */}
+        <div className="relative z-10 flex flex-col justify-end h-full p-12">
+          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-amber-400 font-coptic mb-3">
+            Open Church Management
+          </p>
+          <h1 className="font-cormorant text-5xl font-semibold text-stone-100 leading-tight mb-4">
+            Serving the<br />
+            <span className="italic text-amber-400">community</span><br />
+            together
+          </h1>
+          <div className="w-8 h-0.5 bg-amber-500" />
+        </div>
+      </div>
+
+      {/* ── Right panel — form ── */}
+      <div className="flex-1 flex flex-col justify-center px-10 sm:px-16 lg:px-20 py-12">
+        <div className="w-full max-w-sm mx-auto">
+
+          {/* Header */}
+          <div className="mb-8">
+            <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-400 font-coptic mb-2">
+              Member Portal
+            </p>
+            <h2 className="font-cormorant text-4xl font-semibold text-stone-800 leading-tight">
+              Welcome Back
+            </h2>
+            <div className="w-6 h-0.5 bg-amber-500 mt-3" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">
+                Username
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                required
+                className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 transition-colors"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 transition-colors"
+              />
+            </div>
+
+            {error && (
+              <p className="text-[0.6rem] uppercase tracking-widest text-red-400 font-coptic">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-coptic text-[0.65rem] uppercase tracking-widest py-3.5 transition-colors flex items-center justify-center"
+            >
+              {loading ? (
+                <span className="animate-pulse">Signing in…</span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          {/* Footer link */}
+          <div className="mt-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-stone-200" />
+            <Link
+              to="/auth/signup"
+              className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-400 hover:text-amber-500 transition-colors shrink-0"
+            >
+              Create an account
+            </Link>
+            <div className="flex-1 h-px bg-stone-200" />
           </div>
         </div>
       </div>
-    );
 
-  return (
-    <div className="bg-ivory border-khaki border-x flex flex-row w-[80%] pr-15 h-[60vh] items-center">
-        <img src="/images/crowd.jpg" className="h-[60vh] w-[60vh] content-center object-cover" alt="Login" />
-      <form className="flex flex-col justify-center items-center text-center w-full" onSubmit={handleSubmit}>
-          <h3 className="fieldset-legend text-4xl text-stone-700 font-cormorant font-light mb-5">Welcome Back</h3>
-          <h4 className="text-xl font-coptic text-stone-500">Login to your account</h4>
-        <fieldset className="fieldset rounded-box w-xs text-black p-4 flex flex-col justify-center items-center text-center">
-
-          <label className="label">Username</label>
-          <input
-            type="text"
-            className="input bg-light outline-khaki outline"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-
-          <label className="label">Password</label>
-          <input
-            type="password"
-            className="input bg-light outline-khaki outline"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button className="btn btn-neutral mt-4">Login</button>
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : " "}
-          </button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-        </fieldset>
-      </form>
     </div>
   );
 }
