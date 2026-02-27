@@ -434,7 +434,6 @@ function CreateCourseForm({ allUsers, allProfiles, onSuccess }) {
       prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id],
     );
 
-  // Convert duration number + unit to ISO 8601 duration string
   const buildDuration = () => {
     if (!duration) return null;
     const totalDays =

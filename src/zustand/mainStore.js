@@ -67,6 +67,25 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+    createDepartment: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/department/", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newDept = await res.json();
+            set((state) => {
+                const current = state.departments?.results ? state.departments.results : (Array.isArray(state.departments) ? state.departments : []);
+                const count = state.departments?.count ?? current.length;
+                return { loading: false, departments: state.departments?.results ? { ...state.departments, count: count + 1, results: [newDept, ...current] } : [newDept, ...current] };
+            });
+            return { success: true };
+        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
     fetchServices: async () => {
         set({ loading: true, error: null });
         try {
