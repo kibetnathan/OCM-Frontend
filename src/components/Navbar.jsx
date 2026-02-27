@@ -19,7 +19,7 @@ function Navbar() {
         <ul className="hidden sm:flex items-center gap-4">
           <li>
             <NavLink
-              to="/"
+              to="/feed"
               className={({ isActive }) =>
                 `px-3 py-1 rounded-md text-sm font-dm-sans uppercase tracking-wide transition-colors ${
                   isActive ? "bg-white/10 text-amber-600" : "text-stone-300 hover:bg-white/10 hover:text-white"
@@ -41,7 +41,19 @@ function Navbar() {
                 }`
               }
             >
-              About
+              Mavuno Church
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `px-3 py-1 rounded-md text-sm font-dm-sans uppercase tracking-wide transition-colors ${
+                  isActive ? "bg-white/10 text-amber-600" : "text-stone-300 hover:bg-white/10 hover:text-white"
+                }`
+              }
+            >
+              Docs
             </NavLink>
           </li>
         </ul>

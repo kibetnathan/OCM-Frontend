@@ -212,13 +212,13 @@ function Sidebar() {
                 }
               >
                 <li>
-                  <NavLink to="/dashboard/users" className={subLinkClass}>
+                  <NavLink to="/dashboard/users/all" className={subLinkClass}>
                     All Members
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/dashboard/users/roles" className={subLinkClass}>
-                    Roles
+                  <NavLink to="dashboard/users/roles" className={subLinkClass}>
+                    Leadership
                   </NavLink>
                 </li>
               </ExpandableSection>

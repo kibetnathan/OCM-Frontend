@@ -12,6 +12,7 @@ import Fellowships from "./components/Fellowships";
 import CourseDashboard from "./components/CourseDashboard";
 import DepartmentDashboard from "./components/DepartmentDashboard";
 import ServicesDashboard from "./components/ServicesDashboard";
+import UsersDashboard from "./components/UsersDashboard";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="groups/courses" element={<CourseDashboard/>} />
           <Route path="groups/departments" element={<DepartmentDashboard/>} />
           <Route path="groups/services" element={<ServicesDashboard/>} />
+          <Route path="users/all" element={<UsersDashboard/>} />
         </Route>
       </Routes>
     </Router>
