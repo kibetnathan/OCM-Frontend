@@ -41,7 +41,25 @@ const useMainStore = create((set) => ({
     comments: [],
     loading: false,
     error: null,
-
+    createLeadershipTeam: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/leadership-team/", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newTeam = await res.json();
+            set((state) => {
+                const current = state.leadership_teams?.results ? state.leadership_teams.results : (Array.isArray(state.leadership_teams) ? state.leadership_teams : []);
+                const count = state.leadership_teams?.count ?? current.length;
+                return { loading: false, leadership_teams: state.leadership_teams?.results ? { ...state.leadership_teams, count: count + 1, results: [newTeam, ...current] } : [newTeam, ...current] };
+            });
+            return { success: true };
+        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
     fetchLeadershipTeams: async () => {
         set({ loading: true, error: null });
         try {

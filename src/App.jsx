@@ -13,6 +13,7 @@ import CourseDashboard from "./components/CourseDashboard";
 import DepartmentDashboard from "./components/DepartmentDashboard";
 import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
+import LeadershipDashboard from "./components/LeadershipDashboard";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="groups/departments" element={<DepartmentDashboard/>} />
           <Route path="groups/services" element={<ServicesDashboard/>} />
           <Route path="users/all" element={<UsersDashboard/>} />
+          <Route path="users/leadership" element={<LeadershipDashboard/>} />
         </Route>
       </Routes>
     </Router>

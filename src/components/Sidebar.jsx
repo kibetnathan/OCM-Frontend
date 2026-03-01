@@ -217,7 +217,7 @@ function Sidebar() {
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="dashboard/users/roles" className={subLinkClass}>
+                  <NavLink to="/dashboard/users/leadership" className={subLinkClass}>
                     Leadership
                   </NavLink>
                 </li>

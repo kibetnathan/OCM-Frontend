@@ -111,7 +111,7 @@ function UserCard({ isSelected, onSelect, user, allProfiles }) {
 
 // ── User Detail ───────────────────────────────────────────────────────────────
 
-function UserDetail({ user, allProfiles, allUsers, onClose }) {
+function UserDetail({ user, allProfiles, onClose }) {
   const userProfile  = allProfiles.find((p) => p.user?.id === user.id);
 
   // Groups the user shares with other members (fellowship, courses etc.)
