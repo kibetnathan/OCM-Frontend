@@ -14,6 +14,7 @@ import DepartmentDashboard from "./components/DepartmentDashboard";
 import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
 import LeadershipDashboard from "./components/LeadershipDashboard";
+import PostView from "./components/PostView";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/feed" element={<Feed />} >
           <Route path="/feed/" element={<FeedChannel/>}/>
+          <Route path="/feed/post/:postId" element={<PostView />} />
           <Route path="upload/" element={<PostForm/>}/>
         </Route>
         <Route path="/auth" element={<AuthPage />}>

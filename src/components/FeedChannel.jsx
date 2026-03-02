@@ -36,7 +36,7 @@ function FeedChannel() {
       {/* ── Tab Bar ── */}
       <ul className="flex flex-row border-b border-stone-200 px-6">
         <li className="font-cormorant text-xl text-stone-800 px-5 py-4 border-b-2 border-amber-500 hover:cursor-pointer">
-          Global Posts
+          Top Posts
         </li>
         <li className="font-cormorant text-xl text-stone-400 px-5 py-4 border-b-2 border-transparent hover:text-stone-700 hover:cursor-pointer transition-colors">
           My Groups
@@ -46,7 +46,7 @@ function FeedChannel() {
       {/* ── Compose Row ── */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-stone-200 bg-[#faf8f3]">
         <img
-          src={profile?.profile_pic_url || "/images/defaultavatar.jpg"}
+          src={profile?.profile_pic || "/images/defaultavatar.jpg"}
           alt="Profile"
           className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30 shrink-0"
         />
@@ -77,7 +77,7 @@ function FeedChannel() {
               {/* Author row */}
               <div className="flex items-center gap-3">
                 <img
-                  src={post.author_profile.profile_pic_url || "/images/defaultavatar.jpg"}
+                  src={post.author_profile.profile_pic || "/images/defaultavatar.jpg"}
                   alt={post.author.username}
                   className="w-9 h-9 rounded-full object-cover ring-1 ring-amber-500/20"
                 />
@@ -88,10 +88,12 @@ function FeedChannel() {
                 </div>
               </div>
 
-              {/* Title */}
-              <h3 className="font-cormorant text-2xl font-semibold text-stone-800 leading-snug">
-                {post.title}
-              </h3>
+              {/* Title — click to open post */}
+              <Link to={`/feed/post/${post.id}`} className="block group">
+                <h3 className="font-cormorant text-2xl font-semibold text-stone-800 leading-snug group-hover:text-amber-700 transition-colors">
+                  {post.title}
+                </h3>
+              </Link>
 
               {/* Image */}
               {post.image && (
@@ -102,10 +104,16 @@ function FeedChannel() {
                 />
               )}
 
-              {/* Content */}
-              <p className="text-sm text-stone-500 font-light leading-relaxed">
-                {post.content}
+              {/* Content — truncated in feed */}
+              <p className="text-sm text-stone-500 font-light leading-relaxed line-clamp-3">
+                {post.text}
               </p>
+              <Link
+                to={`/feed/post/${post.id}`}
+                className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-500 hover:text-amber-600 transition-colors -mt-1"
+              >
+                Read more
+              </Link>
 
               {/* Actions */}
               <div className="flex items-center gap-6 pt-1">

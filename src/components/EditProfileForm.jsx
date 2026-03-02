@@ -137,13 +137,13 @@ function ProfileFormInner({ profile, user, updateProfile, onClose }) {
         {/* Read-only */}
         <div className="flex flex-col gap-1.5">
           <InputLabel>Username</InputLabel>
-          <p className="px-3 py-2.5 text-sm text-stone-500 bg-white/[0.03] border border-white/[0.06]">
+          <p className="px-3 py-2.5 text-sm text-stone-500 bg-white/3 border border-white/6">
             @{user?.username}
           </p>
         </div>
         <div className="flex flex-col gap-1.5">
           <InputLabel>Email</InputLabel>
-          <p className="px-3 py-2.5 text-sm text-stone-500 bg-white/[0.03] border border-white/[0.06]">
+          <p className="px-3 py-2.5 text-sm text-stone-500 bg-white/3 border border-white/6">
             {user?.email || "—"}
           </p>
         </div>

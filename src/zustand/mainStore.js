@@ -5,12 +5,9 @@ const useMainStore = create((set) => ({
     leadership_teams: [],
     departments: [],
     services: [],
-    equipment: [],
     fellowships: [],
     courses: [],
     posts: [],
-    users: [],
-    profiles: [],
     toggleLike: async (postId, token) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/toggle_like/`, {
@@ -41,25 +38,7 @@ const useMainStore = create((set) => ({
     comments: [],
     loading: false,
     error: null,
-    createLeadershipTeam: async (payload) => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/leadership-team/", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const newTeam = await res.json();
-            set((state) => {
-                const current = state.leadership_teams?.results ? state.leadership_teams.results : (Array.isArray(state.leadership_teams) ? state.leadership_teams : []);
-                const count = state.leadership_teams?.count ?? current.length;
-                return { loading: false, leadership_teams: state.leadership_teams?.results ? { ...state.leadership_teams, count: count + 1, results: [newTeam, ...current] } : [newTeam, ...current] };
-            });
-            return { success: true };
-        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
-    },
+
     fetchLeadershipTeams: async () => {
         set({ loading: true, error: null });
         try {
@@ -85,25 +64,6 @@ const useMainStore = create((set) => ({
         } catch (err) {
             set({ error: err.message, loading: false });
         }
-    },
-    createDepartment: async (payload) => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/department/", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const newDept = await res.json();
-            set((state) => {
-                const current = state.departments?.results ? state.departments.results : (Array.isArray(state.departments) ? state.departments : []);
-                const count = state.departments?.count ?? current.length;
-                return { loading: false, departments: state.departments?.results ? { ...state.departments, count: count + 1, results: [newDept, ...current] } : [newDept, ...current] };
-            });
-            return { success: true };
-        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
     fetchServices: async () => {
         set({ loading: true, error: null });
@@ -131,48 +91,11 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-
-    // Creates a new fellowship group and prepends it to the fellowships list
-    createFellowship: async (payload) => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/fellowship-group/", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(JSON.stringify(errData));
-            }
-            const newGroup = await res.json();
-            set((state) => {
-                const current = state.fellowships?.results
-                    ? state.fellowships.results
-                    : (Array.isArray(state.fellowships) ? state.fellowships : []);
-                const count = state.fellowships?.count ?? current.length;
-                return {
-                    loading: false,
-                    fellowships: state.fellowships?.results
-                        ? { ...state.fellowships, count: count + 1, results: [newGroup, ...current] }
-                        : [newGroup, ...current],
-                };
-            });
-            return { success: true };
-        } catch (err) {
-            set({ error: err.message, loading: false });
-            return { success: false, error: err.message };
-        }
-    },
     fetchCourses: async () => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/course/", {
+            const res = await fetch("http://localhost:8000/api/courses/", {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -180,25 +103,6 @@ const useMainStore = create((set) => ({
         } catch (err) {
             set({ error: err.message, loading: false });
         }
-    },
-    createCourse: async (payload) => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/course/", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const newCourse = await res.json();
-            set((state) => {
-                const current = state.courses?.results ? state.courses.results : (Array.isArray(state.courses) ? state.courses : []);
-                const count = state.courses?.count ?? current.length;
-                return { loading: false, courses: state.courses?.results ? { ...state.courses, count: count + 1, results: [newCourse, ...current] } : [newCourse, ...current] };
-            });
-            return { success: true };
-        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
     fetchPosts: async (token) => {
         set({ loading: true, error: null });
@@ -225,116 +129,172 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-    fetchUsers: async () => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/users/", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            // Support both paginated { results: [] } and plain array responses
-            set({ users: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
-        } catch (err) {
-            set({ error: err.message, loading: false });
-        }
-    },
-    fetchProfiles: async () => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/profile/", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            // Support both paginated { results: [] } and plain array responses
-            set({ profiles: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
-        } catch (err) {
-            set({ error: err.message, loading: false });
-        }
-    },
     uploadPost: async (formData, token) => {
-        set({ loading: true, error: null });
+    set({ loading: true, error: null });
+    try {
+        const res = await fetch("http://localhost:8000/api/post/", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            // NO Content-Type header here!
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            console.log("Server Error Data:", errData); // Debugging is your friend
+            throw new Error(errData.detail || "Upload failed");
+        }
+
+        const newPost = await res.json();
+        
+        set((state) => {
+            // Check if results exists (Paginated API) or if it's a direct array
+            const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
+            
+            return {
+                loading: false,
+                posts: state.posts?.results 
+                    ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
+                    : [newPost, ...currentPosts] // If simple array
+            };
+        });
+    } catch (err) {
+        set({ error: err.message, loading: false });
+    }
+}
+    // Fetch a single post by id
+    fetchPost: async (postId) => {
         try {
-            const res = await fetch("http://localhost:8000/api/post/", {
-                method: "POST",
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/post/${postId}/`, {
                 headers: { Authorization: `Bearer ${token}` },
-                // NO Content-Type header here!
-                body: formData,
             });
-
-            if (!res.ok) {
-                const errData = await res.json();
-                console.log("Server Error Data:", errData); // Debugging is your friend
-                throw new Error(errData.detail || "Upload failed");
-            }
-
-            const newPost = await res.json();
-
-            set((state) => {
-                // Check if results exists (Paginated API) or if it's a direct array
-                const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
-
-                return {
-                    loading: false,
-                    posts: state.posts?.results
-                        ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
-                        : [newPost, ...currentPosts] // If simple array
-                };
-            });
+            if (!res.ok) throw new Error("Failed to fetch post");
+            return await res.json();
         } catch (err) {
-            set({ error: err.message, loading: false });
+            console.error(err);
+            return null;
         }
     },
-    createService: async (payload) => {
-        set({ loading: true, error: null });
+
+    // Fetch comments for a specific post
+    fetchPostComments: async (postId) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/services/", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const newService = await res.json();
-            set((state) => {
-                const current = state.services?.results ? state.services.results : (Array.isArray(state.services) ? state.services : []);
-                const count = state.services?.count ?? current.length;
-                return { loading: false, services: state.services?.results ? { ...state.services, count: count + 1, results: [newService, ...current] } : [newService, ...current] };
-            });
-            return { success: true };
-        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
-    },
-    fetchEquipment: async () => {
-        set({ loading: true, error: null });
-        try {
-            const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/equipment/", {
+            const res = await fetch(`http://localhost:8000/api/comment/?post_id=${postId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            if (!res.ok) throw new Error("Failed to fetch comments");
             const data = await res.json();
-            set({ equipment: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
-        } catch (err) { set({ error: err.message, loading: false }); }
+            return data?.results ?? (Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
     },
-    createEquipment: async (payload) => {
-        set({ loading: true, error: null });
+
+    // Add a comment to a post
+    addComment: async (postId, content) => {
         try {
             const token = useAuthStore.getState().token;
-            const isFormData = payload instanceof FormData;
-            const res = await fetch("http://localhost:8000/api/equipment/", {
+            const res = await fetch("http://localhost:8000/api/comment/", {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    ...(!isFormData && { "Content-Type": "application/json" }),
+                    "Content-Type": "application/json",
                 },
-                body: isFormData ? payload : JSON.stringify(payload),
+                body: JSON.stringify({ post_id: postId, text: content }),
             });
             if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const newEquipment = await res.json();
-            set((state) => ({ loading: false, equipment: [newEquipment, ...state.equipment] }));
-            return { success: true };
-        } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+            const newComment = await res.json();
+            // Also increment comment_count on the post in the feed
+            set((state) => {
+                const current = state.posts?.results ?? (Array.isArray(state.posts) ? state.posts : []);
+                const updated = current.map((p) =>
+                    p.id === postId ? { ...p, comment_count: (p.comment_count ?? 0) + 1 } : p
+                );
+                return {
+                    posts: state.posts?.results
+                        ? { ...state.posts, results: updated }
+                        : updated,
+                };
+            });
+            return { success: true, comment: newComment };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
     },
+
+    // Edit a comment
+    editComment: async (commentId, content) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/comment/${commentId}/`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ text: content }),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            return { success: true, comment: await res.json() };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+
+    // Delete a comment
+    deleteComment: async (commentId, postId) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/comment/${commentId}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete comment");
+            // Decrement comment_count on the post in the feed
+            set((state) => {
+                const current = state.posts?.results ?? (Array.isArray(state.posts) ? state.posts : []);
+                const updated = current.map((p) =>
+                    p.id === postId ? { ...p, comment_count: Math.max(0, (p.comment_count ?? 1) - 1) } : p
+                );
+                return {
+                    posts: state.posts?.results
+                        ? { ...state.posts, results: updated }
+                        : updated,
+                };
+            });
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+
+    // Delete a post
+    deletePost: async (postId) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/post/${postId}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete post");
+            set((state) => {
+                const current = state.posts?.results ?? (Array.isArray(state.posts) ? state.posts : []);
+                const updated = current.filter((p) => p.id !== postId);
+                return {
+                    posts: state.posts?.results
+                        ? { ...state.posts, count: (state.posts.count ?? 1) - 1, results: updated }
+                        : updated,
+                };
+            });
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+
 }));
 
 export default useMainStore;
