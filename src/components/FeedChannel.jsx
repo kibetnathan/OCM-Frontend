@@ -106,7 +106,7 @@ function FeedChannel() {
 
               {/* Content — truncated in feed */}
               <p className="text-sm text-stone-500 font-light leading-relaxed line-clamp-3">
-                {post.text}
+                {post.content}
               </p>
               <Link
                 to={`/feed/post/${post.id}`}

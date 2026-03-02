@@ -185,7 +185,7 @@ function PostView() {
       setComments(c);
       setPostLoading(false);
     })();
-  }, [postId, token]);
+  }, [postId, token, fetchPost, fetchPostComments]);
 
   const handleLike = async () => {
     if (!token) return;
@@ -255,7 +255,7 @@ function PostView() {
   );
 
   return (
-    <div className="min-h-screen bg-[#faf8f3]">
+    <div className="min-h-screen w-full bg-[#faf8f3]">
       <div className="max-w-2xl mx-auto px-6 py-10">
 
         {/* ── Back nav ── */}
