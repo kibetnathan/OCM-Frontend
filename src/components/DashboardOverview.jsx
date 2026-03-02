@@ -299,7 +299,7 @@ function DashboardOverview() {
                       <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-amber-500/8 rounded-full blur-xl pointer-events-none" />
                       <img
                         src={
-                          leaderProfile?.profile_pic ||
+                          leaderProfile?.profile_pic_url ||
                           "/images/defaultavatar.jpg"
                         }
                         alt={leader.username}
@@ -394,7 +394,7 @@ function DashboardOverview() {
             {/* Author strip */}
             <div className="flex items-center gap-3 pb-4 border-b border-white/[0.07] relative z-10">
               <img
-                src={profile?.profile_pic || "/images/defaultavatar.jpg"}
+                src={profile?.profile_pic_url || "/images/defaultavatar.jpg"}
                 alt="you"
                 className="w-8 h-8 rounded-full object-cover ring-2 ring-amber-500/30"
               />

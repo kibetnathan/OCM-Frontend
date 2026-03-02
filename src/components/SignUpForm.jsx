@@ -25,7 +25,7 @@ function SignUpForm() {
       password2: password,
     };
     try {
-      await register(username, email, password, extraFields);
+      await register(username, first_name, last_name, email, password, extraFields);
     } catch (err) {
       console.error(err);
     }

@@ -46,7 +46,7 @@ function FeedChannel() {
       {/* ── Compose Row ── */}
       <div className="flex items-center gap-4 px-6 py-4 border-b border-stone-200 bg-[#faf8f3]">
         <img
-          src={profile?.profile_pic || "/images/defaultavatar.jpg"}
+          src={profile?.profile_pic_url || "/images/defaultavatar.jpg"}
           alt="Profile"
           className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30 shrink-0"
         />
@@ -77,7 +77,7 @@ function FeedChannel() {
               {/* Author row */}
               <div className="flex items-center gap-3">
                 <img
-                  src={post.author_profile.profile_pic || "/images/defaultavatar.jpg"}
+                  src={post.author_profile.profile_pic_url || "/images/defaultavatar.jpg"}
                   alt={post.author.username}
                   className="w-9 h-9 rounded-full object-cover ring-1 ring-amber-500/20"
                 />

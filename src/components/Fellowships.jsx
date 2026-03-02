@@ -94,7 +94,7 @@ function FellowshipCard({ group, allUsers, allProfiles, onSelect, isSelected }) 
       {/* Leader */}
       <div className="px-5 py-3 flex items-center gap-3 border-b border-stone-100">
         <img
-          src={leaderProfile?.profile_pic || "/images/defaultavatar.jpg"}
+          src={leaderProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
           alt={leader?.username || "Leader"}
           className="w-7 h-7 rounded-full object-cover ring-1 ring-amber-400/30"
         />
@@ -117,7 +117,7 @@ function FellowshipCard({ group, allUsers, allProfiles, onSelect, isSelected }) 
           return (
             <img
               key={m.id}
-              src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+              src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
               alt={m.username}
               title={m.first_name ? `${m.first_name} ${m.last_name}` : m.username}
               className="w-7 h-7 rounded-full object-cover ring-2 ring-white -ml-1.5 first:ml-0"
@@ -175,7 +175,7 @@ function FellowshipDetail({ group, allUsers, allProfiles, onClose }) {
         <p className="text-[0.6rem] uppercase tracking-widest text-stone-500 font-coptic mb-2">Leader</p>
         <div className="flex items-center gap-3">
           <img
-            src={leaderProfile?.profile_pic || "/images/defaultavatar.jpg"}
+            src={leaderProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
             alt={leader?.username || "Leader"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30"
           />
@@ -207,7 +207,7 @@ function FellowshipDetail({ group, allUsers, allProfiles, onClose }) {
             return (
               <div key={m.id} className="flex items-center gap-3">
                 <img
-                  src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                  src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                   alt={m.username}
                   className="w-7 h-7 rounded-full object-cover shrink-0"
                 />
@@ -371,7 +371,7 @@ function CreateFellowshipForm({ allUsers, allProfiles, onSuccess }) {
                 }`}
               >
                 <img
-                  src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                  src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                   alt={u.username}
                   className="w-7 h-7 rounded-full object-cover shrink-0"
                 />

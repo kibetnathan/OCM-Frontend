@@ -230,7 +230,7 @@ function CourseCard({ course, allUsers, allProfiles, onSelect, isSelected }) {
       <div className="px-5 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <img
-            src={leaderProfile?.profile_pic || "/images/defaultavatar.jpg"}
+            src={leaderProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
             alt={leader?.username || "Instructor"}
             className="w-6 h-6 rounded-full object-cover ring-1 ring-amber-400/30"
           />
@@ -255,7 +255,7 @@ function CourseCard({ course, allUsers, allProfiles, onSelect, isSelected }) {
             return (
               <img
                 key={m.id}
-                src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                 alt={m.username}
                 title={
                   m.first_name ? `${m.first_name} ${m.last_name}` : m.username
@@ -348,7 +348,7 @@ function CourseDetail({ course, allUsers, allProfiles, onClose }) {
         </p>
         <div className="flex items-center gap-3">
           <img
-            src={leaderProfile?.profile_pic || "/images/defaultavatar.jpg"}
+            src={leaderProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
             alt={leader?.username || "Instructor"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30"
           />
@@ -381,7 +381,7 @@ function CourseDetail({ course, allUsers, allProfiles, onClose }) {
               return (
                 <div key={m.id} className="flex items-center gap-3">
                   <img
-                    src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                    src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                     alt={m.username}
                     className="w-7 h-7 rounded-full object-cover shrink-0"
                   />
@@ -619,7 +619,7 @@ function CreateCourseForm({ allUsers, allProfiles, onSuccess }) {
                   className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${checked ? "bg-amber-50" : "hover:bg-stone-50"}`}
                 >
                   <img
-                    src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                    src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                     alt={u.username}
                     className="w-7 h-7 rounded-full object-cover shrink-0"
                   />

@@ -47,7 +47,7 @@ const useAuthStore = create((set) => ({
   },
 
   // -------- REGISTER / SIGNUP --------
-register: async (username, email, password, extraFields) => {
+register: async (username,  first_name, last_name, email, password, extraFields) => {
   set({ loading: true, error: null });
   try {
     const response = await fetch("http://localhost:8000/api/register/", {
@@ -55,6 +55,8 @@ register: async (username, email, password, extraFields) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username,
+        first_name,
+        last_name,
         email,
         password1: password,
         password2: password,

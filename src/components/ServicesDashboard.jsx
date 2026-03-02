@@ -88,7 +88,7 @@ function ServiceCard({ service, allUsers, allProfiles, allDepartments, onSelect,
       {/* Pastor */}
       <div className="px-5 py-3 flex items-center gap-3 border-b border-stone-100">
         <img
-          src={pastorProfile?.profile_pic || "/images/defaultavatar.jpg"}
+          src={pastorProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
           alt={pastor?.username || "Pastor"}
           className="w-6 h-6 rounded-full object-cover ring-1 ring-amber-400/30"
         />
@@ -119,7 +119,7 @@ function ServiceCard({ service, allUsers, allProfiles, allDepartments, onSelect,
             return (
               <img
                 key={m.id}
-                src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                 alt={m.username}
                 title={userName(m)}
                 className="w-6 h-6 rounded-full object-cover ring-2 ring-white -ml-1.5 first:ml-0"
@@ -171,7 +171,7 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
         <p className="text-[0.6rem] uppercase tracking-widest text-stone-500 font-coptic mb-2">Pastor</p>
         <div className="flex items-center gap-3">
           <img
-            src={pastorProfile?.profile_pic || "/images/defaultavatar.jpg"}
+            src={pastorProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
             alt={pastor?.username || "Pastor"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30"
           />
@@ -226,7 +226,7 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
             const mp = allProfiles.find((p) => p.user?.id === m.id);
             return (
               <div key={m.id} className="flex items-center gap-3">
-                <img src={mp?.profile_pic || "/images/defaultavatar.jpg"} alt={m.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                <img src={mp?.profile_pic_url || "/images/defaultavatar.jpg"} alt={m.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs text-stone-300 truncate">{userName(m)}</p>
                   <p className="font-coptic text-[0.55rem] text-stone-600 truncate">@{m.username}</p>
@@ -476,7 +476,7 @@ function CreateServiceForm({ allUsers, allProfiles, allDepartments, onSuccess })
               <div key={u.id} onClick={() => toggleMember(u.id)}
                 className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors ${checked ? "bg-amber-50" : "hover:bg-stone-50"}`}
               >
-                <img src={mp?.profile_pic || "/images/defaultavatar.jpg"} alt={u.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
+                <img src={mp?.profile_pic_url || "/images/defaultavatar.jpg"} alt={u.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-stone-700 truncate">{userName(u)}</p>
                   <p className="font-coptic text-[0.55rem] text-stone-400 truncate">@{u.username}</p>

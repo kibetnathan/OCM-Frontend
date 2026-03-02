@@ -86,7 +86,7 @@ function UserCard({ isSelected, onSelect, user, allProfiles }) {
         {user.id}
       </span>
       <img
-        src={userProfile?.profile_pic || "/images/defaultavatar.jpg"}
+        src={userProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
         alt={user.username}
         className="w-12 h-12 rounded-full object-cover ring-2 ring-amber-500/30 shrink-0"
       />
@@ -133,7 +133,7 @@ function UserDetail({ user, allProfiles, onClose }) {
       {/* Avatar + name */}
       <div className="flex flex-col items-center gap-3 relative z-10">
         <img
-          src={userProfile?.profile_pic || "/images/defaultavatar.jpg"}
+          src={userProfile?.profile_pic_url || "/images/defaultavatar.jpg"}
           alt={user.username}
           className="w-20 h-20 rounded-full object-cover ring-2 ring-amber-500/30"
         />

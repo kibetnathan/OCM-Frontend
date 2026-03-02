@@ -42,6 +42,42 @@ const useProfileStore = create((set) => ({
             });
         }
     },
+    updateProfile: async (payload) => {
+        set({ loading: true, error: null });
+        try {
+            const auth = useAuthStore.getState();
+            const token = auth?.token;
+            const user_id = auth?.user?.id;
+
+            if (!token || !user_id) throw new Error("User not authenticated");
+
+            const isFormData = payload instanceof FormData;
+
+            const response = await fetch(
+                `http://localhost:8000/api/profile/${user_id}/`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        ...(!isFormData && { "Content-Type": "application/json" }),
+                    },
+                    body: isFormData ? payload : JSON.stringify(payload),
+                }
+            );
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(JSON.stringify(errData));
+            }
+
+            const data = await response.json();
+            set({ profile: data, loading: false });
+            return { success: true };
+        } catch (err) {
+            set({ error: err.message, loading: false });
+            return { success: false, error: err.message };
+        }
+    },
 }));
 
 export default useProfileStore;

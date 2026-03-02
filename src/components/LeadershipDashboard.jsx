@@ -84,7 +84,7 @@ function TeamCard({ team, allUsers, allProfiles, onSelect, isSelected }) {
           return (
             <img
               key={m.id}
-              src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+              src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
               alt={m.username}
               title={userName(m)}
               className="w-7 h-7 rounded-full object-cover ring-2 ring-white -ml-1.5 first:ml-0"
@@ -143,7 +143,7 @@ function TeamDetail({ team, allUsers, allProfiles, onClose }) {
             return (
               <div key={m.id} className="flex items-center gap-3">
                 <img
-                  src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                  src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                   alt={m.username}
                   className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-amber-500/20"
                 />
@@ -274,7 +274,7 @@ function CreateTeamForm({ allUsers, allProfiles, onSuccess }) {
                 }`}
               >
                 <img
-                  src={mp?.profile_pic || "/images/defaultavatar.jpg"}
+                  src={mp?.profile_pic_url || "/images/defaultavatar.jpg"}
                   alt={u.username}
                   className="w-7 h-7 rounded-full object-cover shrink-0"
                 />

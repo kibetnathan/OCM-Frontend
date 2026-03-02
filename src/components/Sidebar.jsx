@@ -226,7 +226,7 @@ function Sidebar() {
           )}
 
           {/* ── Messaging ── */}
-          <SectionLabel>Messaging</SectionLabel>
+          {/* <SectionLabel>Messaging</SectionLabel>
 
           <ExpandableSection
             defaultOpen
@@ -268,7 +268,7 @@ function Sidebar() {
                 No channels yet
               </li>
             )}
-          </ExpandableSection>
+          </ExpandableSection> */}
         </ul>
       </nav>
 
