@@ -40,6 +40,24 @@ const IconBuilding = () => (
   </svg>
 );
 
+const IconEdit = () => (
+  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+  </svg>
+);
+
+const IconCheck = () => (
+  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+  </svg>
+);
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function SectionHeading({ children }) {
@@ -48,6 +66,12 @@ function SectionHeading({ children }) {
       <h2 className="font-cormorant text-2xl font-semibold text-stone-800 shrink-0">{children}</h2>
       <div className="flex-1 h-px bg-stone-200" />
     </div>
+  );
+}
+
+function InputLabel({ children }) {
+  return (
+    <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">{children}</label>
   );
 }
 
@@ -111,21 +135,32 @@ function UserCard({ isSelected, onSelect, user, allProfiles }) {
 
 // ── User Detail ───────────────────────────────────────────────────────────────
 
-function UserDetail({ user, allProfiles, onClose }) {
-  const userProfile  = allProfiles.find((p) => p.user?.id === user.id);
-
-  // Groups the user shares with other members (fellowship, courses etc.)
-  // We show their auth groups as roles here
+function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
+  const userProfile = allProfiles.find((p) => p.user?.id === user.id);
   const roles = user.groups ?? [];
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
       <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Close */}
-      <div className="flex items-start justify-between relative z-10">
-        <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 font-coptic">Member</p>
-        <button onClick={onClose} className="text-stone-600 hover:text-stone-300 transition-colors p-1">
+      {/* Action buttons */}
+      <div className="relative z-10 flex items-center justify-end gap-0.5">
+        <button onClick={onEdit} title="Edit" className="p-1.5 text-stone-500 hover:text-amber-400 transition-colors">
+          <IconEdit />
+        </button>
+        {!confirmDelete ? (
+          <button onClick={() => setConfirmDelete(true)} title="Delete" className="p-1.5 text-stone-500 hover:text-red-400 transition-colors">
+            <IconTrash />
+          </button>
+        ) : (
+          <div className="flex items-center gap-1 bg-red-500/10 border border-red-500/20 px-2 py-1 ml-1">
+            <span className="font-coptic text-[0.55rem] text-red-400 uppercase tracking-widest">Delete?</span>
+            <button onClick={() => onDelete(user.id)} className="p-0.5 text-red-400 hover:text-red-300"><IconCheck /></button>
+            <button onClick={() => setConfirmDelete(false)} className="p-0.5 text-stone-500 hover:text-stone-300"><IconX /></button>
+          </div>
+        )}
+        <button onClick={onClose} className="p-1.5 text-stone-600 hover:text-stone-300 transition-colors ml-0.5">
           <IconX />
         </button>
       </div>
@@ -148,7 +183,6 @@ function UserDetail({ user, allProfiles, onClose }) {
           </p>
         </div>
 
-        {/* Role badges */}
         {roles.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {roles.map((role) => (
@@ -163,20 +197,16 @@ function UserDetail({ user, allProfiles, onClose }) {
         )}
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-white/[0.07] relative z-10" />
 
-      {/* Contact info */}
       <div className="flex flex-col gap-3 relative z-10">
         <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">Contact</p>
-        <DetailRow icon={<IconMail />}  label="Email"  value={user.email} />
-        <DetailRow icon={<IconPhone />} label="Phone"  value={userProfile?.phone_number} />
+        <DetailRow icon={<IconMail />}  label="Email" value={user.email} />
+        <DetailRow icon={<IconPhone />} label="Phone" value={userProfile?.phone_number} />
       </div>
 
-      {/* Divider */}
       <div className="h-px bg-white/[0.07] relative z-10" />
 
-      {/* Personal info */}
       <div className="flex flex-col gap-3 relative z-10">
         <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">Personal</p>
         <DetailRow icon={<IconCalendar />} label="Date of Birth" value={formatDate(userProfile?.DoB)} />
@@ -185,6 +215,197 @@ function UserDetail({ user, allProfiles, onClose }) {
         <DetailRow icon={<IconBuilding />} label="Workplace"     value={userProfile?.workplace} />
       </div>
     </div>
+  );
+}
+
+// ── Edit User Form ────────────────────────────────────────────────────────────
+
+function EditUserForm({ user, allProfiles, onSuccess, onCancel }) {
+  const updateUser    = useMainStore((state) => state.updateUser);
+  const updateProfile = useMainStore((state) => state.updateProfile);
+  const allGroups     = useMainStore((state) => state.groups) || [];
+  const fetchGroups   = useMainStore((state) => state.fetchGroups);
+
+  const userProfile = allProfiles.find((p) => p.user?.id === user.id);
+
+  // User fields
+  const [firstName,     setFirstName]     = useState(user.first_name || "");
+  const [lastName,      setLastName]      = useState(user.last_name  || "");
+  const [email,         setEmail]         = useState(user.email      || "");
+  const [username,      setUsername]      = useState(user.username   || "");
+  const [selectedGroups, setSelectedGroups] = useState(user.groups   || []);
+
+  // Profile fields
+  const [phone,      setPhone]      = useState(userProfile?.phone_number || "");
+  const [dob,        setDob]        = useState(userProfile?.DoB          || "");
+  const [campus,     setCampus]     = useState(userProfile?.campus       || "");
+  const [school,     setSchool]     = useState(userProfile?.school       || "");
+  const [workplace,  setWorkplace]  = useState(userProfile?.workplace    || "");
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error,      setError]      = useState(null);
+
+  useEffect(() => { fetchGroups(); }, [fetchGroups]);
+
+  const toggleGroup = (name) =>
+    setSelectedGroups((prev) =>
+      prev.includes(name) ? prev.filter((g) => g !== name) : [...prev, name]
+    );
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!username.trim()) return setError("Username is required.");
+
+    setSubmitting(true);
+
+    // PATCH user (includes groups)
+    const userResult = await updateUser(user.id, {
+      first_name: firstName,
+      last_name:  lastName,
+      email,
+      username,
+      groups: selectedGroups,
+    });
+
+    if (!userResult?.success) {
+      setSubmitting(false);
+      return setError("Failed to update user. Please try again.");
+    }
+
+    // PATCH profile if one exists
+    if (userProfile?.id) {
+      const profileResult = await updateProfile(userProfile.id, {
+        user_id:      user.id,
+        phone_number: phone,
+        DoB:          dob || null,
+        campus,
+        school,
+        workplace,
+      });
+
+      if (!profileResult?.success) {
+        setSubmitting(false);
+        return setError("User saved but profile update failed.");
+      }
+    }
+
+    setSubmitting(false);
+    onSuccess?.(userResult.item);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+      {/* User fields */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <InputLabel>First Name</InputLabel>
+          <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First name"
+            className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <InputLabel>Last Name</InputLabel>
+          <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last name"
+            className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Username *</InputLabel>
+        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" required
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Email</InputLabel>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Roles / Groups</InputLabel>
+        {/* Selected badges */}
+        {selectedGroups.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {selectedGroups.map((g) => (
+              <span key={g} className="flex items-center gap-1 text-[0.65rem] bg-amber-50 border border-amber-200 text-amber-700 px-2 py-1">
+                {g}
+                <button type="button" onClick={() => toggleGroup(g)} className="hover:text-amber-900"><IconX /></button>
+              </span>
+            ))}
+          </div>
+        )}
+        {/* Available groups list */}
+        <div className="border border-stone-200 divide-y divide-stone-100 max-h-36 overflow-y-auto">
+          {allGroups.length > 0 ? allGroups.map((g) => {
+            const name    = g.name ?? g; // handle {id, name} objects or plain strings
+            const checked = selectedGroups.includes(name);
+            return (
+              <div key={name} onClick={() => toggleGroup(name)}
+                className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors text-sm ${checked ? "bg-amber-50 text-amber-800" : "text-stone-700 hover:bg-stone-50"}`}>
+                <span>{name}</span>
+                <div className={`w-4 h-4 border flex items-center justify-center shrink-0 transition-colors ${checked ? "bg-amber-500 border-amber-500" : "border-stone-300"}`}>
+                  {checked && <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>}
+                </div>
+              </div>
+            );
+          }) : (
+            <p className="text-xs text-stone-300 px-3 py-4 text-center italic">No groups available</p>
+          )}
+        </div>
+        {selectedGroups.length === 0 && (
+          <p className="text-[0.6rem] text-stone-400 uppercase tracking-widest">No roles assigned</p>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-stone-100" />
+
+      {/* Profile fields */}
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Phone Number</InputLabel>
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254 700 000 000"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Date of Birth</InputLabel>
+        <input type="date" value={dob} onChange={(e) => setDob(e.target.value)}
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Campus</InputLabel>
+        <input type="text" value={campus} onChange={(e) => setCampus(e.target.value)} placeholder="Campus name"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>School</InputLabel>
+        <input type="text" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="School / University"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <InputLabel>Workplace</InputLabel>
+        <input type="text" value={workplace} onChange={(e) => setWorkplace(e.target.value)} placeholder="Company / Organisation"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
+      </div>
+
+      {error && <p className="text-[0.6rem] uppercase tracking-widest text-red-400">{error}</p>}
+
+      <div className="flex gap-2">
+        <button type="submit" disabled={submitting}
+          className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white font-coptic text-[0.65rem] uppercase tracking-widest py-3 transition-colors flex items-center justify-center gap-2">
+          {submitting ? <span className="animate-pulse">Saving…</span> : <><IconCheck /><span>Save Changes</span></>}
+        </button>
+        <button type="button" onClick={onCancel}
+          className="border border-stone-200 text-stone-500 hover:border-stone-400 font-coptic text-[0.65rem] uppercase tracking-widest px-4 py-3 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -198,10 +419,13 @@ function UsersDashboard() {
 
   const fetchUsers    = useMainStore((state) => state.fetchUsers);
   const fetchProfiles = useMainStore((state) => state.fetchProfiles);
+  const deleteUser    = useMainStore((state) => state.deleteUser);
 
-  const [search,   setSearch]   = useState("");
-  const [selected, setSelected] = useState(null);
+  const [search,      setSearch]      = useState("");
+  const [selected,    setSelected]    = useState(null);
   const [groupFilter, setGroupFilter] = useState("all");
+  const [mode,        setMode]        = useState("idle"); // "idle" | "edit"
+  const [successMsg,  setSuccessMsg]  = useState(null);
 
   useEffect(() => {
     if (!token) return;
@@ -209,7 +433,6 @@ function UsersDashboard() {
     fetchUsers();
   }, [token, fetchProfiles, fetchUsers]);
 
-  // Collect all unique group names for the filter
   const allGroups = [...new Set(allUsers.flatMap((u) => u.groups ?? []))].sort();
 
   const filtered = allUsers.filter((u) => {
@@ -217,10 +440,31 @@ function UsersDashboard() {
       u.username?.toLowerCase().includes(search.toLowerCase()) ||
       u.first_name?.toLowerCase().includes(search.toLowerCase()) ||
       u.last_name?.toLowerCase().includes(search.toLowerCase());
-    const matchGroup =
-      groupFilter === "all" || u.groups?.includes(groupFilter);
+    const matchGroup = groupFilter === "all" || u.groups?.includes(groupFilter);
     return matchSearch && matchGroup;
   });
+
+  const showSuccess = (msg) => {
+    setSuccessMsg(msg);
+    setTimeout(() => setSuccessMsg(null), 3000);
+  };
+
+  const handleDelete = async (id) => {
+    const result = await deleteUser(id);
+    if (result?.success) {
+      setSelected(null);
+      setMode("idle");
+      showSuccess("Member deleted.");
+    }
+  };
+
+  const handleEditSuccess = (updatedUser) => {
+    setSelected(updatedUser);
+    setMode("idle");
+    showSuccess("Member updated successfully ✓");
+  };
+
+  const rightTitle = mode === "edit" ? "Edit Member" : "Member Details";
 
   return (
     <div className="min-h-screen w-full bg-[#faf8f3] p-8">
@@ -231,6 +475,12 @@ function UsersDashboard() {
         <h1 className="font-cormorant text-4xl font-semibold text-stone-800 leading-tight">Congregants</h1>
         <div className="w-8 h-0.5 bg-amber-500 mt-3" />
       </div>
+
+      {successMsg && (
+        <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 text-amber-700 font-coptic text-xs uppercase tracking-widest">
+          {successMsg}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
@@ -289,7 +539,7 @@ function UsersDashboard() {
                   key={user.id}
                   user={user}
                   allProfiles={allProfiles}
-                  onSelect={(u) => setSelected(u)}
+                  onSelect={(u) => { setSelected(u); setMode("idle"); }}
                   isSelected={selected?.id === user.id}
                 />
               ))}
@@ -305,17 +555,27 @@ function UsersDashboard() {
           )}
         </div>
 
-        {/* ── Right: detail ── */}
+        {/* ── Right: detail / edit ── */}
         <div className="xl:col-span-1">
           {selected ? (
             <>
-              <SectionHeading>Member Details</SectionHeading>
-              <UserDetail
-                user={selected}
-                allProfiles={allProfiles}
-                allUsers={allUsers}
-                onClose={() => setSelected(null)}
-              />
+              <SectionHeading>{rightTitle}</SectionHeading>
+              {mode === "edit" ? (
+                <EditUserForm
+                  user={selected}
+                  allProfiles={allProfiles}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setMode("idle")}
+                />
+              ) : (
+                <UserDetail
+                  user={selected}
+                  allProfiles={allProfiles}
+                  onClose={() => { setSelected(null); setMode("idle"); }}
+                  onEdit={() => setMode("edit")}
+                  onDelete={handleDelete}
+                />
+              )}
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-48 border border-dashed border-stone-200 gap-3">

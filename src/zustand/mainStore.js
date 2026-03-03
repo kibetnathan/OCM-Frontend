@@ -11,6 +11,7 @@ const useMainStore = create((set) => ({
     fellowships: [],
     courses: [],
     posts: [],
+    groups: [],
     toggleLike: async (postId, token) => {
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/toggle_like/`, {
@@ -271,7 +272,52 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-
+    updateUser: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => ({
+                users: (state.users || []).map((u) => u.id === id ? updated : u)
+            }));
+            return { success: true, item: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+    deleteUser: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete user");
+            set((state) => ({
+                users: (state.users || []).filter((u) => u.id !== id),
+            }));
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+    fetchGroups: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch("http://localhost:8000/api/groups/", {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            // handles both paginated { results: [...] } and plain array responses
+            set({ groups: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
     fetchProfiles: async () => {
         set({ loading: true, error: null });
         try {
@@ -284,6 +330,26 @@ const useMainStore = create((set) => ({
         } catch (err) {
             set({ error: err.message, loading: false });
         }
+    },
+     updateProfile: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const isFormData = payload instanceof FormData;
+            const res = await fetch(`http://localhost:8000/api/profile/${id}/`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    ...(!isFormData && { "Content-Type": "application/json" }),
+                },
+                body: isFormData ? payload : JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => ({
+                profiles: (state.profiles || []).map((p) => p.id === id ? updated : p)
+            }));
+            return { success: true, item: updated };
+        } catch (err) { return { success: false, error: err.message }; }
     },
 
     fetchEquipment: async () => {
@@ -393,7 +459,40 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
+    updateService: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/services/${id}/`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => {
+                const current = state.services?.results ? state.services.results : (Array.isArray(state.services) ? state.services : []);
+                return { services: state.services?.results ? { ...state.services, results: current.map((s) => s.id === id ? updated : s) } : current.map((s) => s.id === id ? updated : s) };
+            });
+            return { success: true, service: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
 
+    deleteService: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/services/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete service");
+            set((state) => {
+                const current = state.services?.results ? state.services.results : (Array.isArray(state.services) ? state.services : []);
+                const filtered = current.filter((s) => s.id !== id);
+                return { services: state.services?.results ? { ...state.services, count: (state.services.count ?? 1) - 1, results: filtered } : filtered };
+            });
+            return { success: true };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
     createEquipment: async (payload) => {
         set({ loading: true, error: null });
         try {
@@ -412,6 +511,37 @@ const useMainStore = create((set) => ({
             set((state) => ({ loading: false, equipment: [newEquipment, ...(state.equipment || [])] }));
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
+    },
+    updateEquipment: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/equipment/${id}/`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => ({
+                equipment: (state.equipment || []).map((e) => e.id === id ? updated : e)
+            }));
+            return { success: true, item: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+
+    deleteEquipment: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/equipment/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete equipment");
+            set((state) => ({
+                equipment: (state.equipment || []).filter((e) => e.id !== id)
+            }));
+            return { success: true };
+        } catch (err) { return { success: false, error: err.message }; }
     },
 
     createFellowship: async (payload) => {
