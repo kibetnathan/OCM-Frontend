@@ -339,6 +339,40 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
+    updateDepartment: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/department/${id}/`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => {
+                const current = state.departments?.results ? state.departments.results : (Array.isArray(state.departments) ? state.departments : []);
+                return { departments: state.departments?.results ? { ...state.departments, results: current.map((d) => d.id === id ? updated : d) } : current.map((d) => d.id === id ? updated : d) };
+            });
+            return { success: true, department: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+
+    deleteDepartment: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/department/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete department");
+            set((state) => {
+                const current = state.departments?.results ? state.departments.results : (Array.isArray(state.departments) ? state.departments : []);
+                const filtered = current.filter((d) => d.id !== id);
+                return { departments: state.departments?.results ? { ...state.departments, count: (state.departments.count ?? 1) - 1, results: filtered } : filtered };
+            });
+            return { success: true };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
 
     createService: async (payload) => {
         set({ loading: true, error: null });

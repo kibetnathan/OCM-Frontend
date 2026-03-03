@@ -15,12 +15,14 @@ import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
 import LeadershipDashboard from "./components/LeadershipDashboard";
 import PostView from "./components/PostView";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/chat/:id" element={<ChatPage />} />
         <Route path="/feed" element={<Feed />} >
           <Route path="/feed/" element={<FeedChannel/>}/>
           <Route path="/feed/post/:postId" element={<PostView />} />
