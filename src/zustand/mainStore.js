@@ -154,6 +154,51 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+    updateCourse: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token
+            const res = await fetch(`http://localhost:8000/api/course/${id}/`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => {
+                const current = state.courses?.results ? state.courses.results : (Array.isArray(state.courses) ? state.courses : []);
+                const updatedList = current.map((c) => c.id === id ? updated : c);
+                return {
+                    courses: state.courses?.results ? { ...state.courses, results: updatedList } : updatedList
+                };
+            });
+            return { success: true, course: updated }
+        } catch (err) {
+            return { success: false, error: err.message }
+        }
+    },
+    deteteCourse: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/course/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete fellowship group");
+            set((state) => {
+                const current = state.courses?.results ? state.courses.results : (Array.isArray(state.courses) ? state.courses : []);
+                const filtered = current.filter((c) => c.id !== id);
+                return {
+                    courses: state.courses?.results ? { ...state.courses, count: (state.courses.count ?? 1) - 1, results: filtered } : filtered
+                };
+            });
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
     fetchPosts: async (token) => {
         set({ loading: true, error: null });
         try {
