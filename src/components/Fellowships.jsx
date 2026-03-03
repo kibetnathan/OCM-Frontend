@@ -986,33 +986,56 @@ function Fellowships() {
 
         {/* ── Right: detail or form ── */}
         <div className="xl:col-span-1">
-  {mode !== "idle" || selectedGroup ? (
-    <>
-      <SectionHeading>{mode === "create" ? "New Group" : mode === "edit" ? "Edit Group" : "Group Details"}</SectionHeading>
-      {mode === "create" && (
-        <CreateFellowshipForm allUsers={allUsers} allProfiles={allProfiles}
-          onSuccess={() => { setMode("idle"); showSuccess("Fellowship group created successfully ✓"); }} />
-      )}
-      {mode === "edit" && selectedGroup && (
-        <EditFellowshipForm group={selectedGroup} allUsers={allUsers} allProfiles={allProfiles}
-          onSuccess={handleEditSuccess} onCancel={() => setMode("idle")} />
-      )}
-      {mode === "idle" && selectedGroup && (
-        <FellowshipDetail group={selectedGroup} allUsers={allUsers} allProfiles={allProfiles}
-          onClose={() => setSelected(null)}
-          onEdit={() => setMode("edit")}
-          onDelete={handleDelete} />
-      )}
-    </>
-  ) : (
-    <div className="flex flex-col items-center justify-center h-48 border border-dashed border-stone-200 gap-3">
-      <IconUsers />
-      <p className="text-xs uppercase tracking-widest text-stone-300 font-coptic text-center">
-        Select a group to view details<br />or create a new one
-      </p>
-    </div>
-  )}
-</div>
+          {mode !== "idle" || selectedGroup ? (
+            <>
+              <SectionHeading>
+                {mode === "create"
+                  ? "New Group"
+                  : mode === "edit"
+                    ? "Edit Group"
+                    : "Group Details"}
+              </SectionHeading>
+              {mode === "create" && (
+                <CreateFellowshipForm
+                  allUsers={allUsers}
+                  allProfiles={allProfiles}
+                  onSuccess={() => {
+                    setMode("idle");
+                    showSuccess("Fellowship group created successfully ✓");
+                  }}
+                />
+              )}
+              {mode === "edit" && selectedGroup && (
+                <EditFellowshipForm
+                  group={selectedGroup}
+                  allUsers={allUsers}
+                  allProfiles={allProfiles}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setMode("idle")}
+                />
+              )}
+              {mode === "idle" && selectedGroup && (
+                <FellowshipDetail
+                  group={selectedGroup}
+                  allUsers={allUsers}
+                  allProfiles={allProfiles}
+                  onClose={() => setSelected(null)}
+                  onEdit={() => setMode("edit")}
+                  onDelete={handleDelete}
+                />
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-48 border border-dashed border-stone-200 gap-3">
+              <IconUsers />
+              <p className="text-xs uppercase tracking-widest text-stone-300 font-coptic text-center">
+                Select a group to view details
+                <br />
+                or create a new one
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

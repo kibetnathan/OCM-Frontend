@@ -56,6 +56,55 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
+    updateLeadershipTeam: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/leadership-team/${id}/`, {
+                method: "PATCH",
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => {
+                const current = state.leadership_teams?.results
+                    ? state.leadership_teams.results
+                    : (Array.isArray(state.leadership_teams) ? state.leadership_teams : []);
+                const updatedList = current.map((t) => t.id === id ? updated : t);
+                return {
+                    leadership_teams: state.leadership_teams?.results
+                        ? { ...state.leadership_teams, results: updatedList }
+                        : updatedList
+                };
+            });
+            return { success: true, team: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+   deleteLeadershipTeam: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`http://localhost:8000/api/leadership-team/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete leadership team");
+            set((state) => {
+                const current = state.leadership_teams?.results
+                    ? state.leadership_teams.results
+                    : (Array.isArray(state.leadership_teams) ? state.leadership_teams : []);
+                const filtered = current.filter((t) => t.id !== id);
+                return {
+                    leadership_teams: state.leadership_teams?.results
+                        ? { ...state.leadership_teams, count: (state.leadership_teams.count ?? 1) - 1, results: filtered }
+                        : filtered
+                };
+            });
+            return { success: true };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    },
+
     fetchDepartments: async () => {
         set({ loading: true, error: null });
         try {
@@ -259,15 +308,22 @@ const useMainStore = create((set) => ({
         }
     },
 
-    fetchUsers: async () => {
+       fetchUsers: async () => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/users/", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            const data = await res.json();
-            set({ users: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
+            let url = "http://localhost:8000/api/users/";
+            let allUsers = [];
+            while (url) {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                const page = data?.results ?? (Array.isArray(data) ? data : []);
+                allUsers = [...allUsers, ...page];
+                url = data?.next ?? null;
+            }
+            set({ users: allUsers, loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
         }

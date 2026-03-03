@@ -1,0 +1,80 @@
+Date : 2026-03-03 12:44:50
+Directory : /Users/nero/Documents/django/church/frontend
+Total : 40 files,  12156 codes, 284 comments, 751 blanks, all 13191 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| JavaScript JSX |         24 |      6,594 |        268 |        650 |      7,512 |
+| JSON           |          2 |      4,531 |          0 |          2 |      4,533 |
+| JavaScript     |          9 |        981 |         16 |         87 |      1,084 |
+| PostCSS        |          1 |         26 |          0 |          3 |         29 |
+| HTML           |          1 |         13 |          0 |          1 |         14 |
+| Markdown       |          1 |          9 |          0 |          8 |         17 |
+| XML            |          2 |          2 |          0 |          0 |          2 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |         40 |     12,156 |        284 |        751 |     13,191 |
+| . (Files)                                                                           |          6 |      4,587 |          1 |         15 |      4,603 |
+| public                                                                              |          1 |          1 |          0 |          0 |          1 |
+| src                                                                                 |         33 |      7,568 |        283 |        736 |      8,587 |
+| src (Files)                                                                         |          3 |         82 |          0 |          8 |         90 |
+| src/assets                                                                          |          1 |          1 |          0 |          0 |          1 |
+| src/components                                                                      |         17 |      6,196 |        257 |        614 |      7,067 |
+| src/hooks                                                                           |          1 |         22 |          0 |          8 |         30 |
+| src/lib                                                                             |          1 |          5 |          0 |          2 |          7 |
+| src/pages                                                                           |          5 |        342 |         11 |         31 |        384 |
+| src/zustand                                                                         |          5 |        920 |         15 |         73 |      1,008 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                            | language       | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| /Users/nero/Documents/django/church/frontend/README.md                              | Markdown       |          9 |          0 |          8 |         17 |
+| /Users/nero/Documents/django/church/frontend/eslint.config.js                       | JavaScript     |         28 |          0 |          2 |         30 |
+| /Users/nero/Documents/django/church/frontend/index.html                             | HTML           |         13 |          0 |          1 |         14 |
+| /Users/nero/Documents/django/church/frontend/package-lock.json                      | JSON           |      4,493 |          0 |          1 |      4,494 |
+| /Users/nero/Documents/django/church/frontend/package.json                           | JSON           |         38 |          0 |          1 |         39 |
+| /Users/nero/Documents/django/church/frontend/public/vite.svg                        | XML            |          1 |          0 |          0 |          1 |
+| /Users/nero/Documents/django/church/frontend/src/App.jsx                            | JavaScript JSX |         47 |          0 |          3 |         50 |
+| /Users/nero/Documents/django/church/frontend/src/assets/react.svg                   | XML            |          1 |          0 |          0 |          1 |
+| /Users/nero/Documents/django/church/frontend/src/components/CourseDashboard.jsx     | JavaScript JSX |        589 |         11 |         60 |        660 |
+| /Users/nero/Documents/django/church/frontend/src/components/DashboardOverview.jsx   | JavaScript JSX |        463 |         22 |         31 |        516 |
+| /Users/nero/Documents/django/church/frontend/src/components/DepartmentDashboard.jsx | JavaScript JSX |        437 |          8 |         51 |        496 |
+| /Users/nero/Documents/django/church/frontend/src/components/EditProfileForm.jsx     | JavaScript JSX |        173 |         13 |         27 |        213 |
+| /Users/nero/Documents/django/church/frontend/src/components/FeedChannel.jsx         | JavaScript JSX |        130 |          8 |         11 |        149 |
+| /Users/nero/Documents/django/church/frontend/src/components/Fellowships.jsx         | JavaScript JSX |        968 |         23 |         54 |      1,045 |
+| /Users/nero/Documents/django/church/frontend/src/components/Footer.jsx              | JavaScript JSX |         54 |          0 |          3 |         57 |
+| /Users/nero/Documents/django/church/frontend/src/components/LeadershipDashboard.jsx | JavaScript JSX |        876 |         24 |         50 |        950 |
+| /Users/nero/Documents/django/church/frontend/src/components/LoginForm.jsx           | JavaScript JSX |        121 |          7 |         15 |        143 |
+| /Users/nero/Documents/django/church/frontend/src/components/Navbar.jsx              | JavaScript JSX |         76 |          5 |         11 |         92 |
+| /Users/nero/Documents/django/church/frontend/src/components/PostForm.jsx            | JavaScript JSX |        131 |         12 |         16 |        159 |
+| /Users/nero/Documents/django/church/frontend/src/components/PostView.jsx            | JavaScript JSX |        393 |         21 |         51 |        465 |
+| /Users/nero/Documents/django/church/frontend/src/components/ProfileSection.jsx      | JavaScript JSX |        121 |          7 |         23 |        151 |
+| /Users/nero/Documents/django/church/frontend/src/components/ServicesDashboard.jsx   | JavaScript JSX |        748 |         18 |         88 |        854 |
+| /Users/nero/Documents/django/church/frontend/src/components/Sidebar.jsx             | JavaScript JSX |        230 |         49 |         19 |        298 |
+| /Users/nero/Documents/django/church/frontend/src/components/SignUpForm.jsx          | JavaScript JSX |        193 |          6 |         26 |        225 |
+| /Users/nero/Documents/django/church/frontend/src/components/UsersDashboard.jsx      | JavaScript JSX |        493 |         23 |         78 |        594 |
+| /Users/nero/Documents/django/church/frontend/src/hooks/useChatSocket.js             | JavaScript     |         22 |          0 |          8 |         30 |
+| /Users/nero/Documents/django/church/frontend/src/index.css                          | PostCSS        |         26 |          0 |          3 |         29 |
+| /Users/nero/Documents/django/church/frontend/src/lib/utils.js                       | JavaScript     |          5 |          0 |          2 |          7 |
+| /Users/nero/Documents/django/church/frontend/src/main.jsx                           | JavaScript JSX |          9 |          0 |          2 |         11 |
+| /Users/nero/Documents/django/church/frontend/src/pages/AuthPage.jsx                 | JavaScript JSX |         16 |          0 |          3 |         19 |
+| /Users/nero/Documents/django/church/frontend/src/pages/ChatPage.jsx                 | JavaScript JSX |         94 |         11 |         21 |        126 |
+| /Users/nero/Documents/django/church/frontend/src/pages/Dashboard.jsx                | JavaScript JSX |         14 |          0 |          2 |         16 |
+| /Users/nero/Documents/django/church/frontend/src/pages/Feed.jsx                     | JavaScript JSX |         18 |          0 |          2 |         20 |
+| /Users/nero/Documents/django/church/frontend/src/pages/Home.jsx                     | JavaScript JSX |        200 |          0 |          3 |        203 |
+| /Users/nero/Documents/django/church/frontend/src/zustand/authStore.js               | JavaScript     |         85 |         11 |         19 |        115 |
+| /Users/nero/Documents/django/church/frontend/src/zustand/chatStore.js               | JavaScript     |         24 |          0 |          7 |         31 |
+| /Users/nero/Documents/django/church/frontend/src/zustand/groupStore.js              | JavaScript     |         23 |          0 |          6 |         29 |
+| /Users/nero/Documents/django/church/frontend/src/zustand/mainStore.js               | JavaScript     |        719 |          4 |         27 |        750 |
+| /Users/nero/Documents/django/church/frontend/src/zustand/profileStore.js            | JavaScript     |         69 |          0 |         14 |         83 |
+| /Users/nero/Documents/django/church/frontend/vite.config.js                         | JavaScript     |          6 |          1 |          2 |          9 |
+| Total                                                                               |                |     12,156 |        284 |        751 |     13,191 |
++-------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
