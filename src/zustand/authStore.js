@@ -1,113 +1,135 @@
 import { create } from "zustand";
+import { auth } from "../firebase"; // Adjust path to your firebase config file
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut,
+  onIdTokenChanged 
+} from "firebase/auth";
 
-// Key for localStorage
-const USER_KEY = "user";
-const TOKEN_KEY = "token";
-
-const useAuthStore = create((set) => ({
-  // Initial state (hydrate from localStorage)
-  user: JSON.parse(localStorage.getItem(USER_KEY)) || null,
-  token: localStorage.getItem(TOKEN_KEY) || null,
-  loading: false,
+const useAuthStore = create((set, get) => ({
+  // Initial state is null. We let Firebase initialize it securely.
+  user: null,
+  token: null,
+  loading: true, // Start true so your app can show a spinner while Firebase loads
   error: null,
 
+  // -------- INIT AUTH (Call this ONCE in App.js) --------
+  initAuth: () => {
+    return onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const token = await firebaseUser.getIdToken();
+        
+        // Fetch your custom Django user data
+        try {
+          const userRes = await fetch("http://localhost:8000/api/users/me/", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            set({ user: userData, token: token, loading: false });
+          } else {
+            set({ user: firebaseUser, token: token, loading: false }); // Fallback
+          }
+        } catch {
+          set({ user: firebaseUser, token: token, loading: false });
+        }
+      } else {
+        set({ user: null, token: null, loading: false });
+      }
+    });
+  },
+
   // -------- LOGIN --------
-  login: async (username, password) => {
+  // Note: Firebase requires an EMAIL for login, not a plain username.
+  login: async (email, password) => {
     set({ loading: true, error: null });
     try {
-      // TODO: replace with actual API call
-      const response = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      // 1. Log in via Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
 
-      if (!response.ok) throw new Error("Invalid credentials");
-
-      const data = await response.json(); // { access: "...", refresh: "..." }
-
-      // Fetch user info
+      // 2. Fetch user profile from Django
       const userRes = await fetch("http://localhost:8000/api/users/me/", {
-        headers: { Authorization: `Bearer ${data.access}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!userRes.ok) throw new Error("Could not fetch user data");
-
+      if (!userRes.ok) throw new Error("Could not fetch user data from Django");
       const userData = await userRes.json();
 
       // Update state
-      set({ user: userData, token: data.access, loading: false });
-
-      // Persist in localStorage
-      localStorage.setItem(USER_KEY, JSON.stringify(userData));
-      localStorage.setItem(TOKEN_KEY, data.access);
+      set({ user: userData, token: token, loading: false });
     } catch (err) {
       set({ error: err.message, loading: false });
     }
   },
 
   // -------- REGISTER / SIGNUP --------
-register: async (username,  first_name, last_name, email, password, extraFields) => {
-  set({ loading: true, error: null });
-  try {
-    const response = await fetch("http://localhost:8000/api/register/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        first_name,
-        last_name,
-        email,
-        password1: password,
-        password2: password,
-        ...extraFields, // DoB, campus, phone_number, school, workplace
-      }),
-    });
+  register: async (username, first_name, last_name, email, password, extraFields) => {
+    set({ loading: true, error: null });
+    try {
+      // 1. Create Auth record in Firebase (handles the password safely)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
 
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.detail || "Registration failed");
+      // 2. Send the rest of the data to Django to create the profile
+      const response = await fetch("http://localhost:8000/api/register/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // Django uses this to verify the user
+        },
+        body: JSON.stringify({
+          username,
+          first_name,
+          last_name,
+          email,
+          // Notice we DO NOT send passwords to Django anymore!
+          ...extraFields, 
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || "Django registration failed");
+      }
+
+      const data = await response.json();
+
+      // Update state
+      set({ user: data.user || data, token: token, loading: false });
+    } catch (err) {
+      set({ error: err.message, loading: false });
+      
+      // Edge Case Cleanup: If Django fails, delete the orphaned Firebase user
+      if (auth.currentUser && err.message.includes("Django")) {
+         await auth.currentUser.delete();
+      }
     }
-
-    const data = await response.json();
-
-    // Auto-login by setting token and user
-    set({
-      user: data.user,
-      token: data.tokens.access,
-      loading: false,
-    });
-
-    localStorage.setItem("user", JSON.stringify(data.user));
-    localStorage.setItem("token", data.tokens.access);
-  } catch (err) {
-    set({ error: err.message, loading: false });
-  }
-},
-
-  // -------- LOGOUT --------
-  logout: () => {
-    set({ user: null, token: null, error: null });
-    localStorage.removeItem(USER_KEY);
-    localStorage.removeItem(TOKEN_KEY);
   },
 
-  // -------- REFRESH TOKEN (optional for cookies later) --------
+  // -------- LOGOUT --------
+  logout: async () => {
+    try {
+      await signOut(auth); // Tells Firebase to kill the session
+      set({ user: null, token: null, error: null });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  },
+
+  // -------- REFRESH TOKEN --------
+  // Firebase handles token refreshes automatically. 
+  // We keep this function so your old components don't crash if they call it.
   refreshAccess: async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/token/refresh/", {
-        method: "POST",
-        credentials: "include", // if using HttpOnly cookie for refresh token
-      });
-      if (!res.ok) throw new Error("Could not refresh token");
-
-      const data = await res.json();
-      set({ token: data.access });
-      localStorage.setItem(TOKEN_KEY, data.access);
-    } catch {
-      set({ user: null, token: null });
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(TOKEN_KEY);
+      if (auth.currentUser) {
+        const newToken = await auth.currentUser.getIdToken(true); // force refresh
+        set({ token: newToken });
+      }
+    } catch (err) {
+      console.error("Token refresh error:", err);
+      get().logout();
     }
   },
 }));
