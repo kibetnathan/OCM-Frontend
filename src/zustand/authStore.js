@@ -1,38 +1,33 @@
 import { create } from "zustand";
-import { auth } from "../firebase"; // Adjust path to your firebase config file
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
+import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
-  onIdTokenChanged 
+  onIdTokenChanged,
 } from "firebase/auth";
 
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
+
 const useAuthStore = create((set, get) => ({
-  // Initial state is null. We let Firebase initialize it securely.
   user: null,
   token: null,
-  loading: true, // Start true so your app can show a spinner while Firebase loads
+  loading: true,
   error: null,
 
-  // -------- INIT AUTH (Call this ONCE in App.js) --------
+  // ── INIT (call once in App.jsx) ──────────────────────────────────────────
   initAuth: () => {
     return onIdTokenChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const token = await firebaseUser.getIdToken();
-        
-        // Fetch your custom Django user data
         try {
-          const userRes = await fetch("http://localhost:8000/api/users/me/", {
+          const res = await fetch(`${API}/users/me/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (userRes.ok) {
-            const userData = await userRes.json();
-            set({ user: userData, token: token, loading: false });
-          } else {
-            set({ user: firebaseUser, token: token, loading: false }); // Fallback
-          }
+          const userData = res.ok ? await res.json() : firebaseUser;
+          set({ user: userData, token, loading: false });
         } catch {
-          set({ user: firebaseUser, token: token, loading: false });
+          set({ user: firebaseUser, token, loading: false });
         }
       } else {
         set({ user: null, token: null, loading: false });
@@ -40,91 +35,85 @@ const useAuthStore = create((set, get) => ({
     });
   },
 
-  // -------- LOGIN --------
-  // Note: Firebase requires an EMAIL for login, not a plain username.
+  // ── LOGIN ────────────────────────────────────────────────────────────────
   login: async (email, password) => {
     set({ loading: true, error: null });
     try {
-      // 1. Log in via Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-
-      // 2. Fetch user profile from Django
-      const userRes = await fetch("http://localhost:8000/api/users/me/", {
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await credential.user.getIdToken();
+      const res = await fetch(`${API}/users/me/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!userRes.ok) throw new Error("Could not fetch user data from Django");
-      const userData = await userRes.json();
-
-      // Update state
-      set({ user: userData, token: token, loading: false });
+      if (!res.ok) throw new Error("Could not fetch user data.");
+      const userData = await res.json();
+      set({ user: userData, token, loading: false });
     } catch (err) {
       set({ error: err.message, loading: false });
     }
   },
 
-  // -------- REGISTER / SIGNUP --------
-  register: async (username, first_name, last_name, email, password, extraFields) => {
+  // ── REGISTER ─────────────────────────────────────────────────────────────
+  // Returns true on success so the component can navigate.
+  // Returns false on failure so the component can stay on the form.
+  register: async (email, password, profileData) => {
     set({ loading: true, error: null });
-    try {
-      // 1. Create Auth record in Firebase (handles the password safely)
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
+    let firebaseUser = null;
 
-      // 2. Send the rest of the data to Django to create the profile
-      const response = await fetch("http://localhost:8000/api/register/", {
+    try {
+      // 1. Create Firebase user
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      firebaseUser = credential.user;
+      const token = await firebaseUser.getIdToken();
+
+      // 2. Create Django profile (FirebaseAuthentication auto-creates shell user)
+      const res = await fetch(`${API}/register/`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // Django uses this to verify the user
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          username,
-          first_name,
-          last_name,
-          email,
-          // Notice we DO NOT send passwords to Django anymore!
-          ...extraFields, 
-        }),
+        body: JSON.stringify(profileData), // username, first_name, last_name, DoB, etc.
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Django registration failed");
+      if (!res.ok) {
+        const errData = await res.json();
+        // Roll back Firebase user so they can try again cleanly
+        await firebaseUser.delete();
+        firebaseUser = null;
+        const message =
+          errData?.username?.[0] || errData?.detail || "Registration failed.";
+        throw new Error(message);
       }
 
-      const data = await response.json();
+      const data = await res.json();
+      set({ user: data.user, token, loading: false });
+      return true; // ← signal success to component
 
-      // Update state
-      set({ user: data.user || data, token: token, loading: false });
     } catch (err) {
-      set({ error: err.message, loading: false });
-      
-      // Edge Case Cleanup: If Django fails, delete the orphaned Firebase user
-      if (auth.currentUser && err.message.includes("Django")) {
-         await auth.currentUser.delete();
+      // Safety net: if JS crashed after Firebase but before delete()
+      if (firebaseUser) {
+        try { await firebaseUser.delete(); } catch { /* already deleted or expired */ }
       }
+      set({ error: err.message, loading: false });
+      return false; // ← signal failure to component
     }
   },
 
-  // -------- LOGOUT --------
+  // ── LOGOUT ───────────────────────────────────────────────────────────────
   logout: async () => {
     try {
-      await signOut(auth); // Tells Firebase to kill the session
+      await signOut(auth);
       set({ user: null, token: null, error: null });
     } catch (err) {
       console.error("Logout error:", err);
     }
   },
 
-  // -------- REFRESH TOKEN --------
-  // Firebase handles token refreshes automatically. 
-  // We keep this function so your old components don't crash if they call it.
+  // ── REFRESH TOKEN ────────────────────────────────────────────────────────
   refreshAccess: async () => {
     try {
       if (auth.currentUser) {
-        const newToken = await auth.currentUser.getIdToken(true); // force refresh
+        const newToken = await auth.currentUser.getIdToken(true);
         set({ token: newToken });
       }
     } catch (err) {

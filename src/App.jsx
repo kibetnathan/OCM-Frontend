@@ -15,7 +15,7 @@ import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
 import LeadershipDashboard from "./components/LeadershipDashboard";
 import PostView from "./components/PostView";
-import ChatPage from "./pages/ChatPage";
+import ThreadsPage from "./pages/ThreadsPage";
 import useAuthStore from "./zustand/authStore";
 import { useEffect } from "react";
 
@@ -43,7 +43,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/chat/:id" element={<ChatPage />} />
+        <Route path="/threads" element={<ThreadsPage />} />
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />
           <Route path="/feed/post/:postId" element={<PostView />} />
