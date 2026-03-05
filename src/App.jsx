@@ -24,18 +24,45 @@ function App() {
   const loading = useAuthStore((state) => state.loading);
 
   useEffect(() => {
-    // This replaces the manual onIdTokenChanged logic 
+    // This replaces the manual onIdTokenChanged logic
     // because it's now encapsulated in your store
     const unsubscribe = initAuth();
     return () => unsubscribe();
   }, [initAuth]);
 
-  // VERY IMPORTANT: Prevent the app from rendering routes 
+  // VERY IMPORTANT: Prevent the app from rendering routes
   // until we know if the user is logged in or not.
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <p>Initializing Session...</p> 
+      <div className="flex flex-col items-center justify-center h-screen bg-[#0f0f0d] gap-6">
+        {/* Logo */}
+        <div className="font-cormorant text-3xl font-semibold tracking-[0.15em] text-stone-100">
+          O<span className="text-amber-500">C</span>M
+        </div>
+
+        {/* Animated bar */}
+        <div className="w-32 h-px bg-stone-800 relative overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-amber-500"
+            style={{
+              width: "40%",
+              animation: "slide 1.4s ease-in-out infinite",
+            }}
+          />
+        </div>
+
+        {/* Label */}
+        <p className="font-coptic text-[0.55rem] uppercase tracking-[0.3em] text-stone-600">
+          Loading, Please wait...
+        </p>
+
+        <style>{`
+        @keyframes slide {
+          0%   { transform: translateX(-100%); }
+          50%  { transform: translateX(300%); }
+          100% { transform: translateX(-100%); }
+        }
+      `}</style>
       </div>
     );
   }

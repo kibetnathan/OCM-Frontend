@@ -6,6 +6,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CommentIcon from "@mui/icons-material/Comment";
 import { Link } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
+import { NavLink } from "react-router-dom";
 
 function FeedChannel() {
   const token = useAuthStore((state) => state.token);
@@ -32,15 +33,32 @@ function FeedChannel() {
 
   return (
     <div className="w-full min-h-screen bg-[#faf8f3]">
-
       {/* ── Tab Bar ── */}
       <ul className="flex flex-row border-b border-stone-200 px-6">
-        <li className="font-cormorant text-xl text-stone-800 px-5 py-4 border-b-2 border-amber-500 hover:cursor-pointer">
+        <NavLink
+          to="/feed"
+          className={({ isActive }) =>
+            `font-cormorant text-xl px-5 py-4 border-b-2 transition-colors hover:cursor-pointer ${
+              isActive
+                ? "text-stone-800 border-amber-500"
+                : "text-stone-400 border-transparent hover:text-stone-700"
+            }`
+          }
+        >
           Top Posts
-        </li>
-        <li className="font-cormorant text-xl text-stone-400 px-5 py-4 border-b-2 border-transparent hover:text-stone-700 hover:cursor-pointer transition-colors">
+        </NavLink>
+        <NavLink
+          to="/threads"
+          className={({ isActive }) =>
+            `font-cormorant text-xl px-5 py-4 border-b-2 transition-colors hover:cursor-pointer ${
+              isActive
+                ? "text-stone-800 border-amber-500"
+                : "text-stone-400 border-transparent hover:text-stone-700"
+            }`
+          }
+        >
           My Groups
-        </li>
+        </NavLink>
       </ul>
 
       {/* ── Compose Row ── */}
@@ -77,7 +95,10 @@ function FeedChannel() {
               {/* Author row */}
               <div className="flex items-center gap-3">
                 <img
-                  src={post.author_profile.profile_pic || "/images/defaultavatar.jpg"}
+                  src={
+                    post.author_profile.profile_pic ||
+                    "/images/defaultavatar.jpg"
+                  }
                   alt={post.author.username}
                   className="w-9 h-9 rounded-full object-cover ring-1 ring-amber-500/20"
                 />
@@ -121,12 +142,19 @@ function FeedChannel() {
                   onClick={() => onLikeClick(post.id)}
                   className="flex items-center gap-1.5 text-stone-400 hover:text-amber-500 transition-colors group"
                 >
-                  <FavoriteBorderIcon fontSize="small" className="group-hover:scale-110 transition-transform" />
-                  <span className="text-xs tabular-nums">{post.like_count}</span>
+                  <FavoriteBorderIcon
+                    fontSize="small"
+                    className="group-hover:scale-110 transition-transform"
+                  />
+                  <span className="text-xs tabular-nums">
+                    {post.like_count}
+                  </span>
                 </button>
                 <button className="flex items-center gap-1.5 text-stone-400 hover:text-stone-700 transition-colors">
                   <CommentIcon fontSize="small" />
-                  <span className="text-xs tabular-nums">{post.comment_count}</span>
+                  <span className="text-xs tabular-nums">
+                    {post.comment_count}
+                  </span>
                 </button>
               </div>
             </article>
@@ -141,7 +169,6 @@ function FeedChannel() {
           </div>
         )}
       </div>
-
     </div>
   );
 }
