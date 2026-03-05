@@ -1,113 +1,124 @@
 import { create } from "zustand";
+import { auth } from "../firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onIdTokenChanged,
+} from "firebase/auth";
 
-// Key for localStorage
-const USER_KEY = "user";
-const TOKEN_KEY = "token";
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000/api";
 
-const useAuthStore = create((set) => ({
-  // Initial state (hydrate from localStorage)
-  user: JSON.parse(localStorage.getItem(USER_KEY)) || null,
-  token: localStorage.getItem(TOKEN_KEY) || null,
-  loading: false,
+const useAuthStore = create((set, get) => ({
+  user: null,
+  token: null,
+  loading: true,
   error: null,
 
-  // -------- LOGIN --------
-  login: async (username, password) => {
+  // ── INIT (call once in App.jsx) ──────────────────────────────────────────
+  initAuth: () => {
+    return onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const token = await firebaseUser.getIdToken();
+        try {
+          const res = await fetch(`${API}/users/me/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const userData = res.ok ? await res.json() : firebaseUser;
+          set({ user: userData, token, loading: false });
+        } catch {
+          set({ user: firebaseUser, token, loading: false });
+        }
+      } else {
+        set({ user: null, token: null, loading: false });
+      }
+    });
+  },
+
+  // ── LOGIN ────────────────────────────────────────────────────────────────
+  login: async (email, password) => {
     set({ loading: true, error: null });
     try {
-      // TODO: replace with actual API call
-      const response = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await credential.user.getIdToken();
+      const res = await fetch(`${API}/users/me/`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) throw new Error("Invalid credentials");
-
-      const data = await response.json(); // { access: "...", refresh: "..." }
-
-      // Fetch user info
-      const userRes = await fetch("http://localhost:8000/api/users/me/", {
-        headers: { Authorization: `Bearer ${data.access}` },
-      });
-
-      if (!userRes.ok) throw new Error("Could not fetch user data");
-
-      const userData = await userRes.json();
-
-      // Update state
-      set({ user: userData, token: data.access, loading: false });
-
-      // Persist in localStorage
-      localStorage.setItem(USER_KEY, JSON.stringify(userData));
-      localStorage.setItem(TOKEN_KEY, data.access);
+      if (!res.ok) throw new Error("Could not fetch user data.");
+      const userData = await res.json();
+      set({ user: userData, token, loading: false });
     } catch (err) {
       set({ error: err.message, loading: false });
     }
   },
 
-  // -------- REGISTER / SIGNUP --------
-register: async (username,  first_name, last_name, email, password, extraFields) => {
-  set({ loading: true, error: null });
-  try {
-    const response = await fetch("http://localhost:8000/api/register/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username,
-        first_name,
-        last_name,
-        email,
-        password1: password,
-        password2: password,
-        ...extraFields, // DoB, campus, phone_number, school, workplace
-      }),
-    });
+  // ── REGISTER ─────────────────────────────────────────────────────────────
+  // Returns true on success so the component can navigate.
+  // Returns false on failure so the component can stay on the form.
+  register: async (email, password, profileData) => {
+    set({ loading: true, error: null });
+    let firebaseUser = null;
 
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.detail || "Registration failed");
-    }
-
-    const data = await response.json();
-
-    // Auto-login by setting token and user
-    set({
-      user: data.user,
-      token: data.tokens.access,
-      loading: false,
-    });
-
-    localStorage.setItem("user", JSON.stringify(data.user));
-    localStorage.setItem("token", data.tokens.access);
-  } catch (err) {
-    set({ error: err.message, loading: false });
-  }
-},
-
-  // -------- LOGOUT --------
-  logout: () => {
-    set({ user: null, token: null, error: null });
-    localStorage.removeItem(USER_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-  },
-
-  // -------- REFRESH TOKEN (optional for cookies later) --------
-  refreshAccess: async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/token/refresh/", {
+      // 1. Create Firebase user
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      firebaseUser = credential.user;
+      const token = await firebaseUser.getIdToken();
+
+      // 2. Create Django profile (FirebaseAuthentication auto-creates shell user)
+      const res = await fetch(`${API}/register/`, {
         method: "POST",
-        credentials: "include", // if using HttpOnly cookie for refresh token
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData), // username, first_name, last_name, DoB, etc.
       });
-      if (!res.ok) throw new Error("Could not refresh token");
+
+      if (!res.ok) {
+        const errData = await res.json();
+        // Roll back Firebase user so they can try again cleanly
+        await firebaseUser.delete();
+        firebaseUser = null;
+        const message =
+          errData?.username?.[0] || errData?.detail || "Registration failed.";
+        throw new Error(message);
+      }
 
       const data = await res.json();
-      set({ token: data.access });
-      localStorage.setItem(TOKEN_KEY, data.access);
-    } catch {
-      set({ user: null, token: null });
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(TOKEN_KEY);
+      set({ user: data.user, token, loading: false });
+      return true; // ← signal success to component
+
+    } catch (err) {
+      // Safety net: if JS crashed after Firebase but before delete()
+      if (firebaseUser) {
+        try { await firebaseUser.delete(); } catch { /* already deleted or expired */ }
+      }
+      set({ error: err.message, loading: false });
+      return false; // ← signal failure to component
+    }
+  },
+
+  // ── LOGOUT ───────────────────────────────────────────────────────────────
+  logout: async () => {
+    try {
+      await signOut(auth);
+      set({ user: null, token: null, error: null });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  },
+
+  // ── REFRESH TOKEN ────────────────────────────────────────────────────────
+  refreshAccess: async () => {
+    try {
+      if (auth.currentUser) {
+        const newToken = await auth.currentUser.getIdToken(true);
+        set({ token: newToken });
+      }
+    } catch (err) {
+      console.error("Token refresh error:", err);
+      get().logout();
     }
   },
 }));

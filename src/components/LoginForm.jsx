@@ -3,13 +3,13 @@ import useAuthStore from "../zustand/authStore";
 import { Link } from "react-router-dom";
 
 function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, loading, error, user } = useAuthStore();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login(username, password);
+    login(email, password);
   };
 
   if (user) return (
@@ -81,8 +81,8 @@ function LoginForm() {
               </label>
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your username"
                 required
                 className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 transition-colors"

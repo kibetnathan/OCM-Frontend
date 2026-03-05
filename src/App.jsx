@@ -15,31 +15,79 @@ import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
 import LeadershipDashboard from "./components/LeadershipDashboard";
 import PostView from "./components/PostView";
-import ChatPage from "./pages/ChatPage";
+import ThreadsPage from "./pages/ThreadsPage";
+import useAuthStore from "./zustand/authStore";
+import { useEffect } from "react";
 
 function App() {
+  const initAuth = useAuthStore((state) => state.initAuth);
+  const loading = useAuthStore((state) => state.loading);
+
+  useEffect(() => {
+    // This replaces the manual onIdTokenChanged logic
+    // because it's now encapsulated in your store
+    const unsubscribe = initAuth();
+    return () => unsubscribe();
+  }, [initAuth]);
+
+  // VERY IMPORTANT: Prevent the app from rendering routes
+  // until we know if the user is logged in or not.
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-[#0f0f0d] gap-6">
+        {/* Logo */}
+        <div className="font-cormorant text-3xl font-semibold tracking-[0.15em] text-stone-100">
+          O<span className="text-amber-500">C</span>M
+        </div>
+
+        {/* Animated bar */}
+        <div className="w-32 h-px bg-stone-800 relative overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-amber-500"
+            style={{
+              width: "40%",
+              animation: "slide 1.4s ease-in-out infinite",
+            }}
+          />
+        </div>
+
+        {/* Label */}
+        <p className="font-coptic text-[0.55rem] uppercase tracking-[0.3em] text-stone-600">
+          Loading, Please wait...
+        </p>
+
+        <style>{`
+        @keyframes slide {
+          0%   { transform: translateX(-100%); }
+          50%  { transform: translateX(300%); }
+          100% { transform: translateX(-100%); }
+        }
+      `}</style>
+      </div>
+    );
+  }
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/chat/:id" element={<ChatPage />} />
-        <Route path="/feed" element={<Feed />} >
-          <Route path="/feed/" element={<FeedChannel/>}/>
+        <Route path="/threads" element={<ThreadsPage />} />
+        <Route path="/feed" element={<Feed />}>
+          <Route path="/feed/" element={<FeedChannel />} />
           <Route path="/feed/post/:postId" element={<PostView />} />
-          <Route path="upload/" element={<PostForm/>}/>
+          <Route path="upload/" element={<PostForm />} />
         </Route>
         <Route path="/auth" element={<AuthPage />}>
           <Route path="login" element={<LoginForm />} />
           <Route path="signup" element={<SignUpForm />} />
         </Route>
-        <Route path="/dashboard" element={<Dashboard/>}>
-          <Route path="/dashboard/" element={<DashboardOverview/>}/>
-          <Route path="groups/fellowship" element={<Fellowships/>} />
-          <Route path="groups/courses" element={<CourseDashboard/>} />
-          <Route path="groups/departments" element={<DepartmentDashboard/>} />
-          <Route path="groups/services" element={<ServicesDashboard/>} />
-          <Route path="users/all" element={<UsersDashboard/>} />
-          <Route path="users/leadership" element={<LeadershipDashboard/>} />
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="/dashboard/" element={<DashboardOverview />} />
+          <Route path="groups/fellowship" element={<Fellowships />} />
+          <Route path="groups/courses" element={<CourseDashboard />} />
+          <Route path="groups/departments" element={<DepartmentDashboard />} />
+          <Route path="groups/services" element={<ServicesDashboard />} />
+          <Route path="users/all" element={<UsersDashboard />} />
+          <Route path="users/leadership" element={<LeadershipDashboard />} />
         </Route>
       </Routes>
     </Router>

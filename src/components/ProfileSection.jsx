@@ -11,7 +11,7 @@ const IconEdit = () => (
 );
 
 function ProfileSection() {
-  const token = useAuthStore.getState().token;
+  const token = useAuthStore((state) => state.token);
   const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
