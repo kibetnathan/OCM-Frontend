@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import useAuthStore from "./authStore";
 
+const API = import.meta.env.VITE_API_URL ?? "https://opencms-q36g.onrender.com/api";
+
 const useMainStore = create((set) => ({
     leadership_teams: [],
     users: [],
@@ -14,17 +16,14 @@ const useMainStore = create((set) => ({
     groups: [],
     toggleLike: async (postId, token) => {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/toggle_like/`, {
+            const response = await fetch(`${API}/posts/${postId}/toggle_like/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
-
             const data = await response.json();
-
-            // Update the post in the store's state
             set((state) => ({
                 posts: {
                     ...state.posts,
@@ -47,7 +46,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/leadership-team/", {
+            const res = await fetch(`${API}/leadership-team/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -59,7 +58,7 @@ const useMainStore = create((set) => ({
     updateLeadershipTeam: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/leadership-team/${id}/`, {
+            const res = await fetch(`${API}/leadership-team/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -80,10 +79,10 @@ const useMainStore = create((set) => ({
             return { success: true, team: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-   deleteLeadershipTeam: async (id) => {
+    deleteLeadershipTeam: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/leadership-team/${id}/`, {
+            const res = await fetch(`${API}/leadership-team/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -109,7 +108,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/department/", {
+            const res = await fetch(`${API}/department/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -122,7 +121,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/services/", {
+            const res = await fetch(`${API}/services/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -135,7 +134,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/fellowship-group/", {
+            const res = await fetch(`${API}/fellowship-group/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -147,7 +146,7 @@ const useMainStore = create((set) => ({
     updateFellowship: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/fellowship-group/${id}/`, {
+            const res = await fetch(`${API}/fellowship-group/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -168,11 +167,10 @@ const useMainStore = create((set) => ({
             return { success: true, group: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     deleteFellowship: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/fellowship-group/${id}/`, {
+            const res = await fetch(`${API}/fellowship-group/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -195,7 +193,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/course/", {
+            const res = await fetch(`${API}/course/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -206,13 +204,10 @@ const useMainStore = create((set) => ({
     },
     updateCourse: async (id, payload) => {
         try {
-            const token = useAuthStore.getState().token
-            const res = await fetch(`http://localhost:8000/api/course/${id}/`, {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`${API}/course/${id}/`, {
                 method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
             if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
@@ -224,19 +219,19 @@ const useMainStore = create((set) => ({
                     courses: state.courses?.results ? { ...state.courses, results: updatedList } : updatedList
                 };
             });
-            return { success: true, course: updated }
+            return { success: true, course: updated };
         } catch (err) {
-            return { success: false, error: err.message }
+            return { success: false, error: err.message };
         }
     },
-    deteteCourse: async (id) => {
+    deleteCourse: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/course/${id}/`, {
+            const res = await fetch(`${API}/course/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
-            if (!res.ok) throw new Error("Failed to delete fellowship group");
+            if (!res.ok) throw new Error("Failed to delete course");
             set((state) => {
                 const current = state.courses?.results ? state.courses.results : (Array.isArray(state.courses) ? state.courses : []);
                 const filtered = current.filter((c) => c.id !== id);
@@ -252,7 +247,7 @@ const useMainStore = create((set) => ({
     fetchPosts: async (token) => {
         set({ loading: true, error: null });
         try {
-            const res = await fetch("http://localhost:8000/api/post/", {
+            const res = await fetch(`${API}/post/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -265,7 +260,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/comment/", {
+            const res = await fetch(`${API}/comment/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -277,42 +272,35 @@ const useMainStore = create((set) => ({
     uploadPost: async (formData, token) => {
         set({ loading: true, error: null });
         try {
-            const res = await fetch("http://localhost:8000/api/post/", {
+            const res = await fetch(`${API}/post/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
-                // NO Content-Type header here!
                 body: formData,
             });
-
             if (!res.ok) {
                 const errData = await res.json();
-                console.log("Server Error Data:", errData); // Debugging is your friend
+                console.log("Server Error Data:", errData);
                 throw new Error(errData.detail || "Upload failed");
             }
-
             const newPost = await res.json();
-
             set((state) => {
-                // Check if results exists (Paginated API) or if it's a direct array
                 const currentPosts = state.posts?.results ? state.posts.results : (Array.isArray(state.posts) ? state.posts : []);
-
                 return {
                     loading: false,
                     posts: state.posts?.results
-                        ? { ...state.posts, results: [newPost, ...currentPosts] } // If paginated object
-                        : [newPost, ...currentPosts] // If simple array
+                        ? { ...state.posts, results: [newPost, ...currentPosts] }
+                        : [newPost, ...currentPosts]
                 };
             });
         } catch (err) {
             set({ error: err.message, loading: false });
         }
     },
-
-       fetchUsers: async () => {
+    fetchUsers: async () => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            let url = "http://localhost:8000/api/users/";
+            let url = `${API}/users/`;
             let allUsers = [];
             while (url) {
                 const res = await fetch(url, {
@@ -331,7 +319,7 @@ const useMainStore = create((set) => ({
     updateUser: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+            const res = await fetch(`${API}/users/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -347,7 +335,7 @@ const useMainStore = create((set) => ({
     deleteUser: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+            const res = await fetch(`${API}/users/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -364,11 +352,10 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/groups/", {
+            const res = await fetch(`${API}/groups/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
-            // handles both paginated { results: [...] } and plain array responses
             set({ groups: data?.results ?? (Array.isArray(data) ? data : []), loading: false });
         } catch (err) {
             set({ error: err.message, loading: false });
@@ -378,7 +365,7 @@ const useMainStore = create((set) => ({
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/profile/", {
+            const res = await fetch(`${API}/profile/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -387,11 +374,11 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-     updateProfile: async (id, payload) => {
+    updateProfile: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
             const isFormData = payload instanceof FormData;
-            const res = await fetch(`http://localhost:8000/api/profile/${id}/`, {
+            const res = await fetch(`${API}/profile/${id}/`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -407,12 +394,11 @@ const useMainStore = create((set) => ({
             return { success: true, item: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     fetchEquipment: async () => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/equipment/", {
+            const res = await fetch(`${API}/equipment/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = await res.json();
@@ -421,12 +407,11 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-
     createLeadershipTeam: async (payload) => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/leadership-team/", {
+            const res = await fetch(`${API}/leadership-team/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -441,12 +426,11 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
-
     createDepartment: async (payload) => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/department/", {
+            const res = await fetch(`${API}/department/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -464,7 +448,7 @@ const useMainStore = create((set) => ({
     updateDepartment: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/department/${id}/`, {
+            const res = await fetch(`${API}/department/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -478,11 +462,10 @@ const useMainStore = create((set) => ({
             return { success: true, department: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     deleteDepartment: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/department/${id}/`, {
+            const res = await fetch(`${API}/department/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -495,12 +478,11 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     createService: async (payload) => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/services/", {
+            const res = await fetch(`${API}/services/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -518,7 +500,7 @@ const useMainStore = create((set) => ({
     updateService: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/services/${id}/`, {
+            const res = await fetch(`${API}/services/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -532,11 +514,10 @@ const useMainStore = create((set) => ({
             return { success: true, service: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     deleteService: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/services/${id}/`, {
+            const res = await fetch(`${API}/services/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -554,7 +535,7 @@ const useMainStore = create((set) => ({
         try {
             const token = useAuthStore.getState().token;
             const isFormData = payload instanceof FormData;
-            const res = await fetch("http://localhost:8000/api/equipment/", {
+            const res = await fetch(`${API}/equipment/`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -571,7 +552,7 @@ const useMainStore = create((set) => ({
     updateEquipment: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/equipment/${id}/`, {
+            const res = await fetch(`${API}/equipment/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -584,11 +565,10 @@ const useMainStore = create((set) => ({
             return { success: true, item: updated };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     deleteEquipment: async (id) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/equipment/${id}/`, {
+            const res = await fetch(`${API}/equipment/${id}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -599,12 +579,11 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { return { success: false, error: err.message }; }
     },
-
     createFellowship: async (payload) => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/fellowship-group/", {
+            const res = await fetch(`${API}/fellowship-group/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -619,12 +598,11 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
-
     createCourse: async (payload) => {
         set({ loading: true, error: null });
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/course/", {
+            const res = await fetch(`${API}/course/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -639,11 +617,10 @@ const useMainStore = create((set) => ({
             return { success: true };
         } catch (err) { set({ error: err.message, loading: false }); return { success: false, error: err.message }; }
     },
-
     fetchPost: async (postId) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/post/${postId}/`, {
+            const res = await fetch(`${API}/post/${postId}/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Failed to fetch post");
@@ -653,11 +630,10 @@ const useMainStore = create((set) => ({
             return null;
         }
     },
-
     fetchPostComments: async (postId) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/comment/?post=${postId}`, {
+            const res = await fetch(`${API}/comment/?post=${postId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Failed to fetch comments");
@@ -668,11 +644,10 @@ const useMainStore = create((set) => ({
             return [];
         }
     },
-
     addComment: async (postId, content) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch("http://localhost:8000/api/comment/", {
+            const res = await fetch(`${API}/comment/`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ post_id: postId, text: content }),
@@ -691,11 +666,10 @@ const useMainStore = create((set) => ({
             return { success: false, error: err.message };
         }
     },
-
     editComment: async (commentId, content) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/comment/${commentId}/`, {
+            const res = await fetch(`${API}/comment/${commentId}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify({ text: content }),
@@ -706,11 +680,10 @@ const useMainStore = create((set) => ({
             return { success: false, error: err.message };
         }
     },
-
     deleteComment: async (commentId, postId) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/comment/${commentId}/`, {
+            const res = await fetch(`${API}/comment/${commentId}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -727,11 +700,10 @@ const useMainStore = create((set) => ({
             return { success: false, error: err.message };
         }
     },
-
     deletePost: async (postId) => {
         try {
             const token = useAuthStore.getState().token;
-            const res = await fetch(`http://localhost:8000/api/post/${postId}/`, {
+            const res = await fetch(`${API}/post/${postId}/`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -746,7 +718,6 @@ const useMainStore = create((set) => ({
             return { success: false, error: err.message };
         }
     },
-
 }));
 
 export default useMainStore;

@@ -1,17 +1,14 @@
-// src/api/axiosInstance.js
 import axios from 'axios';
-import useAuthStore from '../zustand/useAuthStore';
+import useAuthStore from '../zustand/authStore';
 import { getAuth } from 'firebase/auth';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/', // Your Django API
+  baseURL: import.meta.env.VITE_API_URL ?? 'https://opencms-q36g.onrender.com/api/',
 });
 
 api.interceptors.request.use(async (config) => {
-  // 1. Get the current token from the Zustand store state
   let token = useAuthStore.getState().token;
 
-  // 2. Fallback: If store is empty but Firebase has a user, get a fresh token
   if (!token) {
     const auth = getAuth();
     if (auth.currentUser) {
@@ -22,6 +19,7 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 }, (error) => {
   return Promise.reject(error);
