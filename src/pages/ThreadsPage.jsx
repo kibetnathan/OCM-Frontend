@@ -21,6 +21,39 @@ function avatarBg(id) {
   return AVATAR_COLORS[Math.abs(Number(id) || 0) % AVATAR_COLORS.length];
 }
 
+// ── Permission helpers ────────────────────────────────────────────────────────
+
+// Pastors and Head Pastors can create rooms for any group regardless of membership
+const UNRESTRICTED_ROLES = ['Pastor', 'Head Pastor'];
+
+function isUnrestricted(user) {
+  return user?.groups?.some((g) => UNRESTRICTED_ROLES.includes(g)) ?? false;
+}
+
+// A user is eligible for a group if they are in members[] or are the leader.
+// members is an array of integer user IDs from the Django serializer.
+function isMemberOf(group, userId) {
+  const id = Number(userId);
+  const inMembers = Array.isArray(group.members) && group.members.includes(id);
+  const isLeader = group.leader === id;
+  return inMembers || isLeader;
+}
+
+// ── Error message normaliser ──────────────────────────────────────────────────
+
+function friendlyError(raw) {
+  if (!raw) return 'Something went wrong. Please try again.';
+  const msg = raw.toLowerCase();
+  if (msg.includes('already exists')) return 'A room for this group already exists.';
+  if (msg.includes('permission') || msg.includes('missing or insufficient'))
+    return 'You do not have permission to create this room. Check Firestore security rules.';
+  if (msg.includes('network') || msg.includes('unavailable') || msg.includes('failed to fetch'))
+    return 'Network error. Check your connection and try again.';
+  if (msg.includes('quota')) return 'Firestore quota exceeded. Try again later.';
+  // Fall back to the raw message but strip internal prefixes
+  return raw.replace('[chatStore] createRoom error: ', '');
+}
+
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 const IconSearch = () => (
@@ -68,8 +101,6 @@ function Avatar({ userId, name: nameProp, size = 'md' }) {
 }
 
 // ── Create Room Modal ─────────────────────────────────────────────────────────
-// Sections map directly to the four mainStore slices and ROOM_TYPES keys.
-// Adding a new type in the future = add one entry to SECTIONS, nothing else.
 
 const SECTIONS = [
   { type: 'fellowship', label: 'Fellowship Groups',  storeKey: 'fellowships'      },
@@ -78,18 +109,30 @@ const SECTIONS = [
   { type: 'course',     label: 'Courses',            storeKey: 'courses'          },
 ];
 
-function GroupOption({ group, typeKey, selectedKey, onSelect }) {
+function GroupOption({ group, typeKey, selectedKey, onSelect, alreadyHasRoom }) {
   const isSelected = selectedKey === `${typeKey}_${group.id}`;
   return (
     <button
-      onClick={() => onSelect(`${typeKey}_${group.id}`, group, typeKey)}
+      onClick={() => !alreadyHasRoom && onSelect(`${typeKey}_${group.id}`, group, typeKey)}
+      disabled={alreadyHasRoom}
       className={`w-full text-left px-4 py-2.5 border transition-colors ${
-        isSelected
-          ? 'border-amber-400 bg-amber-50'
-          : 'border-stone-200 hover:border-stone-300 bg-white'
+        alreadyHasRoom
+          ? 'border-stone-100 bg-stone-50 opacity-50 cursor-not-allowed'
+          : isSelected
+            ? 'border-amber-400 bg-amber-50'
+            : 'border-stone-200 hover:border-stone-300 bg-white'
       }`}
     >
-      <p className="font-cormorant text-sm font-semibold text-stone-800 leading-tight">{group.name}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-cormorant text-sm font-semibold text-stone-800 leading-tight truncate">
+          {group.name}
+        </p>
+        {alreadyHasRoom && (
+          <span className="font-coptic text-[0.42rem] uppercase tracking-widest text-stone-400 shrink-0">
+            Room exists
+          </span>
+        )}
+      </div>
       {group.description && (
         <p className="text-xs text-stone-400 mt-0.5 truncate">{group.description}</p>
       )}
@@ -97,15 +140,18 @@ function GroupOption({ group, typeKey, selectedKey, onSelect }) {
   );
 }
 
-function CreateRoomModal({ onClose, onConfirm, loading, error }) {
+function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, error }) {
   const [selectedKey, setSelectedKey] = useState('');
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedType, setSelectedType] = useState('');
 
-  const { fellowships, leadership_teams, departments, courses,
-          fetchFellowships, fetchLeadershipTeams, fetchDepartments, fetchCourses } = useMainStore();
+  const unrestricted = isUnrestricted(user);
 
-  // Load all four lists when the modal opens
+  const {
+    fellowships, leadership_teams, departments, courses,
+    fetchFellowships, fetchLeadershipTeams, fetchDepartments, fetchCourses,
+  } = useMainStore();
+
   useEffect(() => {
     fetchFellowships();
     fetchLeadershipTeams();
@@ -113,11 +159,15 @@ function CreateRoomModal({ onClose, onConfirm, loading, error }) {
     fetchCourses();
   }, []);
 
-  // Map storeKey -> actual array (handle both paginated and plain array)
   const storeData = { fellowships, leadership_teams, departments, courses };
+
   function getList(storeKey) {
     const val = storeData[storeKey];
-    return val?.results ?? (Array.isArray(val) ? val : []);
+    const all = val?.results ?? (Array.isArray(val) ? val : []);
+    // Pastors and Head Pastors see all groups.
+    // Everyone else sees only groups they belong to.
+    if (unrestricted) return all;
+    return all.filter((g) => isMemberOf(g, user?.id));
   }
 
   const handleSelect = (key, group, type) => {
@@ -130,7 +180,7 @@ function CreateRoomModal({ onClose, onConfirm, loading, error }) {
     if (selectedGroup && selectedType) onConfirm(selectedGroup, selectedType);
   };
 
-  const hasAnyItems = SECTIONS.some((s) => getList(s.storeKey).length > 0);
+  const totalVisible = SECTIONS.reduce((acc, s) => acc + getList(s.storeKey).length, 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -141,26 +191,38 @@ function CreateRoomModal({ onClose, onConfirm, loading, error }) {
           <div>
             <p className="text-[0.5rem] uppercase tracking-[0.2em] text-stone-400 mb-0.5">New Chat Room</p>
             <h2 className="font-cormorant text-xl font-semibold text-stone-800">Link a Group</h2>
+            {!unrestricted && (
+              <p className="text-[0.6rem] text-stone-400 mt-1">
+                Showing groups you are a member of.
+              </p>
+            )}
           </div>
           <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors">
             <IconX />
           </button>
         </div>
 
-        {/* Body -- scrollable */}
+        {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
-          <p className="text-xs text-stone-500 leading-relaxed">
-            Select a group to create a chat room for. Each group can only have one room.
-          </p>
 
+          {/* Error banner */}
           {error && (
-            <p className="text-xs text-red-500 bg-red-50 border border-red-200 px-3 py-2">{error}</p>
+            <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-2.5">
+              <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+              </svg>
+              <span>{error}</span>
+            </div>
           )}
 
-          {!hasAnyItems && (
-            <div className="py-6 text-center">
+          {/* Empty state -- no groups visible to this user */}
+          {totalVisible === 0 && (
+            <div className="py-8 text-center space-y-1">
+              <p className="font-cormorant text-base text-stone-400">No groups available</p>
               <p className="font-coptic text-[0.5rem] uppercase tracking-widest text-stone-400">
-                Loading groups...
+                {unrestricted
+                  ? 'No groups have been created yet.'
+                  : 'You are not a member of any group yet.'}
               </p>
             </div>
           )}
@@ -174,15 +236,19 @@ function CreateRoomModal({ onClose, onConfirm, loading, error }) {
                   {label}
                 </p>
                 <div className="space-y-1.5">
-                  {list.map((group) => (
-                    <GroupOption
-                      key={group.id}
-                      group={group}
-                      typeKey={type}
-                      selectedKey={selectedKey}
-                      onSelect={handleSelect}
-                    />
-                  ))}
+                  {list.map((group) => {
+                    const roomId = `${type}_${group.id}`;
+                    return (
+                      <GroupOption
+                        key={group.id}
+                        group={group}
+                        typeKey={type}
+                        selectedKey={selectedKey}
+                        onSelect={handleSelect}
+                        alreadyHasRoom={existingRoomIds.has(roomId)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -365,8 +431,8 @@ function ThreadsPage() {
   const { user } = useAuthStore();
 
   const isPrivileged = canCreateRoom(user);
+  const existingRoomIds = new Set(rooms.map((r) => String(r.id)));
 
-  // Bootstrap
   useEffect(() => {
     subscribeToRooms();
     return () => {
@@ -375,14 +441,12 @@ function ThreadsPage() {
     };
   }, []);
 
-  // Auto-select first room
   useEffect(() => {
     if (rooms.length > 0 && activeRoomId === null) {
       setActiveRoomId(rooms[0].id);
     }
   }, [rooms]);
 
-  // Subscribe to messages when room changes
   useEffect(() => {
     if (activeRoomId !== null) {
       subscribeToRoom(activeRoomId);
@@ -390,7 +454,6 @@ function ThreadsPage() {
     }
   }, [activeRoomId]);
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -425,7 +488,6 @@ function ThreadsPage() {
     handleReaction(activeRoomId, messageId, emoji, user.id);
   };
 
-  // Now receives both group and type from the modal
   const handleCreateRoom = async (group, type) => {
     if (!user) return;
     setCreateLoading(true);
@@ -435,7 +497,7 @@ function ThreadsPage() {
     if (result.success) {
       setShowCreateModal(false);
     } else {
-      setCreateError(result.error);
+      setCreateError(friendlyError(result.error));
     }
   };
 
@@ -445,6 +507,8 @@ function ThreadsPage() {
 
       {showCreateModal && (
         <CreateRoomModal
+          user={user}
+          existingRoomIds={existingRoomIds}
           onClose={() => { setShowCreateModal(false); setCreateError(''); }}
           onConfirm={handleCreateRoom}
           loading={createLoading}
@@ -453,7 +517,6 @@ function ThreadsPage() {
       )}
 
       <div className="flex flex-1 min-w-0 overflow-hidden">
-        {/* Centre: chat area */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#faf8f3]">
 
           <ul className="flex flex-row border-b border-stone-200 px-6">
@@ -551,7 +614,6 @@ function ThreadsPage() {
           </div>
         </div>
 
-        {/* Right panel: dark room list */}
         <aside className="hidden md:flex flex-col w-64 shrink-0 bg-[#0f0f0d] border-l border-white/6 h-screen overflow-hidden">
           <div className="px-5 py-5 border-b border-white/6 shrink-0">
             <p className="text-[0.55rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Messaging</p>
