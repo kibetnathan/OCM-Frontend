@@ -44,7 +44,7 @@ function Home() {
       </header>
 
       {/* ── About strip ── */}
-      <section className="bg-[#faf8f3] border-b border-stone-200 px-6 sm:px-10 lg:px-16 py-16 sm:py-20">
+      <section id="about" className="bg-[#faf8f3] border-b border-stone-200 px-6 sm:px-10 lg:px-16 py-16 sm:py-20">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10 lg:gap-20 items-start">
           <div className="lg:w-1/2">
             <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-400 mb-3">About the Platform</p>
