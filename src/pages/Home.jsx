@@ -67,8 +67,8 @@ function Home() {
       <section className="bg-[#0f0f0d] px-6 sm:px-10 lg:px-16 py-12">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8">
           {[
-            { value: "5+",    label: "Fellowship Groups" },
-            { value: "3",     label: "Serving Departments" },
+            { value: "Relevant",    label: "Features" },
+            { value: "5+",     label: "Grouping models" },
             { value: "100%",  label: "Open Source" },
             { value: "1",     label: "Church, Many Members" },
           ].map(({ value, label }) => (
