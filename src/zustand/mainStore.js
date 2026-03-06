@@ -316,34 +316,35 @@ const useMainStore = create((set) => ({
             set({ error: err.message, loading: false });
         }
     },
-    updateUser: async (id, payload) => {
-        try {
-            const token = useAuthStore.getState().token;
-
-            // Convert group names to IDs
-            if (payload.groups && payload.groups.length > 0) {
-                const groupsRes = await fetch(`${API}/groups/`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                const allGroups = await groupsRes.json();
-                const groupMap = Object.fromEntries(allGroups.map(g => [g.name, g.id]));
-                payload.groups = payload.groups.map(name => groupMap[name]).filter(Boolean);
-            }
-
-            const res = await fetch(`${API}/users/${id}/`, {
-                method: "PATCH",
-                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+updateUser: async (id, payload) => {
+    try {
+        const token = useAuthStore.getState().token;
+        
+        // Convert group NAMES to IDs (GroupNameField expects IDs on write)
+        if (payload.groups && payload.groups.length > 0) {
+            const groupsRes = await fetch(`${API}/groups/`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-
-            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
-            const updated = await res.json();
-            set((state) => ({
-                users: (state.users || []).map((u) => u.id === id ? updated : u)
-            }));
-            return { success: true, item: updated };
-        } catch (err) { return { success: false, error: err.message }; }
-    },
+            const allGroups = await groupsRes.json();
+            const groupMap = Object.fromEntries(allGroups.map(g => [g.name, g.id]));
+            // payload.groups has names, convert to IDs
+            payload.groups = payload.groups.map(name => groupMap[name]).filter(id => id !== undefined);
+        }
+        
+        const res = await fetch(`${API}/users/${id}/`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+        
+        if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+        const updated = await res.json();
+        set((state) => ({
+            users: (state.users || []).map((u) => u.id === id ? updated : u)
+        }));
+        return { success: true, item: updated };
+    } catch (err) { return { success: false, error: err.message }; }
+},
     deleteUser: async (id) => {
         try {
             const token = useAuthStore.getState().token;
