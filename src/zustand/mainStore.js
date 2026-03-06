@@ -319,11 +319,23 @@ const useMainStore = create((set) => ({
     updateUser: async (id, payload) => {
         try {
             const token = useAuthStore.getState().token;
+
+            // Convert group names to IDs
+            if (payload.groups && payload.groups.length > 0) {
+                const groupsRes = await fetch(`${API}/groups/`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const allGroups = await groupsRes.json();
+                const groupMap = Object.fromEntries(allGroups.map(g => [g.name, g.id]));
+                payload.groups = payload.groups.map(name => groupMap[name]).filter(Boolean);
+            }
+
             const res = await fetch(`${API}/users/${id}/`, {
                 method: "PATCH",
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
+
             if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
             const updated = await res.json();
             set((state) => ({
