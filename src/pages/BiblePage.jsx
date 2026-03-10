@@ -4,8 +4,6 @@ import Sidebar from '../components/Sidebar';
 const BASE = 'https://bible.helloao.org/api';
 const DEFAULT_TRANSLATION = 'BSB';
 
-// ── Icons ──────────────────────────────────────────────────────────────────────
-
 const IconChevron = ({ dir = 'right' }) => (
   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     {dir === 'right' && <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />}
@@ -26,8 +24,6 @@ const IconSearch = () => (
   </svg>
 );
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
 function renderVerseContent(content) {
   return content.map((item, i) => {
     if (typeof item === 'string') return <span key={i}>{item} </span>;
@@ -42,8 +38,6 @@ function renderVerseContent(content) {
     return null;
   });
 }
-
-// ── Verse component ────────────────────────────────────────────────────────────
 
 function VerseBlock({ verse, highlighted, onHighlight }) {
   const isHighlighted = highlighted === verse.number;
@@ -60,8 +54,6 @@ function VerseBlock({ verse, highlighted, onHighlight }) {
     </p>
   );
 }
-
-// ── Main Page ──────────────────────────────────────────────────────────────────
 
 function BiblePage() {
   const [translations, setTranslations] = useState([]);
@@ -122,14 +114,13 @@ function BiblePage() {
     return () => controller.abort();
   }, [selectedBook, chapterNum, translation]);
 
-  // ── Derived ──
   const filteredBooks = books.filter(b => b.name.toLowerCase().includes(bookSearch.toLowerCase()));
   const filteredOT    = filteredBooks.filter(b => b.order <= 39);
   const filteredNT    = filteredBooks.filter(b => b.order > 39);
 
-  const footnotes    = chapterData?.chapter.footnotes ?? [];
-  const prevChapter  = chapterData?.previousChapterApiLink;
-  const nextChapter  = chapterData?.nextChapterApiLink;
+  const footnotes   = chapterData?.chapter.footnotes ?? [];
+  const prevChapter = chapterData?.previousChapterApiLink;
+  const nextChapter = chapterData?.nextChapterApiLink;
 
   const chapterNums = selectedBook
     ? Array.from({ length: selectedBook.numberOfChapters }, (_, i) => i + selectedBook.firstChapterNumber)
@@ -156,8 +147,83 @@ function BiblePage() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf8f3]">
       <Sidebar />
+
       <div className="flex flex-1 min-w-0 overflow-hidden">
-        {/* content goes here */}
+
+        {/* ── Left: Book selector panel ── */}
+        <aside className={`flex flex-col bg-[#0f0f0d] border-r border-white/6 h-screen overflow-hidden transition-all duration-300 ${showBookPanel ? 'w-56 shrink-0' : 'w-0 overflow-hidden'}`}>
+          <div className="px-4 py-5 border-b border-white/6 shrink-0">
+            <p className="font-coptic text-[0.5rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Scripture</p>
+            <h2 className="font-cormorant text-xl font-semibold text-stone-100">Books</h2>
+            <div className="w-5 h-0.5 bg-amber-500 mt-2" />
+          </div>
+
+          <div className="px-3 py-2.5 border-b border-white/6 shrink-0">
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-600"><IconSearch /></span>
+              <input
+                type="text"
+                value={bookSearch}
+                onChange={e => setBookSearch(e.target.value)}
+                placeholder="Find book…"
+                className="w-full bg-white/5 border border-white/8 focus:border-amber-500/40 focus:outline-none pl-8 pr-3 py-1.5 text-[0.7rem] text-stone-300 placeholder:text-stone-700"
+              />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto py-2">
+            {loadingBooks ? (
+              <div className="flex items-center justify-center py-10">
+                <div className="w-5 h-5 border border-amber-500/40 border-t-amber-500 rounded-full animate-spin" />
+              </div>
+            ) : (
+              <>
+                {filteredOT.length > 0 && (
+                  <>
+                    <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-3 pb-1">Old Testament</p>
+                    {filteredOT.map(book => (
+                      <button
+                        key={book.id}
+                        onClick={() => selectBook(book)}
+                        className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${
+                          selectedBook?.id === book.id
+                            ? 'text-stone-100 bg-amber-500/10 border-l-amber-500'
+                            : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'
+                        }`}
+                      >
+                        {book.name}
+                        <span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+                {filteredNT.length > 0 && (
+                  <>
+                    <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-4 pb-1">New Testament</p>
+                    {filteredNT.map(book => (
+                      <button
+                        key={book.id}
+                        onClick={() => selectBook(book)}
+                        className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${
+                          selectedBook?.id === book.id
+                            ? 'text-stone-100 bg-amber-500/10 border-l-amber-500'
+                            : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'
+                        }`}
+                      >
+                        {book.name}
+                        <span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </aside>
+
+        {/* centre pane placeholder */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden" />
+
       </div>
     </div>
   );
