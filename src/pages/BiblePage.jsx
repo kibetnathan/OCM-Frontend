@@ -87,12 +87,7 @@ function BiblePage() {
     const controller = new AbortController();
     fetch(`${BASE}/${translation}/books.json`, { signal: controller.signal })
       .then(r => r.json())
-      .then(d => {
-        setBooks(d.books);
-        setSelectedBook(null);
-        setChapterData(null);
-        setLoadingBooks(false);
-      })
+      .then(d => { setBooks(d.books); setSelectedBook(null); setChapterData(null); setLoadingBooks(false); })
       .catch(() => {});
     Promise.resolve().then(() => setLoadingBooks(true));
     return () => controller.abort();
@@ -103,11 +98,7 @@ function BiblePage() {
     const controller = new AbortController();
     fetch(`${BASE}/${translation}/${selectedBook.id}/${chapterNum}.json`, { signal: controller.signal })
       .then(r => r.json())
-      .then(d => {
-        setChapterData(d);
-        setHighlighted(null);
-        setLoadingChapter(false);
-      })
+      .then(d => { setChapterData(d); setHighlighted(null); setLoadingChapter(false); })
       .catch(() => {});
     Promise.resolve().then(() => setLoadingChapter(true));
     contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -117,14 +108,10 @@ function BiblePage() {
   const filteredBooks = books.filter(b => b.name.toLowerCase().includes(bookSearch.toLowerCase()));
   const filteredOT    = filteredBooks.filter(b => b.order <= 39);
   const filteredNT    = filteredBooks.filter(b => b.order > 39);
-
-  const footnotes   = chapterData?.chapter.footnotes ?? [];
-  const prevChapter = chapterData?.previousChapterApiLink;
-  const nextChapter = chapterData?.nextChapterApiLink;
-
-  const chapterNums = selectedBook
-    ? Array.from({ length: selectedBook.numberOfChapters }, (_, i) => i + selectedBook.firstChapterNumber)
-    : [];
+  const footnotes     = chapterData?.chapter.footnotes ?? [];
+  const prevChapter   = chapterData?.previousChapterApiLink;
+  const nextChapter   = chapterData?.nextChapterApiLink;
+  const chapterNums   = selectedBook ? Array.from({ length: selectedBook.numberOfChapters }, (_, i) => i + selectedBook.firstChapterNumber) : [];
 
   const goChapter = (dir) => {
     if (!selectedBook) return;
@@ -133,11 +120,7 @@ function BiblePage() {
     setChapterNum(next);
   };
 
-  const selectBook = (book) => {
-    setSelectedBook(book);
-    setChapterNum(book.firstChapterNumber);
-    setShowBookPanel(false);
-  };
+  const selectBook = (book) => { setSelectedBook(book); setChapterNum(book.firstChapterNumber); setShowBookPanel(false); };
 
   const filteredTranslations = translations.filter(t =>
     t.englishName.toLowerCase().includes(transSearch.toLowerCase()) ||
@@ -147,7 +130,6 @@ function BiblePage() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf8f3]">
       <Sidebar />
-
       <div className="flex flex-1 min-w-0 overflow-hidden">
 
         <aside className={`flex flex-col bg-[#0f0f0d] border-r border-white/6 h-screen overflow-hidden transition-all duration-300 ${showBookPanel ? 'w-56 shrink-0' : 'w-0 overflow-hidden'}`}>
@@ -178,22 +160,10 @@ function BiblePage() {
 
           {/* Top bar */}
           <div className="flex items-center gap-3 px-5 py-3.5 border-b border-stone-200 bg-white shrink-0">
-            <button onClick={() => setShowBookPanel(v => !v)} className="p-1.5 text-stone-400 hover:text-amber-500 border border-stone-200 hover:border-amber-300 transition-colors" title="Toggle book list">
-              <IconBook />
-            </button>
+            <button onClick={() => setShowBookPanel(v => !v)} className="p-1.5 text-stone-400 hover:text-amber-500 border border-stone-200 hover:border-amber-300 transition-colors"><IconBook /></button>
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              {selectedBook ? (
-                <>
-                  <span className="font-cormorant text-lg font-semibold text-stone-800 truncate">{selectedBook.name}</span>
-                  <span className="text-stone-300"><IconChevron dir="right" /></span>
-                  <span className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-600">Chapter {chapterNum}</span>
-                </>
-              ) : (
-                <span className="font-cormorant text-lg text-stone-400">Select a book to begin reading</span>
-              )}
+              {selectedBook ? (<><span className="font-cormorant text-lg font-semibold text-stone-800 truncate">{selectedBook.name}</span><span className="text-stone-300"><IconChevron dir="right" /></span><span className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-600">Chapter {chapterNum}</span></>) : (<span className="font-cormorant text-lg text-stone-400">Select a book to begin reading</span>)}
             </div>
-
-            {/* Translation picker */}
             <div className="relative shrink-0">
               <button onClick={() => setShowTransDD(v => !v)} className="flex items-center gap-2 border border-stone-200 hover:border-amber-300 px-3 py-1.5 transition-colors">
                 <span className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-600">{translation}</span>
@@ -202,22 +172,11 @@ function BiblePage() {
               {showTransDD && (
                 <div className="absolute right-0 top-full mt-1 w-72 bg-white border border-stone-200 shadow-lg z-30 flex flex-col max-h-80">
                   <div className="p-2 border-b border-stone-100">
-                    <input
-                      autoFocus
-                      type="text"
-                      value={transSearch}
-                      onChange={e => setTransSearch(e.target.value)}
-                      placeholder="Search translations…"
-                      className="w-full text-xs border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-1.5 text-stone-700 placeholder:text-stone-300"
-                    />
+                    <input autoFocus type="text" value={transSearch} onChange={e => setTransSearch(e.target.value)} placeholder="Search translations…" className="w-full text-xs border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-1.5 text-stone-700 placeholder:text-stone-300" />
                   </div>
                   <div className="overflow-y-auto flex-1">
                     {filteredTranslations.slice(0, 40).map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => { setTranslation(t.id); setShowTransDD(false); setTransSearch(''); }}
-                        className={`w-full text-left px-4 py-2.5 hover:bg-amber-50 transition-colors border-b border-stone-50 ${t.id === translation ? 'bg-amber-50' : ''}`}
-                      >
+                      <button key={t.id} onClick={() => { setTranslation(t.id); setShowTransDD(false); setTransSearch(''); }} className={`w-full text-left px-4 py-2.5 hover:bg-amber-50 transition-colors border-b border-stone-50 ${t.id === translation ? 'bg-amber-50' : ''}`}>
                         <span className="font-coptic text-[0.55rem] uppercase tracking-widest text-amber-600 block">{t.shortName}</span>
                         <span className="font-cormorant text-sm text-stone-700">{t.englishName}</span>
                       </button>
@@ -228,16 +187,32 @@ function BiblePage() {
             </div>
           </div>
 
+          {/* ── Chapter grid strip ── */}
+          {selectedBook && !loadingChapter && chapterData && (
+            <div className="border-b border-stone-200 bg-stone-50 px-5 py-2 shrink-0 overflow-x-auto">
+              <div className="flex items-center gap-1 flex-wrap">
+                {chapterNums.map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setChapterNum(n)}
+                    className={`w-7 h-7 text-xs font-cormorant transition-colors ${
+                      n === chapterNum ? 'bg-amber-500 text-white' : 'text-stone-500 hover:bg-amber-100 hover:text-amber-700'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* reading area placeholder */}
           <div ref={contentRef} className="flex-1 overflow-y-auto px-5 sm:px-10 py-8 bg-[#faf8f3]" />
         </div>
 
       </div>
 
-      {/* Click-away for translation dropdown */}
-      {showTransDD && (
-        <div className="fixed inset-0 z-20" onClick={() => setShowTransDD(false)} />
-      )}
+      {showTransDD && <div className="fixed inset-0 z-20" onClick={() => setShowTransDD(false)} />}
     </div>
   );
 }
