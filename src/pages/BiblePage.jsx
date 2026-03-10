@@ -150,7 +150,6 @@ function BiblePage() {
 
       <div className="flex flex-1 min-w-0 overflow-hidden">
 
-        {/* ── Left: Book selector panel ── */}
         <aside className={`flex flex-col bg-[#0f0f0d] border-r border-white/6 h-screen overflow-hidden transition-all duration-300 ${showBookPanel ? 'w-56 shrink-0' : 'w-0 overflow-hidden'}`}>
           <div className="px-4 py-5 border-b border-white/6 shrink-0">
             <p className="font-coptic text-[0.5rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Scripture</p>
@@ -160,60 +159,28 @@ function BiblePage() {
           <div className="px-3 py-2.5 border-b border-white/6 shrink-0">
             <div className="relative">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-600"><IconSearch /></span>
-              <input
-                type="text"
-                value={bookSearch}
-                onChange={e => setBookSearch(e.target.value)}
-                placeholder="Find book…"
-                className="w-full bg-white/5 border border-white/8 focus:border-amber-500/40 focus:outline-none pl-8 pr-3 py-1.5 text-[0.7rem] text-stone-300 placeholder:text-stone-700"
-              />
+              <input type="text" value={bookSearch} onChange={e => setBookSearch(e.target.value)} placeholder="Find book…" className="w-full bg-white/5 border border-white/8 focus:border-amber-500/40 focus:outline-none pl-8 pr-3 py-1.5 text-[0.7rem] text-stone-300 placeholder:text-stone-700" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto py-2">
             {loadingBooks ? (
-              <div className="flex items-center justify-center py-10">
-                <div className="w-5 h-5 border border-amber-500/40 border-t-amber-500 rounded-full animate-spin" />
-              </div>
+              <div className="flex items-center justify-center py-10"><div className="w-5 h-5 border border-amber-500/40 border-t-amber-500 rounded-full animate-spin" /></div>
             ) : (
               <>
-                {filteredOT.length > 0 && (
-                  <>
-                    <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-3 pb-1">Old Testament</p>
-                    {filteredOT.map(book => (
-                      <button key={book.id} onClick={() => selectBook(book)} className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${selectedBook?.id === book.id ? 'text-stone-100 bg-amber-500/10 border-l-amber-500' : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'}`}>
-                        {book.name}<span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span>
-                      </button>
-                    ))}
-                  </>
-                )}
-                {filteredNT.length > 0 && (
-                  <>
-                    <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-4 pb-1">New Testament</p>
-                    {filteredNT.map(book => (
-                      <button key={book.id} onClick={() => selectBook(book)} className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${selectedBook?.id === book.id ? 'text-stone-100 bg-amber-500/10 border-l-amber-500' : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'}`}>
-                        {book.name}<span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span>
-                      </button>
-                    ))}
-                  </>
-                )}
+                {filteredOT.length > 0 && (<><p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-3 pb-1">Old Testament</p>{filteredOT.map(book => (<button key={book.id} onClick={() => selectBook(book)} className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${selectedBook?.id === book.id ? 'text-stone-100 bg-amber-500/10 border-l-amber-500' : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'}`}>{book.name}<span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span></button>))}</>)}
+                {filteredNT.length > 0 && (<><p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-4 pb-1">New Testament</p>{filteredNT.map(book => (<button key={book.id} onClick={() => selectBook(book)} className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${selectedBook?.id === book.id ? 'text-stone-100 bg-amber-500/10 border-l-amber-500' : 'text-stone-400 hover:text-stone-200 hover:bg-white/4 border-l-transparent'}`}>{book.name}<span className="ml-1 font-coptic text-[0.45rem] text-stone-700">{book.numberOfChapters}ch</span></button>))}</>)}
               </>
             )}
           </div>
         </aside>
 
-        {/* ── Centre: reading pane ── */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
           {/* Top bar */}
           <div className="flex items-center gap-3 px-5 py-3.5 border-b border-stone-200 bg-white shrink-0">
-            <button
-              onClick={() => setShowBookPanel(v => !v)}
-              className="p-1.5 text-stone-400 hover:text-amber-500 border border-stone-200 hover:border-amber-300 transition-colors"
-              title="Toggle book list"
-            >
+            <button onClick={() => setShowBookPanel(v => !v)} className="p-1.5 text-stone-400 hover:text-amber-500 border border-stone-200 hover:border-amber-300 transition-colors" title="Toggle book list">
               <IconBook />
             </button>
-
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               {selectedBook ? (
                 <>
@@ -226,15 +193,38 @@ function BiblePage() {
               )}
             </div>
 
+            {/* Translation picker */}
             <div className="relative shrink-0">
-              <button
-                onClick={() => setShowTransDD(v => !v)}
-                className="flex items-center gap-2 border border-stone-200 hover:border-amber-300 px-3 py-1.5 transition-colors"
-              >
+              <button onClick={() => setShowTransDD(v => !v)} className="flex items-center gap-2 border border-stone-200 hover:border-amber-300 px-3 py-1.5 transition-colors">
                 <span className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-600">{translation}</span>
                 <span className="text-stone-400"><IconChevron dir="down" /></span>
               </button>
-              {/* dropdown added in next update */}
+              {showTransDD && (
+                <div className="absolute right-0 top-full mt-1 w-72 bg-white border border-stone-200 shadow-lg z-30 flex flex-col max-h-80">
+                  <div className="p-2 border-b border-stone-100">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={transSearch}
+                      onChange={e => setTransSearch(e.target.value)}
+                      placeholder="Search translations…"
+                      className="w-full text-xs border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-1.5 text-stone-700 placeholder:text-stone-300"
+                    />
+                  </div>
+                  <div className="overflow-y-auto flex-1">
+                    {filteredTranslations.slice(0, 40).map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => { setTranslation(t.id); setShowTransDD(false); setTransSearch(''); }}
+                        className={`w-full text-left px-4 py-2.5 hover:bg-amber-50 transition-colors border-b border-stone-50 ${t.id === translation ? 'bg-amber-50' : ''}`}
+                      >
+                        <span className="font-coptic text-[0.55rem] uppercase tracking-widest text-amber-600 block">{t.shortName}</span>
+                        <span className="font-cormorant text-sm text-stone-700">{t.englishName}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -243,6 +233,11 @@ function BiblePage() {
         </div>
 
       </div>
+
+      {/* Click-away for translation dropdown */}
+      {showTransDD && (
+        <div className="fixed inset-0 z-20" onClick={() => setShowTransDD(false)} />
+      )}
     </div>
   );
 }
