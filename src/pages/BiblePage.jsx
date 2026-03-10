@@ -40,6 +40,24 @@ function renderVerseContent(content) {
   });
 }
 
+// ── Verse component ────────────────────────────────────────────────────────────
+
+function VerseBlock({ verse, highlighted, onHighlight }) {
+  const isHighlighted = highlighted === verse.number;
+  return (
+    <p
+      id={`v${verse.number}`}
+      onClick={() => onHighlight(verse.number)}
+      className={`leading-loose text-base font-serif cursor-pointer rounded px-2 py-0.5 transition-colors ${
+        isHighlighted ? 'bg-amber-100 border-l-2 border-amber-500' : 'hover:bg-stone-50'
+      }`}
+    >
+      <sup className="font-coptic text-[0.55rem] text-amber-500 mr-1.5 select-none">{verse.number}</sup>
+      {renderVerseContent(verse.content)}
+    </p>
+  );
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 function BiblePage() {
