@@ -83,7 +83,6 @@ function BiblePage() {
 
   const contentRef = useRef(null);
 
-  // ── Fetch translations on mount ──
   useEffect(() => {
     fetch(`${BASE}/available_translations.json`)
       .then(r => r.json())
@@ -91,7 +90,6 @@ function BiblePage() {
       .catch(() => {});
   }, []);
 
-  // ── Fetch books when translation changes ──
   useEffect(() => {
     if (!translation) return;
     const controller = new AbortController();
@@ -107,6 +105,53 @@ function BiblePage() {
     Promise.resolve().then(() => setLoadingBooks(true));
     return () => controller.abort();
   }, [translation]);
+
+  useEffect(() => {
+    if (!selectedBook) return;
+    const controller = new AbortController();
+    fetch(`${BASE}/${translation}/${selectedBook.id}/${chapterNum}.json`, { signal: controller.signal })
+      .then(r => r.json())
+      .then(d => {
+        setChapterData(d);
+        setHighlighted(null);
+        setLoadingChapter(false);
+      })
+      .catch(() => {});
+    Promise.resolve().then(() => setLoadingChapter(true));
+    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    return () => controller.abort();
+  }, [selectedBook, chapterNum, translation]);
+
+  // ── Derived ──
+  const filteredBooks = books.filter(b => b.name.toLowerCase().includes(bookSearch.toLowerCase()));
+  const filteredOT    = filteredBooks.filter(b => b.order <= 39);
+  const filteredNT    = filteredBooks.filter(b => b.order > 39);
+
+  const footnotes    = chapterData?.chapter.footnotes ?? [];
+  const prevChapter  = chapterData?.previousChapterApiLink;
+  const nextChapter  = chapterData?.nextChapterApiLink;
+
+  const chapterNums = selectedBook
+    ? Array.from({ length: selectedBook.numberOfChapters }, (_, i) => i + selectedBook.firstChapterNumber)
+    : [];
+
+  const goChapter = (dir) => {
+    if (!selectedBook) return;
+    const next = chapterNum + dir;
+    if (next < selectedBook.firstChapterNumber || next > selectedBook.lastChapterNumber) return;
+    setChapterNum(next);
+  };
+
+  const selectBook = (book) => {
+    setSelectedBook(book);
+    setChapterNum(book.firstChapterNumber);
+    setShowBookPanel(false);
+  };
+
+  const filteredTranslations = translations.filter(t =>
+    t.englishName.toLowerCase().includes(transSearch.toLowerCase()) ||
+    t.shortName.toLowerCase().includes(transSearch.toLowerCase())
+  );
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf8f3]">
