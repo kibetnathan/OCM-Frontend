@@ -91,6 +91,23 @@ function BiblePage() {
       .catch(() => {});
   }, []);
 
+  // ── Fetch books when translation changes ──
+  useEffect(() => {
+    if (!translation) return;
+    const controller = new AbortController();
+    fetch(`${BASE}/${translation}/books.json`, { signal: controller.signal })
+      .then(r => r.json())
+      .then(d => {
+        setBooks(d.books);
+        setSelectedBook(null);
+        setChapterData(null);
+        setLoadingBooks(false);
+      })
+      .catch(() => {});
+    Promise.resolve().then(() => setLoadingBooks(true));
+    return () => controller.abort();
+  }, [translation]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf8f3]">
       <Sidebar />
