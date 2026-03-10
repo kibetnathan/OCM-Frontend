@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
+
+const BASE = 'https://bible.helloao.org/api';
+const DEFAULT_TRANSLATION = 'BSB';
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 
@@ -61,6 +64,28 @@ function VerseBlock({ verse, highlighted, onHighlight }) {
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 function BiblePage() {
+  // Translation & books
+  const [translations, setTranslations] = useState([]);
+  const [translation,  setTranslation]  = useState(DEFAULT_TRANSLATION);
+  const [books,        setBooks]        = useState([]);
+  const [showTransDD,  setShowTransDD]  = useState(false);
+  const [transSearch,  setTransSearch]  = useState('');
+
+  // Navigation
+  const [selectedBook,  setSelectedBook]  = useState(null);
+  const [chapterNum,    setChapterNum]    = useState(1);
+  const [chapterData,   setChapterData]   = useState(null);
+  const [bookSearch,    setBookSearch]    = useState('');
+  const [showBookPanel, setShowBookPanel] = useState(true);
+
+  // UX
+  const [loadingBooks,   setLoadingBooks]   = useState(false);
+  const [loadingChapter, setLoadingChapter] = useState(false);
+  const [highlighted,    setHighlighted]    = useState(null);
+  const [showFootnotes,  setShowFootnotes]  = useState(false);
+
+  const contentRef = useRef(null);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#faf8f3]">
       <Sidebar />
