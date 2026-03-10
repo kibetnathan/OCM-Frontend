@@ -79,10 +79,10 @@ function DetailRow({ icon, label, value }) {
   if (!value) return null;
   return (
     <div className="flex items-start gap-3">
-      <span className="text-stone-500 mt-0.5">{icon}</span>
+      <span className="text-stone-700 mt-0.5">{icon}</span>
       <div className="min-w-0">
-        <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 leading-none mb-0.5">{label}</p>
-        <p className="text-sm text-stone-300 truncate">{value}</p>
+        <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-700 leading-none mb-0.5">{label}</p>
+        <p className="text-sm text-light truncate">{value}</p>
       </div>
     </div>
   );
@@ -141,8 +141,8 @@ function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Action buttons */}
       <div className="relative z-10 flex items-center justify-end gap-0.5">
@@ -178,7 +178,7 @@ function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
               ? `${user.first_name} ${user.last_name}`
               : user.username}
           </h3>
-          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 mt-0.5">
+          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-700 mt-0.5">
             @{user.username}
           </p>
         </div>
@@ -188,7 +188,7 @@ function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
             {roles.map((role) => (
               <span
                 key={role}
-                className="text-[0.55rem] uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5"
+                className="text-[0.55rem] uppercase tracking-widest text-amber-600 bg-amber-500/30 border border-amber-600/50 px-2 py-0.5"
               >
                 {role}
               </span>
@@ -200,7 +200,7 @@ function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
       <div className="h-px bg-white/[0.07] relative z-10" />
 
       <div className="flex flex-col gap-3 relative z-10">
-        <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">Contact</p>
+        <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-700">Contact</p>
         <DetailRow icon={<IconMail />}  label="Email" value={user.email} />
         <DetailRow icon={<IconPhone />} label="Phone" value={userProfile?.phone_number} />
       </div>
@@ -208,7 +208,7 @@ function UserDetail({ user, allProfiles, onClose, onEdit, onDelete }) {
       <div className="h-px bg-white/[0.07] relative z-10" />
 
       <div className="flex flex-col gap-3 relative z-10">
-        <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">Personal</p>
+        <p className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-700">Personal</p>
         <DetailRow icon={<IconCalendar />} label="Date of Birth" value={formatDate(userProfile?.DoB)} />
         <DetailRow icon={<IconBuilding />} label="Campus"        value={userProfile?.campus} />
         <DetailRow icon={<IconBuilding />} label="School"        value={userProfile?.school} />

@@ -261,14 +261,14 @@ function FellowshipDetail({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="flex items-start justify-between relative z-10">
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 mb-1">
+          <p className="text-[0.8rem] uppercase tracking-[0.25em] text-stone-700 mb-1">
             Fellowship Group
           </p>
-          <h3 className="font-cormorant text-2xl font-semibold text-stone-100 leading-tight">
+          <h3 className="font-cormorant text-2xl font-semibold text-amber-800 leading-tight">
             {group.name}
           </h3>
         </div>
@@ -316,7 +316,7 @@ function FellowshipDetail({
         </div>
       </div>
       {group.description && (
-        <p className="text-xs text-stone-400 leading-relaxed relative z-10 border-l-2 border-amber-500/30 pl-3">
+        <p className="text-xs text-stone-600 leading-relaxed relative z-10 border-l-2 border-amber-500/40 pl-3">
           {group.description}
         </p>
       )}
@@ -331,7 +331,7 @@ function FellowshipDetail({
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30"
           />
           <div>
-            <p className="text-sm font-cormorant font-semibold text-stone-200">
+            <p className="text-sm font-cormorant font-semibold text-light">
               {leader
                 ? leader.first_name && leader.last_name
                   ? `${leader.first_name} ${leader.last_name}`
@@ -362,7 +362,7 @@ function FellowshipDetail({
                     className="w-7 h-7 rounded-full object-cover shrink-0"
                   />
                   <div className="min-w-0">
-                    <p className="text-xs text-stone-300 truncate">
+                    <p className="text-xs text-light truncate">
                       {m.first_name && m.last_name
                         ? `${m.first_name} ${m.last_name}`
                         : m.username}

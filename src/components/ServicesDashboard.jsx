@@ -141,13 +141,13 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
       <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex items-start justify-between relative z-10">
         <div className="flex-1 min-w-0">
           <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Service</p>
-          <h3 className="font-cormorant text-2xl font-semibold text-stone-100 leading-tight truncate">{service.name}</h3>
+          <h3 className="font-cormorant text-2xl font-semibold text-light leading-tight truncate">{service.name}</h3>
         </div>
         <div className="flex items-center gap-0.5 shrink-0 ml-2">
           <button onClick={onEdit} title="Edit" className="p-1.5 text-stone-500 hover:text-amber-400 transition-colors"><IconEdit /></button>
@@ -160,7 +160,7 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
       </div>
 
       {service.description && (
-        <p className="text-xs text-stone-400 leading-relaxed relative z-10 border-l-2 border-amber-500/30 pl-3">{service.description}</p>
+        <p className="text-sm text-stone-100 leading-relaxed relative z-10 border-l-2 border-amber-500/35 pl-3">{service.description}</p>
       )}
 
       <div className="relative z-10">
@@ -169,7 +169,7 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
           <img src={pastorProfile?.profile_pic_url || "/images/defaultavatar.jpg"} alt={pastor?.username || "Pastor"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30" />
           <div>
-            <p className="text-sm font-cormorant font-semibold text-stone-200">{pastor ? userName(pastor) : "No pastor assigned"}</p>
+            <p className="text-sm font-cormorant font-semibold text-light">{pastor ? userName(pastor) : "No pastor assigned"}</p>
             {pastor && <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500">@{pastor.username}</p>}
           </div>
         </div>
@@ -208,7 +208,7 @@ function ServiceDetail({ service, allUsers, allProfiles, allDepartments, equipme
               <div key={m.id} className="flex items-center gap-3">
                 <img src={mp?.profile_pic_url || "/images/defaultavatar.jpg"} alt={m.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-stone-300 truncate">{userName(m)}</p>
+                  <p className="text-xs text-stone-100 truncate">{userName(m)}</p>
                   <p className="font-coptic text-[0.55rem] text-stone-600 truncate">@{m.username}</p>
                 </div>
               </div>
@@ -254,8 +254,8 @@ function EquipmentDetail({ item, services, departments, onClose, onEdit, onDelet
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex items-start justify-between relative z-10">
         <div className="flex-1 min-w-0">
@@ -272,20 +272,20 @@ function EquipmentDetail({ item, services, departments, onClose, onEdit, onDelet
         </div>
       </div>
 
-      {item.image && <img src={item.image} alt={item.name} className="w-full h-36 object-cover relative z-10" />}
+      {item.image && <img src={item.image} alt={item.name} className="w-full h-36 object-cover relative z-10 outline-1 outline-light/70 p-px" />}
 
       {item.description && (
-        <p className="text-xs text-stone-400 leading-relaxed relative z-10 border-l-2 border-amber-500/30 pl-3">{item.description}</p>
+        <p className="text-sm text-stone-100 leading-relaxed relative z-10 border-l-2 border-amber-500/40 pl-3">{item.description}</p>
       )}
 
       <div className="grid grid-cols-2 gap-3 relative z-10">
         <div className="bg-white/5 border border-white/10 px-3 py-2.5">
-          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 mb-1">Quantity</p>
-          <p className="font-cormorant text-2xl font-light text-stone-200">{item.quantity}</p>
+          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-700 mb-1">Quantity</p>
+          <p className="font-cormorant text-2xl font-light text-light">{item.quantity}</p>
         </div>
         <div className="bg-white/5 border border-white/10 px-3 py-2.5">
-          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 mb-1">Assigned To</p>
-          <p className="text-xs text-stone-300 mt-1">
+          <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-700 mb-1">Assigned To</p>
+          <p className="text-xs text-light mt-1">
             {assignedService ? assignedService.name : assignedDepartment ? assignedDepartment.name : "Unassigned"}
           </p>
         </div>

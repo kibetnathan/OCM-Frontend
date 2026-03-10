@@ -61,7 +61,7 @@ function SectionHeading({ children }) {
 
 function InputLabel({ children }) {
   return (
-    <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">{children}</label>
+    <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-700">{children}</label>
   );
 }
 
@@ -110,7 +110,7 @@ function courseStatus(course) {
     if (totalDays) endDate = new Date(start.getTime() + totalDays * 86400000);
   }
   if (now < start)              return { label: "Upcoming",  color: "text-blue-600 bg-blue-50 border-blue-100" };
-  if (endDate && now > endDate) return { label: "Completed", color: "text-stone-500 bg-stone-50 border-stone-200" };
+  if (endDate && now > endDate) return { label: "Completed", color: "text-stone-700 bg-stone-50 border-stone-200" };
   return                               { label: "Active",    color: "text-emerald-600 bg-emerald-50 border-emerald-100" };
 }
 
@@ -173,7 +173,7 @@ function CourseCard({ course, allUsers, allProfiles, onSelect, isSelected }) {
               className="w-6 h-6 rounded-full object-cover ring-2 ring-white -ml-1.5 first:ml-0" />;
           })}
           {memberList.length > 4 && (
-            <span className="w-6 h-6 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-[0.5rem] text-stone-500 -ml-1.5">
+            <span className="w-6 h-6 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-[0.5rem] text-stone-700 -ml-1.5">
               +{memberList.length - 4}
             </span>
           )}
@@ -194,19 +194,19 @@ function CourseDetail({ course, allUsers, allProfiles, onClose, onEdit, onDelete
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/35 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex items-start justify-between relative z-10">
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Course</p>
-          <h3 className="font-cormorant text-2xl font-semibold text-stone-100 leading-tight">{course.name}</h3>
+          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-700 mb-1">Course</p>
+          <h3 className="font-cormorant text-2xl font-semibold text-light leading-tight">{course.name}</h3>
           {status && (
             <span className={`inline-block mt-1 text-[0.6rem] uppercase tracking-widest border px-2 py-0.5 ${status.color}`}>{status.label}</span>
           )}
         </div>
         <div className="flex items-center gap-0.5 shrink-0 ml-2">
-          <button onClick={onEdit} title="Edit" className="p-1.5 text-stone-500 hover:text-amber-400 transition-colors">
+          <button onClick={onEdit} title="Edit" className="p-1.5 text-stone-700 hover:text-amber-400 transition-colors">
             <IconEdit />
           </button>
           {!confirmDelete ? (
@@ -227,17 +227,17 @@ function CourseDetail({ course, allUsers, allProfiles, onClose, onEdit, onDelete
       </div>
 
       {course.description && (
-        <p className="text-xs text-stone-400 leading-relaxed relative z-10 border-l-2 border-amber-500/30 pl-3">{course.description}</p>
+        <p className="text-xs text-stone-600 leading-relaxed relative z-10 border-l-2 border-amber-500/35 pl-3">{course.description}</p>
       )}
 
       <div className="relative z-10 grid grid-cols-2 gap-3">
-        <div className="bg-white/5 border border-white/10 px-3 py-2.5">
+        <div className="bg-white/5 border border-white/35 px-3 py-2.5">
           <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 mb-1">Start Date</p>
-          <p className="text-sm text-stone-200">{formatDate(course.start_date)}</p>
+          <p className="text-sm text-stone-600">{formatDate(course.start_date)}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 px-3 py-2.5">
+        <div className="bg-white/5 border border-white/35 px-3 py-2.5">
           <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 mb-1">Duration</p>
-          <p className="text-sm text-stone-200">{parseDuration(course.expected_duration)}</p>
+          <p className="text-sm text-stone-600">{parseDuration(course.expected_duration)}</p>
         </div>
       </div>
 
@@ -247,7 +247,7 @@ function CourseDetail({ course, allUsers, allProfiles, onClose, onEdit, onDelete
           <img src={leaderProfile?.profile_pic_url || "/images/defaultavatar.jpg"} alt={leader?.username || "Instructor"}
             className="w-9 h-9 rounded-full object-cover ring-2 ring-amber-500/30" />
           <div>
-            <p className="text-sm font-cormorant font-semibold text-stone-200">
+            <p className="text-sm font-cormorant font-semibold text-light">
               {leader ? (leader.first_name && leader.last_name ? `${leader.first_name} ${leader.last_name}` : leader.username) : "No instructor assigned"}
             </p>
             {leader && <p className="font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500">@{leader.username}</p>}
@@ -256,7 +256,7 @@ function CourseDetail({ course, allUsers, allProfiles, onClose, onEdit, onDelete
       </div>
 
       <div className="relative z-10">
-        <p className="text-[0.6rem] uppercase tracking-widest text-stone-500 font-coptic mb-2">Enrolled ({memberList.length})</p>
+        <p className="text-[0.6rem] uppercase tracking-widest text-stone-700 font-coptic mb-2">Enrolled ({memberList.length})</p>
         <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
           {memberList.length > 0 ? memberList.map((m) => {
             const mp = allProfiles.find((p) => p.user?.id === m.id);
@@ -264,7 +264,7 @@ function CourseDetail({ course, allUsers, allProfiles, onClose, onEdit, onDelete
               <div key={m.id} className="flex items-center gap-3">
                 <img src={mp?.profile_pic_url || "/images/defaultavatar.jpg"} alt={m.username} className="w-7 h-7 rounded-full object-cover shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-stone-300 truncate">{m.first_name && m.last_name ? `${m.first_name} ${m.last_name}` : m.username}</p>
+                  <p className="text-xs text-stone-100 truncate">{m.first_name && m.last_name ? `${m.first_name} ${m.last_name}` : m.username}</p>
                   <p className="font-coptic text-[0.55rem] text-stone-600 truncate">@{m.username}</p>
                 </div>
               </div>
@@ -482,7 +482,7 @@ function EditCourseForm({ course, allUsers, allProfiles, onSuccess, onCancel }) 
           {submitting ? <span className="animate-pulse">Saving…</span> : <><IconCheck /><span>Save Changes</span></>}
         </button>
         <button type="button" onClick={onCancel}
-          className="border border-stone-200 text-stone-500 hover:border-stone-400 font-coptic text-[0.65rem] uppercase tracking-widest px-4 py-3 transition-colors">
+          className="border border-stone-200 text-stone-700 hover:border-stone-400 font-coptic text-[0.65rem] uppercase tracking-widest px-4 py-3 transition-colors">
           Cancel
         </button>
       </div>

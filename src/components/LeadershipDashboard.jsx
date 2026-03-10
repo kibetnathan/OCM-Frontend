@@ -168,12 +168,11 @@ function TeamDetail({ team, allUsers, allProfiles, onClose, onEdit, onDelete }) 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
-    <div className="relative overflow-hidden bg-[#0f0f0d]/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="relative overflow-hidden bg-khaki/70 backdrop-blur-md border border-white/10 rounded-sm shadow-lg shadow-black/20 p-6 flex flex-col gap-5">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="flex items-start justify-between relative z-10">
         <div>
-          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Leadership Team</p>
+          <p className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-700 mb-1">Leadership Team</p>
           <h3 className="font-cormorant text-2xl font-semibold text-stone-100 leading-tight">{team.name}</h3>
         </div>
         <div className="flex items-center gap-0.5 shrink-0 ml-2">
@@ -198,11 +197,11 @@ function TeamDetail({ team, allUsers, allProfiles, onClose, onEdit, onDelete }) 
       </div>
 
       {team.description && (
-        <p className="text-xs text-stone-400 leading-relaxed relative z-10 border-l-2 border-amber-500/30 pl-3">{team.description}</p>
+        <p className="text-sm text-stone-100 leading-relaxed relative z-10 border-l-2 border-amber-500/55 pl-3">{team.description}</p>
       )}
 
       <div className="relative z-10">
-        <p className="text-[0.6rem] uppercase tracking-widest text-stone-500 font-coptic mb-3">Members ({memberList.length})</p>
+        <p className="text-[0.6rem] uppercase tracking-widest text-stone-700 font-coptic mb-3">Members ({memberList.length})</p>
         <div className="flex flex-col gap-2.5 max-h-72 overflow-y-auto pr-1">
           {memberList.length > 0 ? memberList.map((m) => {
             const mp = allProfiles.find((p) => p.user?.id === m.id);
@@ -211,10 +210,10 @@ function TeamDetail({ team, allUsers, allProfiles, onClose, onEdit, onDelete }) 
                 <img src={mp?.profile_pic_url || "/images/defaultavatar.jpg"} alt={m.username}
                   className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-amber-500/20" />
                 <div className="min-w-0">
-                  <p className="text-sm text-stone-200 truncate font-cormorant font-medium">{userName(m)}</p>
+                  <p className="text-sm text-light truncate font-cormorant font-medium">{userName(m)}</p>
                   <p className="font-coptic text-[0.55rem] text-stone-600 truncate">
                     @{m.username}
-                    {m.groups?.length > 0 && <span className="ml-2 text-amber-500/70">{m.groups[0]}</span>}
+                    {m.groups?.length > 0 && <span className="ml-2 text-amber-600">{m.groups[0]}</span>}
                   </p>
                 </div>
               </div>
