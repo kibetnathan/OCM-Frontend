@@ -18,6 +18,7 @@ import PostView from "./components/PostView";
 import ThreadsPage from "./pages/ThreadsPage";
 import useAuthStore from "./zustand/authStore";
 import { useEffect } from "react";
+import BiblePage from "./pages/BiblePage";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -71,6 +72,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/threads" element={<ThreadsPage />} />
+        <Route path="/bible" element={<BiblePage />} />
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />
           <Route path="/feed/post/:postId" element={<PostView />} />
