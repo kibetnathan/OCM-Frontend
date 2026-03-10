@@ -23,6 +23,23 @@ const IconSearch = () => (
   </svg>
 );
 
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function renderVerseContent(content) {
+  return content.map((item, i) => {
+    if (typeof item === 'string') return <span key={i}>{item} </span>;
+    if (item.text) {
+      if (item.wordsOfJesus) return <span key={i} className="text-red-600">{item.text} </span>;
+      if (item.poem)         return <span key={i} className="block pl-4 italic text-stone-600">{item.text}</span>;
+      return <span key={i}>{item.text} </span>;
+    }
+    if (item.heading)   return <span key={i} className="block font-cormorant text-lg font-semibold text-stone-700 mt-4 mb-1">{item.heading}</span>;
+    if (item.lineBreak) return <br key={i} />;
+    if (item.noteId !== undefined) return <sup key={i} className="text-amber-600 text-[0.6rem] cursor-pointer ml-0.5">[{item.noteId + 1}]</sup>;
+    return null;
+  });
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 function BiblePage() {
