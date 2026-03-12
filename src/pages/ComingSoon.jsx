@@ -1,4 +1,5 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
 
 function ComingSoon() {
   return (
@@ -10,16 +11,16 @@ function ComingSoon() {
           <div className="w-12 h-px bg-amber-600 mx-auto mb-8" />
 
           <h1 className="font-cormorant text-8xl font-light text-amber-500 leading-none mb-2">
-            404
+            Coming Soon
           </h1>
 
           <p className="font-cormorant text-xs tracking-widest uppercase text-stone-400 mb-8">
-            Page Not Found
+            Work In Progress
           </p>
 
 
           <p className="font-coptic text-stone-400 leading-relaxed mb-10">
-            The page you are looking for does not exist or has been moved.
+            The feature you are looking for is still a work in progress.
           </p>
 
           <a

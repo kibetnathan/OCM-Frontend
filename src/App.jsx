@@ -22,20 +22,22 @@ import BiblePage from "./pages/BiblePage";
 import StreamingPage from "./pages/StreamingPage";
 import MobileProfile from "./pages/MobileProfile";
 import PageNotFound from "./pages/PageNotFound";
+import ComingSoon from "./pages/ComingSoon";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const loading = useAuthStore((state) => state.loading);
+  const wipUrls = [
+    "/plans",
+    "/streaming",
+  ]
 
   useEffect(() => {
-    // This replaces the manual onIdTokenChanged logic
-    // because it's now encapsulated in your store
     const unsubscribe = initAuth();
     return () => unsubscribe();
   }, [initAuth]);
 
-  // VERY IMPORTANT: Prevent the app from rendering routes
-  // until we know if the user is logged in or not.
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-[#0f0f0d] gap-6">
@@ -76,7 +78,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/threads" element={<ThreadsPage />} />
         <Route path="/bible" element={<BiblePage />} />
-        <Route path="/streaming" element={<StreamingPage />} />
+        {/* <Route path="/streaming" element={<StreamingPage />} />*/}
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />
           <Route path="/feed/post/:postId" element={<PostView />} />
@@ -97,6 +99,8 @@ function App() {
         </Route>
         <Route path="/profile" element={<MobileProfile />} />
         <Route path="*" element={<PageNotFound />} />
+        {wipUrls.map((path) =>
+          (<Route key={path} path={path} element={<ComingSoon/>}/>))}
       </Routes>
     </Router>
   );
