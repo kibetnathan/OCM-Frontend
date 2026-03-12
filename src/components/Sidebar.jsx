@@ -308,7 +308,7 @@ function Sidebar() {
             </NavLink>
             </li>
             <SectionLabel>Streaming</SectionLabel>
-            <NavLink to="/streaming" className={navLinkClass}>
+            <NavLink to="/streming" className={navLinkClass}>
               <svg
                 className="w-3.5 h-3.5 shrink-0"
                 fill="none"
