@@ -20,6 +20,7 @@ import useAuthStore from "./zustand/authStore";
 import { useEffect } from "react";
 import BiblePage from "./pages/BiblePage";
 import StreamingPage from "./pages/StreamingPage";
+import MobileProfile from "./pages/MobileProfile";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -93,6 +94,7 @@ function App() {
           <Route path="users/all" element={<UsersDashboard />} />
           <Route path="users/leadership" element={<LeadershipDashboard />} />
         </Route>
+        <Route path="/profile" element={<MobileProfile />} />
       </Routes>
     </Router>
   );

@@ -1,415 +1,147 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import useProfileStore from "../zustand/profileStore";
+import useAuthStore from "../zustand/authStore";
+import useMainStore from "../zustand/mainStore";
+import Sidebar from "../components/Sidebar";
 
-const useAuthStore = () => ({
-  user: {
-    displayName: "Nathan Mwangi",
-    email: "nathan@mavunochurch.org",
-    photoURL: null,
-    role: "Admin",
-    joinDate: "March 2022",
-    department: "Tech Ministry",
-    phone: "+254 712 345 678",
-  },
-  logout: () => console.log("logout"),
-});
-
-const Avatar = ({ user, size = 80 }) => {
-  const initials = user.displayName
-    ? user.displayName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "?";
-
-  return (
-    <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: user.photoURL
-          ? `url(${user.photoURL}) center/cover`
-          : "linear-gradient(135deg, #92400e 0%, #d97706 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "2px solid rgba(217, 119, 6, 0.5)",
-        boxShadow: "0 0 0 1px rgba(217,119,6,0.2), 0 4px 20px rgba(0,0,0,0.4)",
-        flexShrink: 0,
-      }}
-    >
-      {!user.photoURL && (
-        <span
-          style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: size * 0.35,
-            fontWeight: 600,
-            color: "#fef3c7",
-            letterSpacing: "0.05em",
-          }}
-        >
-          {initials}
-        </span>
-      )}
-    </div>
-  );
-};
-
-const RoleBadge = ({ role }) => {
-  const colors = {
-    Admin: { bg: "rgba(146, 64, 14, 0.35)", border: "rgba(217,119,6,0.5)", text: "#fbbf24" },
-    Leader: { bg: "rgba(30, 58, 138, 0.35)", border: "rgba(96,165,250,0.4)", text: "#93c5fd" },
-    Member: { bg: "rgba(20, 83, 45, 0.35)", border: "rgba(74,222,128,0.4)", text: "#86efac" },
-  };
-  const c = colors[role] || colors.Member;
-  return (
-    <span
-      style={{
-        background: c.bg,
-        border: `1px solid ${c.border}`,
-        color: c.text,
-        padding: "2px 10px",
-        borderRadius: 999,
-        fontSize: 11,
-        fontFamily: "'Cormorant Garamond', serif",
-        fontWeight: 600,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-      }}
-    >
-      {role}
-    </span>
-  );
-};
-
-const InfoRow = ({ icon, label, value }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "flex-start",
-      gap: 12,
-      padding: "13px 0",
-      borderBottom: "1px solid rgba(255,255,255,0.05)",
-    }}
-  >
-    <span style={{ fontSize: 16, opacity: 0.6, marginTop: 1, flexShrink: 0 }}>{icon}</span>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div
-        style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 11,
-          color: "rgba(251,191,36,0.6)",
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          marginBottom: 2,
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 15,
-          color: "#f5f0e8",
-          fontWeight: 500,
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  </div>
-);
-
-const ActionButton = ({ icon, label, onClick, variant = "default" }) => {
-  const [pressed, setPressed] = useState(false);
-  const isDanger = variant === "danger";
-
-  return (
-    <button
-      onClick={onClick}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      onTouchStart={() => setPressed(true)}
-      onTouchEnd={() => setPressed(false)}
-      style={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        gap: 12,
-        padding: "14px 16px",
-        background: pressed
-          ? isDanger ? "rgba(220,38,38,0.18)" : "rgba(217,119,6,0.12)"
-          : "transparent",
-        border: "none",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        cursor: "pointer",
-        textAlign: "left",
-        transition: "background 0.15s ease",
-        borderRadius: 0,
-      }}
-    >
-      <span style={{ fontSize: 17, flexShrink: 0 }}>{icon}</span>
-      <span
-        style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 16,
-          fontWeight: 500,
-          color: isDanger ? "#f87171" : "#f5f0e8",
-          letterSpacing: "0.02em",
-          flex: 1,
-        }}
-      >
-        {label}
-      </span>
-      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>›</span>
-    </button>
-  );
-};
-
-const Divider = ({ label }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      padding: "20px 0 8px",
-    }}
-  >
-    <div style={{ flex: 1, height: 1, background: "rgba(217,119,6,0.2)" }} />
-    <span
-      style={{
-        fontFamily: "'Cormorant Garamond', serif",
-        fontSize: 10,
-        letterSpacing: "0.2em",
-        textTransform: "uppercase",
-        color: "rgba(251,191,36,0.45)",
-      }}
-    >
-      {label}
-    </span>
-    <div style={{ flex: 1, height: 1, background: "rgba(217,119,6,0.2)" }} />
-  </div>
+const IconLogout = () => (
+  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+  </svg>
 );
 
 export default function ProfilePage() {
-  const { user, logout } = useAuthStore();
-  const [editMode, setEditMode] = useState(false);
+  const token   = useAuthStore((state) => state.token);
+  const user    = useAuthStore((state) => state.user);
+  const logout  = useAuthStore((state) => state.logout);
+
+  const profile     = useProfileStore((state) => state.profile);
+  const fellowships = useMainStore((state) => state.fellowships);
+
+  useEffect(() => {
+    if (token) useProfileStore.getState().fetchProfile();
+  }, [token]);
+
+  useEffect(() => {
+    if (token) useMainStore.getState().fetchFellowships();
+  }, [token]);
+
+  const fellowship_group = fellowships?.results ?? (Array.isArray(fellowships) ? fellowships : []);
+  const myGroups = fellowship_group?.filter((g) => g.members?.includes(user?.id));
+
+  const fullName =
+    user?.first_name && user?.last_name
+      ? `${user.first_name} ${user.last_name}`
+      : "Guest User";
+
+  const profileFields = [
+    { label: "Campus",    value: profile?.campus },
+    { label: "School",    value: profile?.school },
+    { label: "Workplace", value: profile?.workplace },
+    { label: "Role",      value: user?.groups?.join(", ") },
+  ];
+
+  if (!profile)
+    return (
+      <div className="md:hidden flex h-screen w-full bg-[#0f0f0d] items-center justify-center">
+        <Sidebar/>
+        <p className="text-xs tracking-widest uppercase text-stone-600 animate-pulse">
+          Loading…
+        </p>
+      </div>
+    );
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#1a1410",
-        position: "relative",
-        overflowX: "hidden",
-        fontFamily: "'Cormorant Garamond', serif",
+    <>
+      <div className="md:hidden flex flex-col min-h-screen bg-[#0f0f0d] overflow-y-auto pb-20">
+        <Sidebar/>
+        {/* ── Profile Card ── */}
+        <div className="flex flex-col items-center px-6 pt-14 pb-7 border-b border-white/6">
 
-        // Only show on mobile
-        maxWidth: 480,
-        margin: "0 auto",
-      }}
-    >
-      {/* Google Fonts */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap');
+          {/* Church label */}
+          <p className="font-coptic text-[0.55rem] tracking-[0.3em] uppercase text-stone-700 mb-6">
+            Open Church Management
+          </p>
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        @media (min-width: 769px) {
-          .profile-mobile-only { display: none !important; }
-        }
-
-        .profile-scroll::-webkit-scrollbar { display: none; }
-        .profile-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-
-      {/* Ambient background glow */}
-      <div
-        style={{
-          position: "fixed",
-          top: -80,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 300,
-          height: 300,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(146,64,14,0.18) 0%, transparent 70%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
-      <div
-        className="profile-scroll"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          overflowY: "auto",
-          height: "100vh",
-          paddingBottom: 80, // space for mobile nav
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            padding: "56px 24px 24px",
-            borderBottom: "1px solid rgba(217,119,6,0.15)",
-            background: "linear-gradient(180deg, rgba(26,18,8,0.95) 0%, transparent 100%)",
-          }}
-        >
-          {/* Church name */}
-          <div
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 10,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: "rgba(251,191,36,0.4)",
-              marginBottom: 20,
-              textAlign: "center",
-            }}
-          >
-            Mavuno Church · OCM
+          {/* Avatar */}
+          <div className="relative mb-5">
+            <img
+              src={profile?.profile_pic_url || "/images/defaultavatar.jpg"}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover ring-2 ring-amber-500/30"
+            />
+            <span className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-amber-500 rounded-full ring-2 ring-[#0f0f0d]" />
           </div>
 
-          {/* Avatar + name block */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Avatar user={user} size={72} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: 600,
-                  color: "#fef3c7",
-                  letterSpacing: "0.01em",
-                  lineHeight: 1.15,
-                  marginBottom: 6,
-                }}
-              >
-                {user.displayName}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <RoleBadge role={user.role} />
-                <span
-                  style={{
-                    fontSize: 12,
-                    color: "rgba(245,240,232,0.4)",
-                    fontStyle: "italic",
-                  }}
-                >
-                  {user.department}
+          {/* Name & username */}
+          <h2 className="font-cormorant text-2xl font-semibold text-stone-100 tracking-wide text-center leading-tight">
+            {fullName}
+          </h2>
+          <p className="font-coptic text-xs text-stone-500 tracking-widest mt-1">
+            @{user?.username}
+          </p>
+
+          <div className="w-8 h-px bg-amber-500/40 my-4" />
+
+          {/* Profile fields */}
+          <ul className="w-full flex flex-col gap-2.5">
+            {profileFields.map(({ label, value }) => (
+              <li key={label} className="flex items-baseline justify-between gap-3">
+                <span className="text-[0.6rem] uppercase tracking-[0.2em] text-stone-600 shrink-0">
+                  {label}
                 </span>
-              </div>
-            </div>
+                <span className="text-xs text-stone-300 font-light text-right truncate">
+                  {value || "—"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ── My Groups ── */}
+        <div className="flex flex-col px-6 py-6 border-b border-white/6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-[0.6rem] uppercase tracking-[0.25em] text-stone-600">
+              My Groups
+            </span>
+            <div className="flex-1 h-px bg-white/6" />
+            {myGroups?.length > 0 && (
+              <span className="text-[0.6rem] text-amber-500 tabular-nums">
+                {myGroups.length}
+              </span>
+            )}
           </div>
 
-          {/* Edit profile button */}
+          <ul className="flex flex-col gap-1">
+            {myGroups?.length > 0 ? (
+              myGroups.map((group) => (
+                <li
+                  key={group.id}
+                  className="font-coptic text-xs text-stone-400 px-3 py-2.5 border-l-2 border-transparent hover:border-amber-500/60 hover:text-stone-100 hover:bg-white/4 transition-all duration-150 cursor-default tracking-wide"
+                >
+                  {group.name}
+                </li>
+              ))
+            ) : (
+              <li className="text-[0.65rem] text-stone-600 tracking-widest uppercase py-2">
+                No groups yet
+              </li>
+            )}
+          </ul>
+        </div>
+
+        {/* ── Footer Actions ── */}
+        <div className="flex flex-col mt-auto">
           <button
-            onClick={() => setEditMode(!editMode)}
-            style={{
-              marginTop: 18,
-              width: "100%",
-              padding: "10px 0",
-              background: "rgba(217,119,6,0.12)",
-              border: "1px solid rgba(217,119,6,0.35)",
-              borderRadius: 8,
-              color: "#fbbf24",
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 14,
-              fontWeight: 600,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              transition: "background 0.2s",
-            }}
+            onClick={logout}
+            className="flex items-center gap-3 w-full px-6 py-4 text-left font-coptic text-[0.6rem] uppercase tracking-widest text-stone-600 hover:text-red-400 hover:bg-white/5 transition-colors"
           >
-            {editMode ? "Cancel Edit" : "Edit Profile"}
+            <IconLogout />
+            Sign Out
           </button>
         </div>
 
-        {/* Main content */}
-        <div style={{ padding: "0 20px" }}>
-
-          {/* Member Info */}
-          <Divider label="Member Information" />
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 12,
-              padding: "0 16px",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <InfoRow icon="✉️" label="Email" value={user.email} />
-            <InfoRow icon="📱" label="Phone" value={user.phone} />
-            <InfoRow icon="🏛️" label="Ministry" value={user.department} />
-            <InfoRow icon="📅" label="Member Since" value={user.joinDate} />
-          </div>
-
-          {/* Quick Actions */}
-          <Divider label="Account" />
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 12,
-              overflow: "hidden",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <ActionButton icon="🔔" label="Notifications" onClick={() => {}} />
-            <ActionButton icon="🔒" label="Privacy & Security" onClick={() => {}} />
-            <ActionButton icon="🎨" label="Appearance" onClick={() => {}} />
-            <ActionButton icon="❓" label="Help & Support" onClick={() => {}} />
-          </div>
-
-          {/* Church */}
-          <Divider label="Church" />
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 12,
-              overflow: "hidden",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <ActionButton icon="📖" label="My Groups" onClick={() => {}} />
-            <ActionButton icon="🙏" label="Prayer Requests" onClick={() => {}} />
-            <ActionButton icon="💰" label="Giving History" onClick={() => {}} />
-            <ActionButton icon="📋" label="Attendance Record" onClick={() => {}} />
-          </div>
-
-          {/* Danger zone */}
-          <Divider label="Session" />
-          <div
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 12,
-              overflow: "hidden",
-              backdropFilter: "blur(10px)",
-              marginBottom: 12,
-            }}
-          >
-            <ActionButton icon="🚪" label="Sign Out" onClick={logout} variant="danger" />
-          </div>
-
-          {/* Version */}
-          <div
-            style={{
-              textAlign: "center",
-              padding: "12px 0 8px",
-              fontSize: 11,
-              color: "rgba(255,255,255,0.15)",
-              letterSpacing: "0.1em",
-            }}
-          >
-            OCM v1.0 · Mavuno Church
-          </div>
-        </div>
       </div>
-    </div>
+    </>
   );
 }
