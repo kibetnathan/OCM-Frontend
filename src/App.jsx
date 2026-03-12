@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import BiblePage from "./pages/BiblePage";
 import StreamingPage from "./pages/StreamingPage";
 import MobileProfile from "./pages/MobileProfile";
+import PageNotFound from "./pages/PageNotFound";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -95,6 +96,7 @@ function App() {
           <Route path="users/leadership" element={<LeadershipDashboard />} />
         </Route>
         <Route path="/profile" element={<MobileProfile />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Router>
   );
