@@ -502,7 +502,7 @@ function CourseDashboard() {
   const fetchCourses  = useMainStore((state) => state.fetchCourses);
   const fetchUsers    = useMainStore((state) => state.fetchUsers);
   const fetchProfiles = useMainStore((state) => state.fetchProfiles);
-  const deteteCourse  = useMainStore((state) => state.deteteCourse); // matches store spelling
+  const deleteCourse  = useMainStore((state) => state.deleteCourse); 
 
   const courseList = courses?.results ?? (Array.isArray(courses) ? courses : []);
 
@@ -534,7 +534,7 @@ function CourseDashboard() {
   const showSuccess = (msg) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(null), 3000); };
 
   const handleDelete = async (id) => {
-    const result = await deteteCourse(id);
+    const result = await deleteCourse(id);
     if (result?.success) { setSelected(null); setMode("idle"); showSuccess("Course deleted."); }
   };
 
