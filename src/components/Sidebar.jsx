@@ -224,11 +224,44 @@ function Sidebar() {
                   </NavLink>
                 </li>
               </ExpandableSection>
+              <li>
+                <NavLink to="/dashboard/streaming" end className={navLinkClass}>
+                  <svg
+                    className="w-3.5 h-3.5 shrink-0"
+                    fill="none"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.75 5.25a2 2 0 0 1 2-2h12.5a2 2 0 0 1 2 2v10.5a2 2 0 0 1-2 2H5.75a2 2 0 0 1-2-2V5.25Z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.75 8.25l4.5 2.75-4.5 2.75V8.25Z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.5 19.5h7"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 17.75v1.75"
+                    />
+                  </svg>
+                  Streaming
+                </NavLink>
+              </li>
             </>
           )}
 
           {/* ── Messaging ── */}
-
+          <SectionLabel>Messaging</SectionLabel>
           <li>
             <NavLink to="/threads" className={navLinkClass}>
               <svg

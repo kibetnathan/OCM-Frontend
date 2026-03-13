@@ -23,6 +23,7 @@ import StreamingPage from "./pages/StreamingPage";
 import MobileProfile from "./pages/MobileProfile";
 import PageNotFound from "./pages/PageNotFound";
 import ComingSoon from "./pages/ComingSoon";
+import AdminStreamPanel from "./components/AdminStreamPanel";
 
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
@@ -96,6 +97,7 @@ function App() {
           <Route path="groups/services" element={<ServicesDashboard />} />
           <Route path="users/all" element={<UsersDashboard />} />
           <Route path="users/leadership" element={<LeadershipDashboard />} />
+          <Route path="streaming" element={<AdminStreamPanel />} />
         </Route>
         <Route path="/profile" element={<MobileProfile />} />
         <Route path="*" element={<PageNotFound />} />
