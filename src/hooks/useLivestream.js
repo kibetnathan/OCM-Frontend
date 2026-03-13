@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase'; 
+import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
-const YT_API_KEY   = import.meta.env.VITE_YOUTUBE_API_KEY;
+const YT_API_KEY     = import.meta.env.VITE_YOUTUBE_API_KEY;
 const CHANNEL_HANDLE = 'MavunoChurchHillCity';
 const POLL_INTERVAL  = 2 * 60 * 1000; // check every 2 minutes
 
@@ -12,42 +12,39 @@ const POLL_INTERVAL  = 2 * 60 * 1000; // check every 2 minutes
 
 function getEATNow() {
   const now = new Date();
-  const eatOffset = 3 * 60;
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + eatOffset * 60000);
+  return new Date(utc + 3 * 60 * 60000);
 }
 
 function isScheduledWindow() {
   const eat = getEATNow();
-  const day  = eat.getDay(); 
+  const day  = eat.getDay();
   const mins = eat.getHours() * 60 + eat.getMinutes();
-
-  const sunday9am  = day === 0 && mins >= 510  && mins <= 660;  
-  const sunday11am = day === 0 && mins >= 630  && mins <= 810;  
+  const sunday9am  = day === 0 && mins >= 510 && mins <= 660;
+  const sunday11am = day === 0 && mins >= 630 && mins <= 810;
   return sunday9am || sunday11am;
 }
 
 function getNextService() {
-  const eat = getEATNow();
+  const eat  = getEATNow();
   const day  = eat.getDay();
   const mins = eat.getHours() * 60 + eat.getMinutes();
 
-
-  const daysUntilSunday = (7 - day) % 7 || (mins >= 660 ? 7 : 0);
-  const nextSunday = new Date(eat);
-  nextSunday.setDate(eat.getDate() + daysUntilSunday);
-  nextSunday.setHours(9, 0, 0, 0);
+  const next = new Date(eat);
 
   if (day === 0 && mins < 510) {
-    nextSunday.setDate(eat.getDate());
-    nextSunday.setHours(9, 0, 0, 0);
+    next.setHours(9, 0, 0, 0);
+    return next;
   }
-  if (day === 0 && mins >= 660 && mins < 630) {
-    nextSunday.setDate(eat.getDate());
-    nextSunday.setHours(11, 0, 0, 0);
+  if (day === 0 && mins >= 510 && mins < 630) {
+    next.setHours(11, 0, 0, 0);
+    return next;
   }
 
-  return nextSunday;
+  const daysUntilSunday = day === 0 ? 7 : (7 - day) % 7;
+  next.setDate(eat.getDate() + daysUntilSunday);
+  next.setHours(9, 0, 0, 0);
+  return next;
 }
 
 // ---------------------------------------------------------------------------
@@ -58,8 +55,9 @@ async function resolveChannelId() {
   const cached = sessionStorage.getItem('yt_channel_id');
   if (cached) return cached;
 
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${CHANNEL_HANDLE}&key=${YT_API_KEY}`;
-  const res  = await fetch(url);
+  const res  = await fetch(
+    `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${CHANNEL_HANDLE}&key=${YT_API_KEY}`
+  );
   const data = await res.json();
   const id   = data?.items?.[0]?.id ?? null;
   if (id) sessionStorage.setItem('yt_channel_id', id);
@@ -67,10 +65,28 @@ async function resolveChannelId() {
 }
 
 async function fetchLiveVideoId(channelId) {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${YT_API_KEY}`;
-  const res  = await fetch(url);
+  const res  = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${YT_API_KEY}`
+  );
   const data = await res.json();
   return data?.items?.[0]?.id?.videoId ?? null;
+}
+
+async function fetchLatestVideo(channelId) {
+  const res  = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=1&key=${YT_API_KEY}`
+  );
+  const data = await res.json();
+  const item = data?.items?.[0];
+  if (!item) return null;
+
+  return {
+    videoId:      item.id.videoId,
+    title:        item.snippet.title,
+    description:  item.snippet.description,
+    publishedAt:  item.snippet.publishedAt,
+    thumbnail:    item.snippet.thumbnails?.high?.url ?? item.snippet.thumbnails?.default?.url,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -79,36 +95,36 @@ async function fetchLiveVideoId(channelId) {
 
 export function useLiveStream() {
   const [state, setState] = useState({
-    status: 'loading',   // 'loading' | 'live' | 'offline'
-    videoId: null,
-    nextService: null,
+    status:          'loading', // 'loading' | 'live' | 'offline'
+    videoId:         null,
+    latestVideo:     null,      // { videoId, title, description, publishedAt, thumbnail }
+    nextService:     null,
     midweekOverride: false,
   });
 
   const check = useCallback(async (channelId, midweekOverride) => {
-    // Only hit the API if we're in a scheduled window OR midweek override is on
-    const shouldCheck = isScheduledWindow() || midweekOverride;
-
-    if (!shouldCheck) {
-      setState(s => ({
-        ...s,
-        status: 'offline',
-        videoId: null,
-        nextService: getNextService(),
-      }));
-      return;
-    }
+    const shouldCheckLive = isScheduledWindow() || midweekOverride;
 
     try {
-      const videoId = await fetchLiveVideoId(channelId);
+      // Always fetch latest video regardless of schedule
+      const [liveVideoId, latestVideo] = await Promise.all([
+        shouldCheckLive ? fetchLiveVideoId(channelId) : Promise.resolve(null),
+        fetchLatestVideo(channelId),
+      ]);
+
       setState(s => ({
         ...s,
-        status: videoId ? 'live' : 'offline',
-        videoId,
-        nextService: videoId ? null : getNextService(),
+        status:      liveVideoId ? 'live' : 'offline',
+        videoId:     liveVideoId,
+        latestVideo,
+        nextService: liveVideoId ? null : getNextService(),
       }));
     } catch {
-      setState(s => ({ ...s, status: 'offline', nextService: getNextService() }));
+      setState(s => ({
+        ...s,
+        status:      'offline',
+        nextService: getNextService(),
+      }));
     }
   }, []);
 
@@ -132,10 +148,8 @@ export function useLiveStream() {
       });
 
       interval = setInterval(async () => {
-        const configSnap = await import('firebase/firestore').then(({ getDoc }) =>
-          getDoc(doc(db, 'streams', 'config'))
-        );
-        const midweekOverride = configSnap.exists() ? !!configSnap.data().midweekOverride : false;
+        const snap            = await getDoc(doc(db, 'streams', 'config'));
+        const midweekOverride = snap.exists() ? !!snap.data().midweekOverride : false;
         check(channelId, midweekOverride);
       }, POLL_INTERVAL);
     }
