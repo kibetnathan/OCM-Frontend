@@ -30,7 +30,6 @@ function App() {
   const loading = useAuthStore((state) => state.loading);
   const wipUrls = [
     "/plans",
-    "/streaming",
   ]
 
   useEffect(() => {
@@ -79,7 +78,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/threads" element={<ThreadsPage />} />
         <Route path="/bible" element={<BiblePage />} />
-        {/* <Route path="/streaming" element={<StreamingPage />} />*/}
+        <Route path="/streaming" element={<StreamingPage />} />
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />
           <Route path="/feed/post/:postId" element={<PostView />} />
