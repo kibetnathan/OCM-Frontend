@@ -29,7 +29,7 @@ function FeedChannel() {
     if (token) {
       fetchPosts(token);
     }
-  }, [token, fetchPosts]);
+  }, [token]);
 
   return (
     <div className="w-full min-h-screen bg-[#faf8f3]">
