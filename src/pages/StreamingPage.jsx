@@ -30,11 +30,11 @@ function useCountdown(target) {
 
 function CountdownUnit({ value, label }) {
   return (
-    <div className="flex flex-col items-center">
-      <span className="font-cormorant text-5xl font-light text-amber-500 leading-none tabular-nums">
+    <div className="flex flex-col items-center min-w-[4.5rem]">
+      <span className="font-cormorant text-6xl md:text-7xl font-light text-amber-600 leading-none tabular-nums">
         {String(value).padStart(2, '0')}
       </span>
-      <span className="font-coptic text-[9px] tracking-[0.3em] uppercase text-stone-500 mt-1">
+      <span className="font-coptic text-[0.45rem] tracking-[0.35em] uppercase text-stone-400 mt-2">
         {label}
       </span>
     </div>
@@ -45,12 +45,30 @@ function Countdown({ target }) {
   const diff = useCountdown(target);
   if (!diff) return null;
   return (
-    <div className="flex items-end gap-4">
-      <CountdownUnit value={diff.h} label="hrs" />
-      <span className="font-cormorant text-3xl text-amber-700 mb-2">:</span>
-      <CountdownUnit value={diff.m} label="min" />
-      <span className="font-cormorant text-3xl text-amber-700 mb-2">:</span>
-      <CountdownUnit value={diff.s} label="sec" />
+    <div className="flex items-end gap-3 md:gap-5">
+      <CountdownUnit value={diff.h} label="hours" />
+      <span className="font-cormorant text-4xl text-amber-300 mb-4 leading-none">:</span>
+      <CountdownUnit value={diff.m} label="minutes" />
+      <span className="font-cormorant text-4xl text-amber-300 mb-4 leading-none">:</span>
+      <CountdownUnit value={diff.s} label="seconds" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Live badge
+// ---------------------------------------------------------------------------
+
+function LiveBadge() {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+      </span>
+      <span className="font-coptic text-[0.48rem] tracking-[0.4em] uppercase text-red-500">
+        Live Now
+      </span>
     </div>
   );
 }
@@ -59,24 +77,28 @@ function Countdown({ target }) {
 // Live player
 // ---------------------------------------------------------------------------
 
-function LivePlayer({ videoId }) {
+function LivePlayer({ videoId, latestVideo }) {
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center gap-2 px-6 pt-6 pb-3">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-        </span>
-        <span className="font-coptic text-[10px] tracking-[0.35em] uppercase text-red-400">
-          Live Now
-        </span>
-        <div className="flex-1 h-px bg-amber-700/20" />
-        <span className="font-cormorant text-xs text-stone-500 tracking-wide">
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+
+      {/* Header strip */}
+      <div className="flex items-center justify-between px-6 md:px-10 py-4 border-b border-stone-200 shrink-0 bg-white">
+        <LiveBadge />
+        <span className="font-coptic text-[0.48rem] tracking-[0.25em] uppercase text-stone-400">
           Mavuno Church Hill City
         </span>
+        <a
+          href={`https://www.youtube.com/watch?v=${videoId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-coptic text-[0.48rem] tracking-[0.3em] uppercase text-amber-600 hover:text-amber-700 transition-colors"
+        >
+          YouTube ↗
+        </a>
       </div>
 
-      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+      {/* Player */}
+      <div className="relative w-full bg-stone-900" style={{ paddingBottom: '56.25%' }}>
         <iframe
           className="absolute inset-0 w-full h-full"
           src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
@@ -86,149 +108,244 @@ function LivePlayer({ videoId }) {
         />
       </div>
 
-      <div className="px-6 py-4 flex items-center justify-between">
-        <p className="font-coptic text-xs text-stone-500">
+      {/* Caption strip */}
+      <div className="px-6 md:px-10 py-4 border-b border-stone-200 bg-white flex items-center justify-between shrink-0">
+        <p className="font-coptic text-[0.55rem] text-stone-400 tracking-wider">
           Join us in worship — share this stream with someone.
         </p>
-        <a
-          href={`https://www.youtube.com/watch?v=${videoId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-coptic text-[10px] tracking-[0.3em] uppercase text-amber-600 hover:text-amber-500 transition-colors whitespace-nowrap ml-4"
-        >
-          Open on YouTube ↗
-        </a>
       </div>
+
+      {/* Latest video */}
+      {latestVideo && (
+        <div className="px-6 md:px-10 py-7 bg-[#faf8f3] border-b border-stone-200">
+          <p className="font-coptic text-[0.48rem] uppercase tracking-[0.3em] text-stone-400 mb-4">
+            Latest Message
+          </p>
+          <LatestVideoRow video={latestVideo} />
+        </div>
+      )}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Latest video card
+// Latest video -- compact horizontal row
+// ---------------------------------------------------------------------------
+
+function LatestVideoRow({ video }) {
+  const [playing, setPlaying] = useState(false);
+  const publishedDate = new Date(video.publishedAt).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  if (playing) {
+    return (
+      <div className="relative w-full" style={{ paddingBottom: '42%' }}>
+        <iframe
+          className="absolute inset-0 w-full h-full"
+          src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0&modestbranding=1`}
+          title={video.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-4 group">
+      <button
+        onClick={() => setPlaying(true)}
+        className="relative w-32 md:w-44 shrink-0 overflow-hidden focus:outline-none"
+        aria-label={`Play ${video.title}`}
+      >
+        <img
+          src={video.thumbnail}
+          alt={video.title}
+          className="w-full object-cover"
+          style={{ aspectRatio: '16/9' }}
+        />
+        <div className="absolute inset-0 bg-stone-900/40 group-hover:bg-stone-900/20 transition-colors duration-200 flex items-center justify-center">
+          <div className="w-8 h-8 border border-white/60 bg-stone-900/50 flex items-center justify-center">
+            <svg className="w-3 h-3 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      </button>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-cormorant text-xl text-stone-800 leading-snug truncate">
+          {video.title}
+        </h3>
+        <p className="font-coptic text-[0.48rem] text-stone-400 mt-1">{publishedDate}</p>
+        {video.description && (
+          <p className="text-xs text-stone-400 leading-relaxed line-clamp-1 mt-1 hidden md:block font-light">
+            {video.description}
+          </p>
+        )}
+      </div>
+      <a
+        href={`https://www.youtube.com/watch?v=${video.videoId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-coptic text-[0.48rem] tracking-[0.3em] uppercase text-amber-600 hover:text-amber-700 transition-colors shrink-0 hidden md:block"
+      >
+        Watch ↗
+      </a>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Latest video -- full card for offline state
 // ---------------------------------------------------------------------------
 
 function LatestVideoCard({ video }) {
   const [playing, setPlaying] = useState(false);
-
   const publishedDate = new Date(video.publishedAt).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'long', year: 'numeric',
   });
 
   return (
-    <div className="border-t border-amber-800/20">
-      {/* header */}
-      <div className="flex items-center gap-3 px-6 pt-5 pb-3">
-        <div className="w-4 h-px bg-amber-700/50" />
-        <span className="font-coptic text-[10px] tracking-[0.35em] uppercase text-stone-500">
+    <div className="border-t border-stone-200 bg-white px-6 md:px-16 py-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-4 h-px bg-amber-400/60" />
+        <span className="font-coptic text-[0.48rem] tracking-[0.35em] uppercase text-stone-400">
           Latest Message
         </span>
-        <div className="flex-1 h-px bg-amber-700/20" />
-        <span className="font-coptic text-[10px] text-stone-600">
-          {publishedDate}
-        </span>
+        <div className="flex-1 h-px bg-stone-200" />
+        <span className="font-coptic text-[0.48rem] text-stone-300">{publishedDate}</span>
       </div>
 
-      {/* player / thumbnail */}
-      <div className="px-6 pb-2">
-        {playing ? (
-          <div className="relative w-full rounded-sm overflow-hidden" style={{ paddingBottom: '56.25%' }}>
-            <iframe
-              className="absolute inset-0 w-full h-full"
-              src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0&modestbranding=1`}
-              title={video.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        ) : (
-          <button
-            onClick={() => setPlaying(true)}
-            className="relative w-full rounded-sm overflow-hidden group focus:outline-none"
-            aria-label={`Play ${video.title}`}
-          >
-            {/* thumbnail */}
-            <img
-              src={video.thumbnail}
-              alt={video.title}
-              className="w-full object-cover"
-              style={{ aspectRatio: '16/9' }}
-            />
-            {/* dark overlay */}
-            <div className="absolute inset-0 bg-[#0f0f0d]/50 group-hover:bg-[#0f0f0d]/30 transition-colors duration-200" />
-            {/* play button */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-14 h-14 rounded-full border border-amber-600/70 bg-[#0f0f0d]/60 flex items-center justify-center group-hover:border-amber-500 group-hover:bg-[#0f0f0d]/40 transition-all duration-200">
-                <svg className="w-5 h-5 text-amber-500 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-            </div>
-          </button>
-        )}
-      </div>
-
-      {/* title + description */}
-      <div className="px-6 pt-2 pb-5">
-        <h3 className="font-cormorant text-xl text-amber-100 leading-snug mb-1">
-          {video.title}
-        </h3>
-        {video.description && (
-          <p className="font-coptic text-xs text-stone-500 leading-relaxed line-clamp-2">
-            {video.description}
-          </p>
-        )}
-        <a
-          href={`https://www.youtube.com/watch?v=${video.videoId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block font-coptic text-[10px] tracking-[0.3em] uppercase text-amber-700 hover:text-amber-500 transition-colors mt-3"
+      {playing ? (
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0&modestbranding=1`}
+            title={video.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <button
+          onClick={() => setPlaying(true)}
+          className="relative w-full overflow-hidden group focus:outline-none"
+          aria-label={`Play ${video.title}`}
         >
-          Watch on YouTube ↗
-        </a>
-      </div>
+          <img
+            src={video.thumbnail}
+            alt={video.title}
+            className="w-full object-cover"
+            style={{ aspectRatio: '16/9' }}
+          />
+          <div className="absolute inset-0 bg-stone-900/40 group-hover:bg-stone-900/20 transition-colors duration-200" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-16 h-16 border border-white/50 bg-stone-900/50 flex items-center justify-center group-hover:border-white group-hover:scale-105 transition-all duration-200">
+              <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+          {/* Title overlay */}
+          <div className="absolute bottom-0 inset-x-0 px-5 py-5 bg-gradient-to-t from-stone-900/80 to-transparent">
+            <h3 className="font-cormorant text-2xl text-white leading-snug line-clamp-2">
+              {video.title}
+            </h3>
+          </div>
+        </button>
+      )}
+
+      {!playing && video.description && (
+        <p className="text-sm text-stone-400 leading-relaxed line-clamp-2 mt-4 font-light">
+          {video.description}
+        </p>
+      )}
+
+      <a
+        href={`https://www.youtube.com/watch?v=${video.videoId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block font-coptic text-[0.48rem] tracking-[0.3em] uppercase text-amber-600 hover:text-amber-700 transition-colors mt-5"
+      >
+        Watch on YouTube ↗
+      </a>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Offline state (countdown + latest video)
+// Offline state
 // ---------------------------------------------------------------------------
 
-function OfflineCard({ nextService, latestVideo }) {
+function OfflinePage({ nextService, latestVideo }) {
   return (
-    <div className="flex flex-col">
-      {/* countdown section */}
-      <div className="flex flex-col items-center text-center px-10 pt-10 pb-8">
-        <div className="w-2 h-2 rounded-full bg-stone-600 mb-8" />
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto bg-[#faf8f3]">
 
-        <h1 className="font-cormorant text-5xl font-light text-amber-500 leading-tight mb-2">
-          No Live Stream
-        </h1>
-        <p className="font-cormorant text-xs tracking-widest uppercase text-stone-500 mb-8">
-          Currently Offline
-        </p>
+      {/* Hero */}
+      <div className="flex flex-col items-center justify-center text-center px-8 md:px-16 pt-16 pb-14 flex-1">
 
-        <div className="flex items-center gap-3 w-full mb-8">
-          <div className="flex-1 h-px bg-amber-700/25" />
-          <div className="w-1.5 h-1.5 bg-amber-700/40 rotate-45" />
-          <div className="flex-1 h-px bg-amber-700/25" />
+        {/* Top rule */}
+        <div className="flex items-center gap-4 w-full max-w-xs mb-12">
+          <div className="flex-1 h-px bg-stone-200" />
+          <div className="w-1 h-1 bg-amber-400 rotate-45" />
+          <div className="flex-1 h-px bg-stone-200" />
         </div>
 
+        {/* Offline indicator */}
+        <div className="flex items-center gap-2 mb-7">
+          <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
+          <span className="font-coptic text-[0.48rem] tracking-[0.4em] uppercase text-stone-400">
+            Currently Offline
+          </span>
+        </div>
+
+        {/* Heading */}
+        <h1 className="font-cormorant text-5xl md:text-7xl font-light text-stone-800 leading-tight mb-2">
+          No Live Stream
+        </h1>
+        <p className="font-cormorant text-lg text-amber-600/80 tracking-widest mb-10">
+          Mavuno Church Hill City
+        </p>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 w-full max-w-sm mb-10">
+          <div className="flex-1 h-px bg-stone-200" />
+          <div className="w-1 h-1 bg-stone-300 rotate-45" />
+          <div className="flex-1 h-px bg-stone-200" />
+        </div>
+
+        {/* Countdown */}
         {nextService && (
-          <>
-            <p className="font-coptic text-stone-400 text-sm mb-6">
+          <div className="flex flex-col items-center gap-6">
+            <p className="font-coptic text-[0.52rem] tracking-[0.3em] uppercase text-stone-400">
               Next service begins in
             </p>
             <Countdown target={nextService} />
-            <p className="font-coptic text-[10px] tracking-widest uppercase text-stone-600 mt-6">
+            <p className="font-coptic text-[0.45rem] tracking-[0.25em] uppercase text-stone-300 mt-1">
               Sunday services — 9:00 AM &amp; 11:00 AM EAT
             </p>
-          </>
+          </div>
         )}
       </div>
 
-      {/* latest video */}
+      {/* Latest video */}
       {latestVideo && <LatestVideoCard video={latestVideo} />}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Loading state
+// ---------------------------------------------------------------------------
+
+function LoadingState() {
+  return (
+    <div className="flex flex-col flex-1 items-center justify-center gap-5 bg-[#faf8f3]">
+      <div className="w-5 h-5 border border-stone-300 border-t-amber-500 rounded-full animate-spin" />
+      <p className="font-coptic text-[0.48rem] tracking-[0.35em] uppercase text-stone-400">
+        Checking stream status
+      </p>
     </div>
   );
 }
@@ -239,40 +356,33 @@ function OfflineCard({ nextService, latestVideo }) {
 
 export default function StreamingPage() {
   const { status, videoId, latestVideo, nextService } = useLiveStream();
-
+  
   return (
-    <div className='flex flex-row'>
+    <div className="flex h-[100dvh] overflow-hidden bg-[#faf8f3]">
       <Sidebar />
-      <div
-        className="flex flex-col w-full min-h-screen justify-center items-center bg-amber-50 px-4 py-12"
-      >
-        <div className="bg-[#0f0f0d]/90 border border-amber-800/40 rounded-sm w-full max-w-3xl shadow-2xl overflow-hidden">
 
-          {status === 'loading' && (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-6 h-6 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
-              <p className="font-coptic text-xs tracking-widest uppercase text-stone-500">
-                Checking stream status…
-              </p>
-            </div>
-          )}
+      <main className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
-          {status === 'live' && (
-            <>
-              <LivePlayer videoId={videoId} />
-              {latestVideo && <LatestVideoCard video={latestVideo} />}
-            </>
-          )}
-
-          {status === 'offline' && (
-            <OfflineCard nextService={nextService} latestVideo={latestVideo} />
-          )}
+        {/* Page header */}
+        <div className="flex items-center justify-between px-6 md:px-10 h-14 border-b border-stone-200 bg-white shrink-0">
+          <div className="flex items-center gap-3">
+            <p className="font-coptic text-[0.48rem] uppercase tracking-[0.3em] text-stone-400">
+              Streaming
+            </p>
+            <div className="w-px h-3 bg-stone-200" />
+            <p className="font-cormorant text-base text-stone-500">
+              Live &amp; On Demand
+            </p>
+          </div>
+          {status === 'live' && <LiveBadge />}
         </div>
 
-        <p className="font-coptic text-[10px] tracking-widest uppercase text-stone-400 mt-5 opacity-50">
-          Mavuno Church Hill City
-        </p>
-      </div>
+        {/* Content */}
+        {status === 'loading' && <LoadingState />}
+        {status === 'live'    && <LivePlayer videoId={videoId} latestVideo={latestVideo} />}
+        {status === 'offline' && <OfflinePage nextService={nextService} latestVideo={latestVideo} />}
+
+      </main>
     </div>
   );
 }
