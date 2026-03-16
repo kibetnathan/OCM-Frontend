@@ -23,20 +23,46 @@ function avatarBg(id) {
 
 // ── Permission helpers ────────────────────────────────────────────────────────
 
-// Pastors and Head Pastors can create rooms for any group regardless of membership
 const UNRESTRICTED_ROLES = ['Pastor', 'Head Pastor'];
 
 function isUnrestricted(user) {
   return user?.groups?.some((g) => UNRESTRICTED_ROLES.includes(g)) ?? false;
 }
 
-// A user is eligible for a group if they are in members[] or are the leader.
-// members is an array of integer user IDs from the Django serializer.
+// members[] is an array of integer user IDs from the Django serializer.
+// leader is an integer FK.
 function isMemberOf(group, userId) {
   const id = Number(userId);
-  const inMembers = Array.isArray(group.members) && group.members.includes(id);
-  const isLeader = group.leader === id;
-  return inMembers || isLeader;
+  return (
+    (Array.isArray(group.members) && group.members.includes(id)) ||
+    group.leader === id
+  );
+}
+
+// Given the four group lists from mainStore, return a Set of Firestore room IDs
+// that the current user is allowed to see.
+// Pastors/Head Pastors get an unrestricted pass -- pass null to skip filtering.
+function buildVisibleRoomIds(user, fellowships, leadership_teams, departments, courses) {
+  if (isUnrestricted(user)) return null; // null means "show all"
+
+  const userId = user?.id;
+  const visible = new Set();
+
+  const check = (list, type) => {
+    const arr = list?.results ?? (Array.isArray(list) ? list : []);
+    arr.forEach((g) => {
+      if (isMemberOf(g, userId)) {
+        visible.add(`${type}_${g.id}`);
+      }
+    });
+  };
+
+  check(fellowships,      'fellowship');
+  check(leadership_teams, 'leadership');
+  check(departments,      'department');
+  check(courses,          'course');
+
+  return visible;
 }
 
 // ── Error message normaliser ──────────────────────────────────────────────────
@@ -50,7 +76,6 @@ function friendlyError(raw) {
   if (msg.includes('network') || msg.includes('unavailable') || msg.includes('failed to fetch'))
     return 'Network error. Check your connection and try again.';
   if (msg.includes('quota')) return 'Firestore quota exceeded. Try again later.';
-  // Fall back to the raw message but strip internal prefixes
   return raw.replace('[chatStore] createRoom error: ', '');
 }
 
@@ -147,25 +172,16 @@ function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, e
 
   const unrestricted = isUnrestricted(user);
 
-  const {
-    fellowships, leadership_teams, departments, courses,
-    fetchFellowships, fetchLeadershipTeams, fetchDepartments, fetchCourses,
-  } = useMainStore();
+  const { fellowships, leadership_teams, departments, courses } = useMainStore();
 
-  useEffect(() => {
-    fetchFellowships();
-    fetchLeadershipTeams();
-    fetchDepartments();
-    fetchCourses();
-  }, []);
+  // Groups are already fetched on page mount -- no need to re-fetch here.
+  // If any list is empty the section is hidden automatically.
 
   const storeData = { fellowships, leadership_teams, departments, courses };
 
   function getList(storeKey) {
     const val = storeData[storeKey];
     const all = val?.results ?? (Array.isArray(val) ? val : []);
-    // Pastors and Head Pastors see all groups.
-    // Everyone else sees only groups they belong to.
     if (unrestricted) return all;
     return all.filter((g) => isMemberOf(g, user?.id));
   }
@@ -186,15 +202,12 @@ function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, e
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-[#faf8f3] border border-stone-200 shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[85vh]">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-stone-200 shrink-0">
           <div>
             <p className="text-[0.5rem] uppercase tracking-[0.2em] text-stone-400 mb-0.5">New Chat Room</p>
             <h2 className="font-cormorant text-xl font-semibold text-stone-800">Link a Group</h2>
             {!unrestricted && (
-              <p className="text-[0.6rem] text-stone-400 mt-1">
-                Showing groups you are a member of.
-              </p>
+              <p className="text-[0.6rem] text-stone-400 mt-1">Showing groups you are a member of.</p>
             )}
           </div>
           <button onClick={onClose} className="text-stone-400 hover:text-stone-600 transition-colors">
@@ -202,10 +215,7 @@ function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, e
           </button>
         </div>
 
-        {/* Body */}
         <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
-
-          {/* Error banner */}
           {error && (
             <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 px-3 py-2.5">
               <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -215,14 +225,11 @@ function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, e
             </div>
           )}
 
-          {/* Empty state -- no groups visible to this user */}
           {totalVisible === 0 && (
             <div className="py-8 text-center space-y-1">
               <p className="font-cormorant text-base text-stone-400">No groups available</p>
               <p className="font-coptic text-[0.5rem] uppercase tracking-widest text-stone-400">
-                {unrestricted
-                  ? 'No groups have been created yet.'
-                  : 'You are not a member of any group yet.'}
+                {unrestricted ? 'No groups have been created yet.' : 'You are not a member of any group yet.'}
               </p>
             </div>
           )}
@@ -232,30 +239,24 @@ function CreateRoomModal({ user, existingRoomIds, onClose, onConfirm, loading, e
             if (list.length === 0) return null;
             return (
               <div key={type}>
-                <p className="font-coptic text-[0.5rem] uppercase tracking-[0.18em] text-stone-400 mb-2">
-                  {label}
-                </p>
+                <p className="font-coptic text-[0.5rem] uppercase tracking-[0.18em] text-stone-400 mb-2">{label}</p>
                 <div className="space-y-1.5">
-                  {list.map((group) => {
-                    const roomId = `${type}_${group.id}`;
-                    return (
-                      <GroupOption
-                        key={group.id}
-                        group={group}
-                        typeKey={type}
-                        selectedKey={selectedKey}
-                        onSelect={handleSelect}
-                        alreadyHasRoom={existingRoomIds.has(roomId)}
-                      />
-                    );
-                  })}
+                  {list.map((group) => (
+                    <GroupOption
+                      key={group.id}
+                      group={group}
+                      typeKey={type}
+                      selectedKey={selectedKey}
+                      onSelect={handleSelect}
+                      alreadyHasRoom={existingRoomIds.has(`${type}_${group.id}`)}
+                    />
+                  ))}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Footer */}
         <div className="px-6 py-4 border-t border-stone-200 flex items-center justify-end gap-3 shrink-0">
           <button
             onClick={onClose}
@@ -429,12 +430,28 @@ function ThreadsPage() {
     sendMessage, handleReaction, createRoom,
   } = useChatStore();
   const { user } = useAuthStore();
+  const {
+    fellowships, leadership_teams, departments, courses,
+    fetchFellowships, fetchLeadershipTeams, fetchDepartments, fetchCourses,
+  } = useMainStore();
 
   const isPrivileged = canCreateRoom(user);
   const existingRoomIds = new Set(rooms.map((r) => String(r.id)));
 
+  // Build the set of room IDs this user is allowed to see.
+  // Recomputed whenever group lists or user changes.
+  const visibleRoomIds = buildVisibleRoomIds(
+    user, fellowships, leadership_teams, departments, courses
+  );
+
   useEffect(() => {
+    // Fetch all four group lists on mount so both the room filter
+    // and the create modal have the data they need.
     subscribeToRooms();
+    fetchFellowships();
+    fetchLeadershipTeams();
+    fetchDepartments();
+    fetchCourses();
     return () => {
       useChatStore.getState().roomsUnsubscribe?.();
       useChatStore.getState().messagesUnsubscribe?.();
@@ -443,9 +460,13 @@ function ThreadsPage() {
 
   useEffect(() => {
     if (rooms.length > 0 && activeRoomId === null) {
-      setActiveRoomId(rooms[0].id);
+      // Auto-select the first room the user has access to
+      const firstVisible = rooms.find(
+        (r) => visibleRoomIds === null || visibleRoomIds.has(r.id)
+      );
+      if (firstVisible) setActiveRoomId(firstVisible.id);
     }
-  }, [rooms]);
+  }, [rooms, visibleRoomIds]);
 
   useEffect(() => {
     if (activeRoomId !== null) {
@@ -460,8 +481,10 @@ function ThreadsPage() {
 
   const activeRoom = rooms.find((r) => r.id === activeRoomId);
 
+  // Apply both the visibility filter and the search filter
   const filtered = rooms
     .filter((r) => typeof r.name === 'string')
+    .filter((r) => visibleRoomIds === null || visibleRoomIds.has(r.id))
     .filter((r) => r.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleSend = () => {
@@ -636,7 +659,7 @@ function ThreadsPage() {
 
           <div className="px-5 py-3 border-b border-white/6 flex items-center gap-4 shrink-0">
             <div>
-              <p className="font-cormorant text-xl font-light text-stone-200">{rooms.length}</p>
+              <p className="font-cormorant text-xl font-light text-stone-200">{filtered.length}</p>
               <p className="font-coptic text-[0.48rem] uppercase tracking-widest text-stone-600">Rooms</p>
             </div>
           </div>
@@ -672,7 +695,9 @@ function ThreadsPage() {
             ))}
             {!roomsLoading && filtered.length === 0 && (
               <div className="flex flex-col items-center py-10 gap-2">
-                <p className="font-coptic text-[0.5rem] uppercase tracking-widest text-stone-700">No rooms found</p>
+                <p className="font-coptic text-[0.5rem] uppercase tracking-widest text-stone-700">
+                  {search ? 'No rooms found' : 'No rooms available'}
+                </p>
               </div>
             )}
           </div>

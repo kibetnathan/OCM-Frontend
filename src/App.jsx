@@ -30,6 +30,7 @@ function App() {
   const loading = useAuthStore((state) => state.loading);
   const wipUrls = [
     "/plans",
+    "/plans/*",
   ]
 
   useEffect(() => {
