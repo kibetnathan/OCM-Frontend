@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import useMemorizeStore from '../store/useMemorizeStore';
+import useMemorizeStore from '../zustand/useMemoriseStore';
 
 const BASE = 'https://bible.helloao.org/api';
 const DEFAULT_TRANSLATION = 'BSB';
@@ -264,7 +264,7 @@ function BiblePage() {
   useEffect(() => {
     if (!translation) return;
     const controller = new AbortController();
-    setLoadingBooks(true);
+    Promise.resolve().then(() => setLoadingBooks(true));
     fetch(`${BASE}/${translation}/books.json`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => {
@@ -281,7 +281,7 @@ function BiblePage() {
   useEffect(() => {
     if (!selectedBook) return;
     const controller = new AbortController();
-    setLoadingChapter(true);
+    Promise.resolve().then(() => setLoadingChapter(true));
     fetch(`${BASE}/${translation}/${selectedBook.id}/${chapterNum}.json`, { signal: controller.signal })
       .then(r => r.json())
       .then(d => {
@@ -416,7 +416,7 @@ function BiblePage() {
 
             {/* Memorize nav button with due badge */}
             <button
-              onClick={() => navigate('/memorize')}
+              onClick={() => navigate('/plans/verses')}
               className="relative flex items-center gap-1.5 border border-stone-200 hover:border-amber-300 px-2.5 py-1.5 text-stone-400 hover:text-amber-600 transition-colors shrink-0"
             >
               <IconBrain />

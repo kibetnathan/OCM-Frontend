@@ -24,7 +24,7 @@ import MobileProfile from "./pages/MobileProfile";
 import PageNotFound from "./pages/PageNotFound";
 import ComingSoon from "./pages/ComingSoon";
 import AdminStreamPanel from "./components/AdminStreamPanel";
-
+import MemorizePage from "./pages/MemorizePage";
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const loading = useAuthStore((state) => state.loading);
@@ -79,6 +79,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/threads" element={<ThreadsPage />} />
         <Route path="/bible" element={<BiblePage />} />
+        <Route path="/plans/verses" element={<MemorizePage />} />
         <Route path="/streaming" element={<StreamingPage />} />
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />

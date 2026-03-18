@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import useMemorizeStore from '../store/useMemorizeStore';
+import useMemorizeStore from '../zustand/useMemoriseStore';
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
 
@@ -74,22 +74,82 @@ function firstLetterHint(word) {
   return clean[0] + '_'.repeat(Math.max(1, clean.length - 1));
 }
 
+// Strip punctuation from both sides for a lenient comparison
+function normalise(str) {
+  return str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+}
+
+// Returns { correct, total, pct } based on typed answers vs blanked words
+function scoreTyped(blanked, inputs) {
+  const blankedWords = blanked.filter(w => w.blanked);
+  let correct = 0;
+  blankedWords.forEach((w, i) => {
+    if (normalise(inputs[i] ?? '') === normalise(w.word)) correct++;
+  });
+  return { correct, total: blankedWords.length, pct: blankedWords.length ? correct / blankedWords.length : 1 };
+}
+
+// Derive a 0-3 score from percentage correct
+function pctToScore(pct) {
+  if (pct === 1)    return 3;
+  if (pct >= 0.75)  return 2;
+  if (pct >= 0.25)  return 1;
+  return 0;
+}
+
 // ── Practice card ──────────────────────────────────────────────────────────────
 
 function PracticeCard({ verse, onResult, onSkip }) {
   const [level,    setLevel]    = useState(1);
   const [revealed, setRevealed] = useState(false);
   const [done,     setDone]     = useState(false);
+  // inputs[i] maps to the i-th blanked word in order
+  const [inputs,   setInputs]   = useState({});
+  // null until revealed — then holds the scored result
+  const [typedResult, setTypedResult] = useState(null);
 
   const blanked = buildBlankedWords(verse.verse_text, level);
+
+  // Reset inputs when level changes
+  const advanceLevel = () => {
+    if (level < 4) {
+      setLevel(l => l + 1);
+      setRevealed(false);
+      setInputs({});
+      setTypedResult(null);
+    }
+  };
+
+  const handleReveal = () => {
+    const result = scoreTyped(blanked, inputs);
+    setTypedResult(result);
+    setRevealed(true);
+  };
 
   const handleScore = async (score) => {
     setDone(true);
     await onResult(verse.id, score, level);
   };
 
-  const advanceLevel = () => {
-    if (level < 4) { setLevel(l => l + 1); setRevealed(false); }
+  // Auto-submit score derived from typing if user clicks "looks right" / "looks wrong"
+  const handleAutoScore = async () => {
+    const score = pctToScore(typedResult.pct);
+    await handleScore(score);
+  };
+
+  // Track input for the i-th blank
+  const setInput = (i, val) => setInputs(prev => ({ ...prev, [i]: val }));
+
+  // Allow Enter key to move to the next input
+  const handleKeyDown = (e, i, totalBlanks) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (i < totalBlanks - 1) {
+        document.getElementById(`blank-${i + 1}`)?.focus();
+      } else {
+        handleReveal();
+      }
+    }
   };
 
   if (done) return (
@@ -97,6 +157,10 @@ function PracticeCard({ verse, onResult, onSkip }) {
       <div className="w-6 h-6 border border-amber-500/40 border-t-amber-500 rounded-full animate-spin" />
     </div>
   );
+
+  // Build the inline display — visible words + input fields for blanks
+  let blankIndex = 0;
+  const totalBlanks = blanked.filter(w => w.blanked).length;
 
   return (
     <div className="flex flex-col gap-5">
@@ -115,20 +179,68 @@ function PracticeCard({ verse, onResult, onSkip }) {
         </div>
       </div>
 
-      {/* Verse display */}
+      {/* Verse display with inline inputs */}
       <div className="border border-stone-200 bg-white p-4 sm:p-6 leading-loose font-serif text-base sm:text-lg text-stone-700 min-h-[120px]">
         {blanked.map(({ word, blanked: isBlank }, i) => {
           if (!isBlank) return <span key={i}>{word} </span>;
-          if (level === 3) return (
-            <span key={i} className="font-coptic text-[0.65rem] text-amber-500 bg-amber-50 border border-amber-200 px-1 mx-0.5 tracking-widest">
-              {firstLetterHint(word)}
-            </span>
-          );
+
+          const idx = blankIndex++;
+          const inputVal = inputs[idx] ?? '';
+          const isCorrect = revealed && normalise(inputVal) === normalise(word);
+          const isWrong   = revealed && !isCorrect;
+
+          // Width based on the word length, minimum 3rem
+          const inputWidth = `${Math.max(3, word.replace(/[^a-zA-Z]/g, '').length * 0.7)}rem`;
+
+          if (level === 3 && !revealed) {
+            // First-letter hint above a short input
+            return (
+              <span key={i} className="inline-flex flex-col items-center mx-1 align-bottom">
+                <span className="font-coptic text-[0.55rem] text-amber-500 tracking-widest leading-none mb-0.5">
+                  {firstLetterHint(word)}
+                </span>
+                <input
+                  id={`blank-${idx}`}
+                  type="text"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={inputVal}
+                  onChange={e => setInput(idx, e.target.value)}
+                  onKeyDown={e => handleKeyDown(e, idx, totalBlanks)}
+                  style={{ width: inputWidth }}
+                  className="border-b-2 border-stone-300 focus:border-amber-500 outline-none bg-transparent text-center text-stone-800 font-serif text-base transition-colors"
+                />
+              </span>
+            );
+          }
+
           return (
-            <span key={i}
-              className="inline-block bg-stone-200 rounded-sm mx-0.5 align-middle"
-              style={{ width: `${Math.max(1.5, word.replace(/[^a-zA-Z]/g, '').length * 0.55)}rem`, height: '1rem' }}
-            />
+            <span key={i} className="inline-flex flex-col items-center mx-1 align-bottom">
+              {/* After reveal — show correct answer above a wrong input */}
+              {isWrong && (
+                <span className="font-serif text-[0.7rem] text-green-600 leading-none mb-0.5">{word}</span>
+              )}
+              <input
+                id={`blank-${idx}`}
+                type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                value={revealed && isCorrect ? word : inputVal}
+                onChange={e => !revealed && setInput(idx, e.target.value)}
+                onKeyDown={e => handleKeyDown(e, idx, totalBlanks)}
+                readOnly={revealed}
+                style={{ width: inputWidth }}
+                className={`border-b-2 outline-none bg-transparent text-center font-serif text-base transition-colors
+                  ${revealed
+                    ? isCorrect
+                      ? 'border-green-400 text-green-700'
+                      : 'border-red-300 text-red-500 line-through'
+                    : 'border-stone-300 focus:border-amber-500 text-stone-800'
+                  }`}
+              />
+            </span>
           );
         })}
       </div>
@@ -136,10 +248,11 @@ function PracticeCard({ verse, onResult, onSkip }) {
       {/* Actions */}
       {!revealed ? (
         <div className="flex items-center gap-3">
-          <button onClick={() => setRevealed(true)}
+          <button
+            onClick={handleReveal}
             className="flex items-center gap-2 font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-4 py-2.5 transition-colors"
           >
-            <IconEye /> Reveal full verse
+            <IconEye /> Check answers
           </button>
           <button onClick={onSkip}
             className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-400 hover:text-stone-600 transition-colors px-2 py-2.5"
@@ -149,30 +262,77 @@ function PracticeCard({ verse, onResult, onSkip }) {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {/* Full verse */}
+
+          {/* Typed result summary */}
+          {typedResult && (
+            <div className={`flex items-center gap-3 px-4 py-3 border text-sm
+              ${typedResult.pct === 1
+                ? 'border-green-200 bg-green-50'
+                : typedResult.pct >= 0.5
+                  ? 'border-amber-200 bg-amber-50'
+                  : 'border-red-100 bg-red-50'
+              }`}
+            >
+              <span className={`font-cormorant text-2xl font-semibold
+                ${typedResult.pct === 1 ? 'text-green-700' : typedResult.pct >= 0.5 ? 'text-amber-700' : 'text-red-500'}`}
+              >
+                {typedResult.correct}/{typedResult.total}
+              </span>
+              <span className="font-coptic text-[0.5rem] uppercase tracking-widest text-stone-500">
+                {typedResult.pct === 1
+                  ? 'Perfect — all words correct'
+                  : typedResult.pct >= 0.75
+                    ? 'Nearly there'
+                    : typedResult.pct >= 0.25
+                      ? 'Some words recalled'
+                      : 'Keep practising'}
+              </span>
+            </div>
+          )}
+
+          {/* Full verse for reference */}
           <div className="border-l-2 border-amber-400 pl-4 font-serif text-stone-600 text-sm leading-relaxed bg-amber-50/50 py-2 pr-3">
             {verse.verse_text}
           </div>
 
-          {/* Score buttons */}
+          {/* Score buttons — auto-selected score shown, user can override */}
           <div>
-            <p className="font-coptic text-[0.5rem] uppercase tracking-[0.2em] text-stone-400 mb-2">How did you do?</p>
+            <p className="font-coptic text-[0.5rem] uppercase tracking-[0.2em] text-stone-400 mb-2">
+              Confirm your score
+              {typedResult && (
+                <span className="ml-1 text-amber-600">
+                  (auto: {['no recall','partial','with effort','perfect'][pctToScore(typedResult.pct)]})
+                </span>
+              )}
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
                 { score: 0, label: 'No recall',   sub: 'Back to start',  cls: 'border-red-200 hover:bg-red-50 hover:border-red-400 text-red-600' },
                 { score: 1, label: 'Partial',      sub: 'Try again soon', cls: 'border-orange-200 hover:bg-orange-50 hover:border-orange-400 text-orange-600' },
                 { score: 2, label: 'With effort',  sub: 'Good progress',  cls: 'border-amber-200 hover:bg-amber-50 hover:border-amber-400 text-amber-600' },
                 { score: 3, label: 'Perfect',      sub: 'Keep it up',     cls: 'border-green-200 hover:bg-green-50 hover:border-green-400 text-green-700' },
-              ].map(({ score, label, sub, cls }) => (
-                <button key={score} onClick={() => handleScore(score)}
-                  className={`flex flex-col items-center justify-center border px-3 py-3 transition-colors ${cls}`}
-                >
-                  <span className="font-cormorant text-base font-semibold">{label}</span>
-                  <span className="font-coptic text-[0.45rem] uppercase tracking-widest mt-0.5 opacity-70">{sub}</span>
-                </button>
-              ))}
+              ].map(({ score, label, sub, cls }) => {
+                const isAuto = typedResult && pctToScore(typedResult.pct) === score;
+                return (
+                  <button key={score} onClick={() => handleScore(score)}
+                    className={`flex flex-col items-center justify-center border px-3 py-3 transition-colors ${cls} ${isAuto ? 'ring-2 ring-offset-1 ring-amber-400' : ''}`}
+                  >
+                    <span className="font-cormorant text-base font-semibold">{label}</span>
+                    <span className="font-coptic text-[0.45rem] uppercase tracking-widest mt-0.5 opacity-70">{sub}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Quick submit with auto score */}
+          {typedResult && (
+            <button onClick={handleAutoScore}
+              className="self-start font-coptic text-[0.55rem] uppercase tracking-widest text-stone-500 hover:text-stone-800 border border-stone-200 hover:border-stone-400 px-3 py-1.5 transition-colors"
+            >
+              Submit auto score →
+            </button>
+          )}
 
           {level < 4 && (
             <button onClick={advanceLevel}
