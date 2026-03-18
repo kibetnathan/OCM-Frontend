@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Sidebar from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import useMemorizeStore from '../store/useMemorizeStore';
 
 const BASE = 'https://bible.helloao.org/api';
-const API  = '/api';
 const DEFAULT_TRANSLATION = 'BSB';
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
@@ -41,7 +41,6 @@ const IconMenu = () => (
   </svg>
 );
 
-// Bookmark icon — filled when saved
 const IconBookmark = ({ filled = false }) => (
   <svg className="w-3.5 h-3.5" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
@@ -89,9 +88,9 @@ function BookmarkToast({ message, type }) {
   if (!message) return null;
   return (
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2.5 border shadow-lg text-xs font-coptic tracking-widest uppercase transition-all
-      ${type === 'error'   ? 'bg-red-50 border-red-200 text-red-600' :
-        type === 'exists'  ? 'bg-amber-50 border-amber-200 text-amber-700' :
-                             'bg-white border-stone-200 text-stone-700'}`}
+      ${type === 'error'  ? 'bg-red-50 border-red-200 text-red-600' :
+        type === 'exists' ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                            'bg-white border-stone-200 text-stone-700'}`}
     >
       {type === 'success' && <IconBookmark filled />}
       {message}
@@ -101,9 +100,8 @@ function BookmarkToast({ message, type }) {
 
 // ── Verse component ────────────────────────────────────────────────────────────
 
-function VerseBlock({ verse, highlighted, onHighlight, savedVerseNumbers, onBookmark, bookmarking }) {
+function VerseBlock({ verse, highlighted, onHighlight, isSaved, onBookmark, bookmarking }) {
   const isHighlighted = highlighted === verse.number;
-  const isSaved       = savedVerseNumbers.has(verse.number);
   const isBookmarking = bookmarking === verse.number;
 
   return (
@@ -117,7 +115,6 @@ function VerseBlock({ verse, highlighted, onHighlight, savedVerseNumbers, onBook
       <sup className="font-coptic text-[0.55rem] text-amber-500 mr-1.5 select-none">{verse.number}</sup>
       {renderVerseContent(verse.content)}
 
-      {/* Bookmark button — only visible when highlighted */}
       {isHighlighted && (
         <button
           onClick={e => { e.stopPropagation(); onBookmark(verse); }}
@@ -172,9 +169,7 @@ function BookList({ books, selectedBook, loadingBooks, bookSearch, setBookSearch
               <>
                 <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-3 pb-1">Old Testament</p>
                 {filteredOT.map(book => (
-                  <button
-                    key={book.id}
-                    onClick={() => onSelectBook(book)}
+                  <button key={book.id} onClick={() => onSelectBook(book)}
                     className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${
                       selectedBook?.id === book.id
                         ? 'text-stone-100 bg-amber-500/10 border-l-amber-500'
@@ -191,9 +186,7 @@ function BookList({ books, selectedBook, loadingBooks, bookSearch, setBookSearch
               <>
                 <p className="font-coptic text-[0.45rem] uppercase tracking-[0.2em] text-stone-600 px-4 pt-4 pb-1">New Testament</p>
                 {filteredNT.map(book => (
-                  <button
-                    key={book.id}
-                    onClick={() => onSelectBook(book)}
+                  <button key={book.id} onClick={() => onSelectBook(book)}
                     className={`w-full text-left px-4 py-2 font-cormorant text-sm transition-colors border-l-2 ${
                       selectedBook?.id === book.id
                         ? 'text-stone-100 bg-amber-500/10 border-l-amber-500'
@@ -218,15 +211,21 @@ function BookList({ books, selectedBook, loadingBooks, bookSearch, setBookSearch
 function BiblePage() {
   const navigate = useNavigate();
 
+  // Store — only pull what BiblePage needs
+  const stats        = useMemorizeStore(s => s.stats);
+  const isVerseSaved = useMemorizeStore(s => s.isVerseSaved);
+  const bookmarkVerse = useMemorizeStore(s => s.bookmarkVerse);
+  const fetchStats   = useMemorizeStore(s => s.fetchStats);
+
   // Translation & books
-  const [translations, setTranslations] = useState([]);
-  const [translation,  setTranslation]  = useState(DEFAULT_TRANSLATION);
-  const [books,        setBooks]        = useState([]);
-  const [showTransDD,  setShowTransDD]  = useState(false);
-  const [transSearch,  setTransSearch]  = useState('');
+  const [translations,   setTranslations]   = useState([]);
+  const [translation,    setTranslation]     = useState(DEFAULT_TRANSLATION);
+  const [books,          setBooks]           = useState([]);
+  const [showTransDD,    setShowTransDD]     = useState(false);
+  const [transSearch,    setTransSearch]     = useState('');
 
   // Navigation
-  const [selectedBook,   setSelectedBook]   = useState(null);
+  const [selectedBook,   setSelectedBook]    = useState(null);
   const [chapterNum,     setChapterNum]      = useState(1);
   const [chapterData,    setChapterData]     = useState(null);
   const [bookSearch,     setBookSearch]      = useState('');
@@ -238,14 +237,11 @@ function BiblePage() {
   const [highlighted,    setHighlighted]     = useState(null);
   const [showFootnotes,  setShowFootnotes]   = useState(false);
 
-  // Memorization
-  const [savedVerseNumbers, setSavedVerseNumbers] = useState(new Set());
-  const [bookmarking,       setBookmarking]        = useState(null); // verse number being saved
-  const [toast,             setToast]              = useState({ message: '', type: '' });
-  const [memorizeCount,     setMemorizeCount]      = useState(0);
-
-  const contentRef = useRef(null);
+  // Bookmark UX — local only, no need to store
+  const [bookmarking, setBookmarking] = useState(null);
+  const [toast,       setToast]       = useState({ message: '', type: '' });
   const toastTimer = useRef(null);
+  const contentRef = useRef(null);
 
   const showToast = useCallback((message, type = 'success') => {
     clearTimeout(toastTimer.current);
@@ -253,7 +249,10 @@ function BiblePage() {
     toastTimer.current = setTimeout(() => setToast({ message: '', type: '' }), 2800);
   }, []);
 
-  // ── Fetch translations ──
+  // Fetch stats once for the due badge
+  useEffect(() => { fetchStats(); }, [fetchStats]);
+
+  // Fetch translations
   useEffect(() => {
     fetch(`${BASE}/available_translations.json`)
       .then(r => r.json())
@@ -261,15 +260,7 @@ function BiblePage() {
       .catch(() => {});
   }, []);
 
-  // ── Fetch memorize stats (count of due verses for the badge) ──
-  useEffect(() => {
-    fetch(`${API}/memorize/stats/`, { credentials: 'include' })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setMemorizeCount(d.due_today); })
-      .catch(() => {});
-  }, []);
-
-  // ── Fetch books when translation changes ──
+  // Fetch books when translation changes
   useEffect(() => {
     if (!translation) return;
     const controller = new AbortController();
@@ -286,7 +277,7 @@ function BiblePage() {
     return () => controller.abort();
   }, [translation]);
 
-  // ── Fetch chapter ──
+  // Fetch chapter
   useEffect(() => {
     if (!selectedBook) return;
     const controller = new AbortController();
@@ -303,58 +294,29 @@ function BiblePage() {
     return () => controller.abort();
   }, [selectedBook, chapterNum, translation]);
 
-  // ── Fetch which verses in this chapter are already saved ──
-  useEffect(() => {
-    if (!selectedBook || !chapterData) return;
-    fetch(
-      `${API}/memorize/?book_id=${selectedBook.id}&chapter=${chapterNum}&translation=${translation}`,
-      { credentials: 'include' }
-    )
-      .then(r => r.ok ? r.json() : { results: [] })
-      .then(d => {
-        const nums = new Set((d.results ?? d).map(v => v.verse_number));
-        setSavedVerseNumbers(nums);
-      })
-      .catch(() => {});
-  }, [selectedBook, chapterNum, translation, chapterData]);
-
-  // ── Bookmark a verse ──
+  // Bookmark handler — delegates entirely to store
   const handleBookmark = useCallback(async (verse) => {
-    if (!selectedBook || !chapterData) return;
+    if (!selectedBook) return;
     setBookmarking(verse.number);
-    try {
-      const res = await fetch(`${API}/memorize/`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          book_id:      selectedBook.id,
-          book_name:    selectedBook.name,
-          chapter:      chapterNum,
-          verse_number: verse.number,
-          translation,
-          verse_text:   extractPlainText(verse.content),
-        }),
-      });
-      if (res.status === 400) {
-        const err = await res.json();
-        const msg = Object.values(err).flat()[0] ?? 'Already saved';
-        showToast(msg, 'exists');
-      } else if (res.ok) {
-        setSavedVerseNumbers(prev => new Set([...prev, verse.number]));
-        setMemorizeCount(c => c + 1);
-        showToast(`${selectedBook.name} ${chapterNum}:${verse.number} saved`, 'success');
-      } else {
-        showToast('Could not save verse', 'error');
-      }
-    } catch {
+    const result = await bookmarkVerse({
+      book_id:      selectedBook.id,
+      book_name:    selectedBook.name,
+      chapter:      chapterNum,
+      verse_number: verse.number,
+      translation,
+      verse_text:   extractPlainText(verse.content),
+    });
+    setBookmarking(null);
+    if (result.alreadyExists) {
+      showToast(result.error, 'exists');
+    } else if (result.success) {
+      showToast(`${selectedBook.name} ${chapterNum}:${verse.number} saved`, 'success');
+    } else {
       showToast('Could not save verse', 'error');
-    } finally {
-      setBookmarking(null);
     }
-  }, [selectedBook, chapterData, chapterNum, translation, showToast]);
+  }, [selectedBook, chapterNum, translation, bookmarkVerse, showToast]);
 
-  // ── Derived ──
+  // Derived
   const footnotes   = chapterData?.chapter.footnotes ?? [];
   const prevChapter = chapterData?.previousChapterApiLink;
   const nextChapter = chapterData?.nextChapterApiLink;
@@ -387,25 +349,23 @@ function BiblePage() {
 
       <div className="flex flex-1 min-w-0 overflow-hidden relative">
 
-        {/* ── DESKTOP book panel ── */}
+        {/* DESKTOP book panel */}
         <aside className={`hidden lg:flex flex-col bg-[#0f0f0d] border-r border-white/6 h-screen overflow-hidden transition-all duration-300 ${showBookPanel ? 'w-56 shrink-0' : 'w-0'}`}>
           <div className="px-4 py-5 border-b border-white/6 shrink-0">
             <p className="font-coptic text-[0.5rem] uppercase tracking-[0.25em] text-stone-500 mb-1">Scripture</p>
             <h2 className="font-cormorant text-xl font-semibold text-stone-100">Books</h2>
             <div className="w-5 h-0.5 bg-amber-500 mt-2" />
           </div>
-          <BookList
-            books={books} selectedBook={selectedBook} loadingBooks={loadingBooks}
-            bookSearch={bookSearch} setBookSearch={setBookSearch} onSelectBook={selectBook}
-          />
+          <BookList books={books} selectedBook={selectedBook} loadingBooks={loadingBooks}
+            bookSearch={bookSearch} setBookSearch={setBookSearch} onSelectBook={selectBook} />
         </aside>
 
-        {/* ── MOBILE drawer backdrop ── */}
+        {/* MOBILE drawer backdrop */}
         {showBookPanel && (
           <div className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setShowBookPanel(false)} />
         )}
 
-        {/* ── MOBILE drawer ── */}
+        {/* MOBILE drawer */}
         <div className={`lg:hidden fixed z-50 bg-[#0f0f0d] flex flex-col transition-transform duration-300
           bottom-0 left-0 right-0 h-[75vh] rounded-t-2xl border-t border-white/10
           md:bottom-auto md:top-0 md:right-auto md:h-full md:w-72 md:rounded-none md:border-t-0 md:border-r md:border-white/6
@@ -420,30 +380,28 @@ function BiblePage() {
               <h2 className="font-cormorant text-xl font-semibold text-stone-100">Books</h2>
               <div className="w-5 h-0.5 bg-amber-500 mt-1.5" />
             </div>
-            <button onClick={() => setShowBookPanel(false)} className="p-1.5 text-stone-500 hover:text-stone-200 border border-white/10 hover:border-white/20 transition-colors">
+            <button onClick={() => setShowBookPanel(false)}
+              className="p-1.5 text-stone-500 hover:text-stone-200 border border-white/10 hover:border-white/20 transition-colors"
+            >
               <IconX />
             </button>
           </div>
-          <BookList
-            books={books} selectedBook={selectedBook} loadingBooks={loadingBooks}
-            bookSearch={bookSearch} setBookSearch={setBookSearch} onSelectBook={selectBook}
-          />
+          <BookList books={books} selectedBook={selectedBook} loadingBooks={loadingBooks}
+            bookSearch={bookSearch} setBookSearch={setBookSearch} onSelectBook={selectBook} />
         </div>
 
-        {/* ── Reading pane ── */}
+        {/* Reading pane */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
           {/* Top bar */}
           <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-3.5 border-b border-stone-200 bg-white shrink-0">
-            <button
-              onClick={() => setShowBookPanel(v => !v)}
+            <button onClick={() => setShowBookPanel(v => !v)}
               className="p-1.5 text-stone-400 hover:text-amber-500 border border-stone-200 hover:border-amber-300 transition-colors shrink-0"
             >
               <span className="lg:hidden"><IconMenu /></span>
               <span className="hidden lg:block"><IconBook /></span>
             </button>
 
-            {/* Breadcrumb */}
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
               {selectedBook ? (
                 <>
@@ -456,25 +414,23 @@ function BiblePage() {
               )}
             </div>
 
-            {/* Memorize button with due badge */}
+            {/* Memorize nav button with due badge */}
             <button
               onClick={() => navigate('/memorize')}
               className="relative flex items-center gap-1.5 border border-stone-200 hover:border-amber-300 px-2.5 py-1.5 text-stone-400 hover:text-amber-600 transition-colors shrink-0"
-              title="Memorize"
             >
               <IconBrain />
               <span className="font-coptic text-[0.55rem] uppercase tracking-widest hidden sm:inline">Memorize</span>
-              {memorizeCount > 0 && (
+              {stats?.due_today > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 text-white text-[0.5rem] font-bold flex items-center justify-center rounded-full">
-                  {memorizeCount > 9 ? '9+' : memorizeCount}
+                  {stats.due_today > 9 ? '9+' : stats.due_today}
                 </span>
               )}
             </button>
 
             {/* Translation picker */}
             <div className="relative shrink-0">
-              <button
-                onClick={() => setShowTransDD(v => !v)}
+              <button onClick={() => setShowTransDD(v => !v)}
                 className="flex items-center gap-1.5 sm:gap-2 border border-stone-200 hover:border-amber-300 px-2 sm:px-3 py-1.5 transition-colors"
               >
                 <span className="font-coptic text-[0.6rem] uppercase tracking-widest text-amber-600">{translation}</span>
@@ -490,7 +446,8 @@ function BiblePage() {
                   </div>
                   <div className="overflow-y-auto flex-1">
                     {filteredTranslations.slice(0, 40).map(t => (
-                      <button key={t.id} onClick={() => { setTranslation(t.id); setShowTransDD(false); setTransSearch(''); }}
+                      <button key={t.id}
+                        onClick={() => { setTranslation(t.id); setShowTransDD(false); setTransSearch(''); }}
                         className={`w-full text-left px-4 py-2.5 hover:bg-amber-50 transition-colors border-b border-stone-50 ${t.id === translation ? 'bg-amber-50' : ''}`}
                       >
                         <span className="font-coptic text-[0.55rem] uppercase tracking-widest text-amber-600 block">{t.shortName}</span>
@@ -545,14 +502,18 @@ function BiblePage() {
                   <p className="font-coptic text-[0.55rem] uppercase tracking-[0.25em] text-stone-400 mb-1">
                     {chapterData.translation.shortName} · {chapterData.book.name}
                   </p>
-                  <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-stone-800">Chapter {chapterData.chapter.number}</h1>
+                  <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-stone-800">
+                    Chapter {chapterData.chapter.number}
+                  </h1>
                   <div className="w-8 h-0.5 bg-amber-500 mt-3" />
                 </div>
 
                 <div className="space-y-1 text-stone-700">
                   {chapterData.chapter.content.map((item, i) => {
                     if (item.type === 'heading') return (
-                      <h3 key={i} className="font-cormorant text-xl font-semibold text-stone-700 pt-6 pb-1">{item.content.join(' ')}</h3>
+                      <h3 key={i} className="font-cormorant text-xl font-semibold text-stone-700 pt-6 pb-1">
+                        {item.content.join(' ')}
+                      </h3>
                     );
                     if (item.type === 'line_break') return <div key={i} className="h-2" />;
                     if (item.type === 'verse') return (
@@ -561,7 +522,7 @@ function BiblePage() {
                         verse={item}
                         highlighted={highlighted}
                         onHighlight={setHighlighted}
-                        savedVerseNumbers={savedVerseNumbers}
+                        isSaved={isVerseSaved(selectedBook.id, chapterNum, item.number, translation)}
                         onBookmark={handleBookmark}
                         bookmarking={bookmarking}
                       />
