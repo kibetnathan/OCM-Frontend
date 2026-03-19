@@ -25,13 +25,14 @@ import PageNotFound from "./pages/PageNotFound";
 import ComingSoon from "./pages/ComingSoon";
 import AdminStreamPanel from "./components/AdminStreamPanel";
 import MemorizePage from "./pages/MemorizePage";
+import ReadingPlansPage from "./pages/ReadingPlan";
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const loading = useAuthStore((state) => state.loading);
-  const wipUrls = [
-    "/plans",
-    "/plans/*",
-  ]
+  // const wipUrls = [
+  //   "/plans",
+  //   "/plans/*",
+  // ]
 
   useEffect(() => {
     const unsubscribe = initAuth();
@@ -80,6 +81,7 @@ function App() {
         <Route path="/threads" element={<ThreadsPage />} />
         <Route path="/bible" element={<BiblePage />} />
         <Route path="/plans/verses" element={<MemorizePage />} />
+        <Route path="/plans/reading" element={<ReadingPlansPage />} />
         <Route path="/streaming" element={<StreamingPage />} />
         <Route path="/feed" element={<Feed />}>
           <Route path="/feed/" element={<FeedChannel />} />
@@ -102,8 +104,8 @@ function App() {
         </Route>
         <Route path="/profile" element={<MobileProfile />} />
         <Route path="*" element={<PageNotFound />} />
-        {wipUrls.map((path) =>
-          (<Route key={path} path={path} element={<ComingSoon/>}/>))}
+        {/* {wipUrls.map((path) =>
+          (<Route key={path} path={path} element={<ComingSoon/>}/>))} */}
       </Routes>
     </Router>
   );
