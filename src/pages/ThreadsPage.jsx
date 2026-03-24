@@ -625,7 +625,7 @@ function ThreadsPage() {
       )}
 
       {/* Main content area */}
-      <div className="flex flex-1 min-w-0 overflow-hidden">
+      <div className="relative flex flex-1 min-w-0 overflow-hidden">
 
         {/* ── MOBILE room list (full-width, behind chat when mobileView==='chat') ── */}
         <div className={`

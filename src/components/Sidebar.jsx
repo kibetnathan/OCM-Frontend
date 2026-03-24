@@ -437,6 +437,7 @@ function Sidebar() {
                   },
                   { to: "/dashboard/users/all", label: "All Members" },
                   { to: "/dashboard/users/leadership", label: "Leadership" },
+                  { to: "/dashboard/streaming", label: "Streaming Dashboard" },
                 ].map(({ to, label, end }) => (
                   <li key={to}>
                     <NavLink
@@ -658,6 +659,50 @@ function Sidebar() {
                     </svg>
                     <span className="text-[0.5rem] uppercase tracking-widest">
                       Messages
+                    </span>
+                  </>
+                )}
+              </NavLink>
+            </li>
+
+            {/* Streaming */}
+            <li>
+              <NavLink
+                to="/streaming"
+                onClick={() => setActiveTray(null)}
+                className={({ isActive }) =>
+                  `flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "text-amber-500"
+                      : "text-stone-500 hover:text-stone-300"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={`w-5 h-0.5 rounded-full mb-0.5 transition-all duration-200 ${isActive ? "bg-amber-500" : "bg-transparent"}`}
+                    />
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.75 5.25a2 2 0 0 1 2-2h12.5a2 2 0 0 1 2 2v10.5a2 2 0 0 1-2 2H5.75a2 2 0 0 1-2-2V5.25Z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9.75 8.25l4.5 2.75-4.5 2.75V8.25Z"
+                      />
+                    </svg>
+                    <span className="text-[0.5rem] uppercase tracking-widest">
+                      Stream
                     </span>
                   </>
                 )}

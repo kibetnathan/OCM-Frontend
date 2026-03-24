@@ -3,7 +3,7 @@ import useAuthStore from "./authStore";
 
 const API = import.meta.env.VITE_API_URL ?? "https://opencms-q36g.onrender.com/api";
 
-const useReadingPlanStore = create((set, get) => ({
+const useReadingPlanStore = create((set) => ({
 
     plans:   [],
     myPlans: [],
