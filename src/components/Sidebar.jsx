@@ -6,22 +6,23 @@ import { useNavigate } from "react-router-dom";
 
 const LEADER_ROLES = ["Pastor", "Jr Leader", "Leader", "Staff"];
 
+// NavLink passes { isActive } into this function automatically - it knows if the current url matches the link
 const navLinkClass = ({ isActive }) =>
-  `flex items-center gap-3 px-4 py-2.5 text-xs tracking-widest uppercase transition-all duration-200 border-l-2 ${
+  `flex items-center gap-3 px-4 py-2.5 text-[0.8rem] tracking-widest uppercase transition-all duration-200 border-l-2 ${
     isActive
       ? "bg-amber-600/15 text-amber-500 border-amber-500"
-      : "text-stone-400 hover:bg-white/5 hover:text-stone-100 border-transparent"
+      : "text-stone-300 hover:bg-white/5 hover:text-white border-transparent"
   }`;
 
 const subLinkClass = ({ isActive }) =>
-  `flex items-center gap-2.5 pl-9 pr-4 py-2 text-[0.65rem] tracking-widest uppercase transition-all duration-150 border-l-2 ${
+  `flex items-center gap-2.5 pl-9 pr-4 py-2 text-xs tracking-widest uppercase transition-all duration-150 border-l-2 ${
     isActive
       ? "text-amber-400 border-amber-500/60 bg-amber-600/10"
-      : "text-stone-500 hover:text-stone-200 border-transparent hover:bg-white/[0.03]"
+      : "text-stone-300 hover:text-white border-transparent hover:bg-white/[0.03]"
   }`;
 
 const SectionLabel = ({ children }) => (
-  <li className="px-4 pt-6 pb-1 text-[0.6rem] uppercase tracking-[0.25em] text-stone-600 font-medium">
+  <li className="px-4 pt-6 pb-1 text-[0.65rem] uppercase tracking-[0.25em] text-stone-400 font-medium">
     {children}
   </li>
 );
@@ -39,15 +40,16 @@ const ChevronIcon = ({ open }) => (
 );
 
 function ExpandableSection({ icon, label, children, defaultOpen = false }) {
+  // useState returns [currentValue, setterFunction] - defaultOpen sets what it starts as
   const [open, setOpen] = useState(defaultOpen);
   return (
     <li>
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`w-full flex items-center gap-3 px-4 py-2.5 text-xs tracking-widest uppercase transition-all duration-200 border-l-2 border-transparent ${
+        className={`w-full flex items-center gap-3 px-4 py-2.5 text-[0.8rem] tracking-widest uppercase transition-all duration-200 border-l-2 border-transparent ${
           open
-            ? "text-stone-200 bg-white/4"
-            : "text-stone-400 hover:bg-white/5 hover:text-stone-100"
+            ? "text-stone-100 bg-white/4"
+            : "text-stone-300 hover:bg-white/5 hover:text-white"
         }`}
       >
         {icon}
@@ -64,6 +66,7 @@ function ExpandableSection({ icon, label, children, defaultOpen = false }) {
 }
 
 function Sidebar() {
+  // zustand - you pass a selector function to pick just the piece of state you need from the store
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
   const [activeTray, setActiveTray] = useState(null);
@@ -73,9 +76,11 @@ function Sidebar() {
     navigate("/auth/login");
   };
   const user = useAuthStore((state) => state.user);
+  // ?. is optional chaining - if fellowships is null/undefined this wont throw, just returns undefined
   const fellowships = useMainStore((state) => state.fellowships?.results) || [];
 
   const userGroups = user?.groups || [];
+  // .some() checks if at least one item in the array passes the condition
   const isLeader = userGroups.some((g) => LEADER_ROLES.includes(g));
   const myFellowships = fellowships.filter((g) =>
     g.members?.includes(user?.id),
@@ -84,7 +89,6 @@ function Sidebar() {
   return (
     <>
       <aside className="sticky top-0 hidden md:flex flex-col w-95 h-screen bg-[#0f0f0d] border-r border-white/6">
-        {/* Logo */}
         <div className="flex items-center justify-between px-6 h-16 border-b border-white/6 shrink-0">
           <NavLink
             to="/"
@@ -95,10 +99,8 @@ function Sidebar() {
           <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto">
           <ul className="flex flex-col gap-0.5">
-            {/* ── Feed ── */}
             <li>
               <NavLink to="/feed" className={navLinkClass}>
                 <svg
@@ -118,7 +120,6 @@ function Sidebar() {
               </NavLink>
             </li>
 
-            {/* ── Dashboard — leader roles only ── */}
             {isLeader && (
               <>
                 <SectionLabel>Dashboard</SectionLabel>
@@ -267,7 +268,6 @@ function Sidebar() {
               </>
             )}
 
-            {/* ── Messaging ── */}
             <SectionLabel>Messaging</SectionLabel>
             <li>
               <NavLink to="/threads" className={navLinkClass}>
@@ -288,7 +288,6 @@ function Sidebar() {
               </NavLink>
             </li>
 
-            {/* —— Scriptures —— */}
             <SectionLabel>Scripture</SectionLabel>
 
             <li>
@@ -384,10 +383,9 @@ function Sidebar() {
           </ul>
         </nav>
 
-        {/* Footer */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-2.5 text-left font-coptic text-[0.6rem] uppercase tracking-widest text-stone-600 hover:text-red-400 hover:bg-white/5 transition-colors group"
+          className="flex items-center gap-3 w-full px-4 py-2.5 text-left font-coptic text-[0.75rem] uppercase tracking-widest text-stone-400 hover:text-red-400 hover:bg-white/5 transition-colors group"
         >
           <svg
             className="w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform"
@@ -405,14 +403,12 @@ function Sidebar() {
           Sign Out
         </button>
         <div className="px-5 py-4 border-t border-white/6 shrink-0">
-          <p className="text-[0.6rem] tracking-widest uppercase text-amber-600/70">
+          <p className="text-[0.65rem] tracking-widest uppercase text-amber-500/80">
             Powered by Mavuno Church
           </p>
         </div>
       </aside>
-      {/* bottom bar */}
       <div className="fixed flex md:hidden bottom-3 left-0 right-0 px-3 z-50">
-        {/* Expanded tray */}
         {activeTray && (
           <div className="absolute bottom-18 left-3 right-3 bg-[#0f0f0d]/95 backdrop-blur-md border border-white/8 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.7)] overflow-hidden">
             {activeTray === "dashboard" && (
@@ -543,7 +539,6 @@ function Sidebar() {
 
         <nav className="w-full h-16 rounded-2xl bg-[#0f0f0d]/80 backdrop-blur-md border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
           <ul className="flex items-center justify-around h-full px-2">
-            {/* Feed */}
             <li>
               <NavLink
                 to="/feed"
@@ -556,6 +551,7 @@ function Sidebar() {
                   }`
                 }
               >
+                {/* NavLink lets you pass a function as children - it gives you isActive so you can use it inside */}
                 {({ isActive }) => (
                   <>
                     <span
@@ -582,9 +578,9 @@ function Sidebar() {
               </NavLink>
             </li>
 
-            {/* Scripture tray toggle */}
             <li>
               <button
+                // passing a function to setActiveTray gives you the previous value (v) so you dont read stale state
                 onClick={() =>
                   setActiveTray((v) => (v === "scripture" ? null : "scripture"))
                 }
@@ -626,7 +622,6 @@ function Sidebar() {
               </button>
             </li>
 
-            {/* Messages */}
             <li>
               <NavLink
                 to="/threads"
@@ -665,7 +660,6 @@ function Sidebar() {
               </NavLink>
             </li>
 
-            {/* Streaming */}
             <li>
               <NavLink
                 to="/streaming"
@@ -709,7 +703,6 @@ function Sidebar() {
               </NavLink>
             </li>
 
-            {/* Dashboard tray toggle*/}
             {isLeader && (
               <li>
                 <button
@@ -747,7 +740,6 @@ function Sidebar() {
               </li>
             )}
 
-            {/* Profile */}
             <li>
               <NavLink
                 to="/profile"

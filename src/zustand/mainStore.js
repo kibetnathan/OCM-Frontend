@@ -12,6 +12,7 @@ const useMainStore = create((set) => ({
     services: [],
     fellowships: [],
     courses: [],
+    charity_organisations: [],
     posts: [],
     groups: [],
     toggleLike: async (postId, token) => {
@@ -730,6 +731,98 @@ updateUser: async (id, payload) => {
         } catch (err) {
             return { success: false, error: err.message };
         }
+    },
+    fetchCharityOrganisations: async () => {
+        set({ loading: true, error: null });
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`${API}/charity-organisations/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            set({ charity_organisations: data, loading: false });
+        } catch (err) {
+            set({ error: err.message, loading: false });
+        }
+    },
+    createCharityOrganisation: async (payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const isFormData = payload instanceof FormData;
+            const res = await fetch(`${API}/charity-organisations/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    ...(!isFormData && { "Content-Type": "application/json" }),
+                },
+                body: isFormData ? payload : JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const newOrg = await res.json();
+            set((state) => {
+                const current = state.charity_organisations?.results
+                    ? state.charity_organisations.results
+                    : (Array.isArray(state.charity_organisations) ? state.charity_organisations : []);
+                const count = state.charity_organisations?.count ?? current.length;
+                return {
+                    loading: false,
+                    charity_organisations: state.charity_organisations?.results
+                        ? { ...state.charity_organisations, count: count + 1, results: [newOrg, ...current] }
+                        : [newOrg, ...current]
+                };
+            });
+            return { success: true, org: newOrg };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+    updateCharityOrganisation: async (id, payload) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const isFormData = payload instanceof FormData;
+            const res = await fetch(`${API}/charity-organisations/${id}/`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    ...(!isFormData && { "Content-Type": "application/json" }),
+                },
+                body: isFormData ? payload : JSON.stringify(payload),
+            });
+            if (!res.ok) { const e = await res.json(); throw new Error(JSON.stringify(e)); }
+            const updated = await res.json();
+            set((state) => {
+                const current = state.charity_organisations?.results
+                    ? state.charity_organisations.results
+                    : (Array.isArray(state.charity_organisations) ? state.charity_organisations : []);
+                const updatedList = current.map((o) => o.id === id ? updated : o);
+                return {
+                    charity_organisations: state.charity_organisations?.results
+                        ? { ...state.charity_organisations, results: updatedList }
+                        : updatedList
+                };
+            });
+            return { success: true, org: updated };
+        } catch (err) { return { success: false, error: err.message }; }
+    },
+    deleteCharityOrganisation: async (id) => {
+        try {
+            const token = useAuthStore.getState().token;
+            const res = await fetch(`${API}/charity-organisations/${id}/`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (!res.ok) throw new Error("Failed to delete charity organisation");
+            set((state) => {
+                const current = state.charity_organisations?.results
+                    ? state.charity_organisations.results
+                    : (Array.isArray(state.charity_organisations) ? state.charity_organisations : []);
+                const filtered = current.filter((o) => o.id !== id);
+                return {
+                    charity_organisations: state.charity_organisations?.results
+                        ? { ...state.charity_organisations, count: (state.charity_organisations.count ?? 1) - 1, results: filtered }
+                        : filtered
+                };
+            });
+            return { success: true };
+        } catch (err) { return { success: false, error: err.message }; }
     },
 }));
 
