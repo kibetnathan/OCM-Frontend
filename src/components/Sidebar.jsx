@@ -194,6 +194,14 @@ function Sidebar() {
                       Services & Equipment
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink
+                      to="/dashboard/outreach/charity"
+                      className={subLinkClass}
+                    >
+                      Charity Organisations
+                    </NavLink>
+                  </li>
                 </ExpandableSection>
 
                 <ExpandableSection
@@ -434,6 +442,7 @@ function Sidebar() {
                   { to: "/dashboard/users/all", label: "All Members" },
                   { to: "/dashboard/users/leadership", label: "Leadership" },
                   { to: "/dashboard/streaming", label: "Streaming Dashboard" },
+                  { to: "/dashboard/outreach/charity", label: "Charity Organisations" },
                 ].map(({ to, label, end }) => (
                   <li key={to}>
                     <NavLink

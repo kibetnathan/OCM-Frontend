@@ -14,6 +14,7 @@ import DepartmentDashboard from "./components/DepartmentDashboard";
 import ServicesDashboard from "./components/ServicesDashboard";
 import UsersDashboard from "./components/UsersDashboard";
 import LeadershipDashboard from "./components/LeadershipDashboard";
+import CharityOrganisationDashboard from "./components/CharityOrganisationDashboard";
 import PostView from "./components/PostView";
 import ThreadsPage from "./pages/ThreadsPage";
 import useAuthStore from "./zustand/authStore";
@@ -101,6 +102,7 @@ function App() {
           <Route path="users/all" element={<UsersDashboard />} />
           <Route path="users/leadership" element={<LeadershipDashboard />} />
           <Route path="streaming" element={<AdminStreamPanel />} />
+          <Route path="outreach/charity" element={<CharityOrganisationDashboard />} />
         </Route>
         <Route path="/profile" element={<MobileProfile />} />
         <Route path="*" element={<PageNotFound />} />

@@ -50,26 +50,6 @@ const IconPhoto = () => (
   </svg>
 );
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-const PAYMENT_METHODS = [
-  { value: "bank_transfer", label: "Bank Transfer" },
-  { value: "paypal",        label: "PayPal" },
-  { value: "stripe",        label: "Stripe" },
-  { value: "mobile_money",  label: "Mobile Money" },
-  { value: "cash",          label: "Cash" },
-  { value: "other",         label: "Other" },
-];
-
-const PAYMENT_COLOURS = {
-  bank_transfer: "bg-blue-50 border-blue-100 text-blue-600",
-  paypal:        "bg-indigo-50 border-indigo-100 text-indigo-600",
-  stripe:        "bg-purple-50 border-purple-100 text-purple-600",
-  mobile_money:  "bg-green-50 border-green-100 text-green-600",
-  cash:          "bg-amber-50 border-amber-100 text-amber-600",
-  other:         "bg-stone-50 border-stone-200 text-stone-500",
-};
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function SectionHeading({ children }) {
@@ -89,10 +69,6 @@ function InputLabel({ children }) {
 
 function userName(u) {
   return u?.first_name && u?.last_name ? `${u.first_name} ${u.last_name}` : u?.username ?? "—";
-}
-
-function paymentLabel(value) {
-  return PAYMENT_METHODS.find((m) => m.value === value)?.label ?? value;
 }
 
 // ── Member picker ─────────────────────────────────────────────────────────────
@@ -172,9 +148,6 @@ function CharityCard({ org, allUsers, allProfiles, onSelect, isSelected }) {
           <h3 className="font-cormorant text-xl font-semibold text-stone-800 leading-tight truncate">{org.name}</h3>
           {org.description && <p className="text-xs text-stone-400 mt-1 line-clamp-2">{org.description}</p>}
         </div>
-        <span className={`text-[0.55rem] uppercase tracking-widest border px-2 py-1 shrink-0 ml-3 ${PAYMENT_COLOURS[org.payment_method] ?? PAYMENT_COLOURS.other}`}>
-          {paymentLabel(org.payment_method)}
-        </span>
       </div>
       {pastor && (
         <div className="px-5 py-3 flex items-center gap-3 border-b border-stone-100">
@@ -266,12 +239,12 @@ function CharityDetail({ org, allUsers, allProfiles, onClose, onEdit, onDelete }
       )}
 
       <div className="relative z-10 flex flex-wrap gap-3">
-        <div>
-          <p className="text-[0.6rem] uppercase tracking-widest text-stone-700 font-coptic mb-1">Payment Method</p>
-          <span className={`text-[0.6rem] uppercase tracking-widest border px-2 py-1 ${PAYMENT_COLOURS[org.payment_method] ?? PAYMENT_COLOURS.other}`}>
-            {paymentLabel(org.payment_method)}
-          </span>
-        </div>
+        {org.payment_method && (
+          <div className="w-full">
+            <p className="text-[0.6rem] uppercase tracking-widest text-stone-700 font-coptic mb-1">Payment Details</p>
+            <p className="text-xs text-stone-100 whitespace-pre-wrap leading-relaxed">{org.payment_method}</p>
+          </div>
+        )}
         {org.donation_link && (
           <div>
             <p className="text-[0.6rem] uppercase tracking-widest text-stone-700 font-coptic mb-1">Donation Link</p>
@@ -369,13 +342,10 @@ function CharityFields({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <InputLabel>Payment Method</InputLabel>
-        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
-          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 transition-colors w-full">
-          {PAYMENT_METHODS.map((m) => (
-            <option key={m.value} value={m.value}>{m.label}</option>
-          ))}
-        </select>
+        <InputLabel>Payment Details <span className="text-stone-300 normal-case tracking-normal">(optional)</span></InputLabel>
+        <textarea value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}
+          placeholder="e.g. Bank: FNB, Account: 123456, Branch: 250655&#10;PayPal: donate@hope.org"
+          className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors resize-none min-h-20 w-full" />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -454,7 +424,7 @@ function CreateCharityForm({ allUsers, allProfiles, onSuccess }) {
     const result = await createCharityOrganisation(payload);
     setSubmitting(false);
     if (result?.success) {
-      setName(""); setDescription(""); setPaymentMethod("bank_transfer");
+      setName(""); setDescription(""); setPaymentMethod("");
       setDonationLink(""); setPastorId(""); setSelectedMembers([]); setBannerFile(null);
       onSuccess?.();
     } else {
@@ -481,7 +451,7 @@ function EditCharityForm({ org, allUsers, allProfiles, onSuccess, onCancel }) {
 
   const [name,            setName]            = useState(org.name            || "");
   const [description,     setDescription]     = useState(org.description     || "");
-  const [paymentMethod,   setPaymentMethod]   = useState(org.payment_method  || "bank_transfer");
+  const [paymentMethod,   setPaymentMethod]   = useState(org.payment_method  || "");
   const [donationLink,    setDonationLink]    = useState(org.donation_link   || "");
   const [pastorId,        setPastorId]        = useState(org.pastor          ? String(org.pastor) : "");
   const [selectedMembers, setSelectedMembers] = useState(org.members         || []);
