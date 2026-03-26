@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import useMainStore from "../zustand/mainStore";
+import PaymentComponent from "../components/PaymentComponent";
 
 const IconHeart = ({ className = "w-4 h-4" }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -177,6 +178,17 @@ function OrgDetailCard({ org }) {
               Your request has been submitted.
             </p>
           )}
+        <div className="flex items-center gap-4">
+            <button
+            className={`flex items-center gap-2 px-7 py-3 text-[0.75rem] uppercase tracking-[0.15em] font-coptic transition-all duration-200 
+                bg-amber-500 hover:bg-amber-600 text-white
+                `}
+                >
+            <IconBanknotes className="w-4 h-4" />
+            Click To Donate
+          </button>
+          <PaymentComponent/>
+        </div>
         </div>
       </div>
     </div>
@@ -201,7 +213,7 @@ function CharityOrganisationsPage() {
     <div className="flex flex-row bg-[#0f0f0d] w-full min-h-screen">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col w-full min-h-screen overflow-hidden">
         {/* Page header */}
         <div className="px-8 py-6 border-b border-white/6 shrink-0">
           <p className="font-coptic text-[0.6rem] uppercase tracking-[0.25em] text-stone-500 mb-1">
