@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PaymentComponent = ({ amount, email, orderId }) => {
+const PaymentComponent = ({ amount, email, orderId, className, label }) => {
   
   const handlePayment = () => {
     // 1. Initialize the popup
@@ -20,7 +20,7 @@ const PaymentComponent = ({ amount, email, orderId }) => {
         verifyOnBackend(transaction.reference);
       },
       onCancel: () => {
-        alert("Transaction cancelled.");
+        console.log("Transaction cancelled.");
       },
       onError: (error) => {
         console.error("Error:", error.message);
@@ -37,7 +37,7 @@ const PaymentComponent = ({ amount, email, orderId }) => {
       });
       const data = await response.json();
       if (data.status === 'verified') {
-        alert("Payment Confirmed in Backend!");
+        console.log("Payment verified.");
       }
     } catch (err) {
       console.error("Backend verification failed", err);
@@ -45,8 +45,8 @@ const PaymentComponent = ({ amount, email, orderId }) => {
   };
 
   return (
-    <button onClick={handlePayment} className="pay-btn">
-      Pay with M-PESA or Card
+    <button onClick={handlePayment} className={className ?? "pay-btn"}>
+      {label ?? "Pay with M-PESA or Card"}
     </button>
   );
 };

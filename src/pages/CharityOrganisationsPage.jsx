@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import useMainStore from "../zustand/mainStore";
+import useAuthStore from "../zustand/authStore";
 import PaymentComponent from "../components/PaymentComponent";
 
 const IconHeart = ({ className = "w-4 h-4" }) => (
@@ -67,6 +68,8 @@ function OrgListCard({ org, isSelected, onSelect }) {
 
 function OrgDetailCard({ org }) {
   const [joinSent, setJoinSent] = useState(false);
+  const [donationAmount, setDonationAmount] = useState(500);
+  const user = useAuthStore((s) => s.user);
 
   const memberCount = org.members?.length ?? 0;
   const joinedDate = org.created_at
@@ -178,16 +181,22 @@ function OrgDetailCard({ org }) {
               Your request has been submitted.
             </p>
           )}
-        <div className="flex items-center gap-4">
-            <button
-            className={`flex items-center gap-2 px-7 py-3 text-[0.75rem] uppercase tracking-[0.15em] font-coptic transition-all duration-200 
-                bg-amber-500 hover:bg-amber-600 text-white
-                `}
-                >
-            <IconBanknotes className="w-4 h-4" />
-            Click To Donate
-          </button>
-          <PaymentComponent/>
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            min="1"
+            value={donationAmount}
+            onChange={(e) => setDonationAmount(Number(e.target.value))}
+            className="w-28 px-3 py-3 border border-stone-200 text-sm text-stone-700 focus:outline-none focus:border-amber-400"
+            placeholder="Amount (KES)"
+          />
+          <PaymentComponent
+            amount={donationAmount}
+            email={user?.email ?? ""}
+            orderId={`donation-${org.id}-${Date.now()}`}
+            className="flex items-center gap-2 px-7 py-3 text-[0.75rem] uppercase tracking-[0.15em] font-coptic transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-white"
+            label={<><IconBanknotes className="w-4 h-4" /> Donate</>}
+          />
         </div>
         </div>
       </div>
