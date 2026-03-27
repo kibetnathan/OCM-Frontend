@@ -27,6 +27,7 @@ import ComingSoon from "./pages/ComingSoon";
 import AdminStreamPanel from "./components/AdminStreamPanel";
 import MemorizePage from "./pages/MemorizePage";
 import ReadingPlansPage from "./pages/ReadingPlan";
+import CharityOrganisationsPage from "./pages/CharityOrganisationsPage";
 function App() {
   const initAuth = useAuthStore((state) => state.initAuth);
   const loading = useAuthStore((state) => state.loading);
@@ -104,6 +105,7 @@ function App() {
           <Route path="streaming" element={<AdminStreamPanel />} />
           <Route path="outreach/charity" element={<CharityOrganisationDashboard />} />
         </Route>
+        <Route path="/outreach/charity" element={<CharityOrganisationsPage />} />
         <Route path="/profile" element={<MobileProfile />} />
         <Route path="*" element={<PageNotFound />} />
         {/* {wipUrls.map((path) =>
