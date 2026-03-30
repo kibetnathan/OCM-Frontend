@@ -247,7 +247,7 @@ function DeptFields({ name, setName, description, setDescription, leaderId, setL
           className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors w-full" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <InputLabel>Description <span className="text-stone-300 normal-case tracking-normal">(optional)</span></InputLabel>
+        <InputLabel>Description</InputLabel>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What does this department do?"
           className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors resize-none min-h-16 w-full" />
       </div>

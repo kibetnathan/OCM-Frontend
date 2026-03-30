@@ -449,10 +449,7 @@ function CreateFellowshipForm({ allUsers, allProfiles, onSuccess }) {
       {/* Description */}
       <div className="flex flex-col gap-1.5">
         <InputLabel>
-          Description{" "}
-          <span className="text-stone-300 normal-case tracking-normal">
-            (optional)
-          </span>
+          Description
         </InputLabel>
         <textarea
           value={description}

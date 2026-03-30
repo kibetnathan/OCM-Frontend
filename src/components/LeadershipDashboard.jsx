@@ -258,12 +258,12 @@ function CreateTeamForm({ allUsers, allProfiles, onSuccess }) {
         <FormInput type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Elders Board" required />
       </div>
       <div className="flex flex-col gap-1.5">
-        <InputLabel>Description <span className="text-stone-300 normal-case tracking-normal">(optional)</span></InputLabel>
+        <InputLabel>Description</InputLabel>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What does this team oversee?"
           className="bg-white border border-stone-200 focus:border-amber-400 focus:outline-none px-3 py-2.5 text-sm text-stone-700 placeholder:text-stone-300 transition-colors resize-none min-h-16 w-full" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <InputLabel>Members <span className="text-stone-300 normal-case tracking-normal">(optional)</span></InputLabel>
+        <InputLabel>Members</InputLabel>
         <MemberPicker allUsers={allUsers} allProfiles={allProfiles} selected={selectedMembers} onChange={setSelectedMembers} />
       </div>
       {error && <p className="text-[0.6rem] uppercase tracking-widest text-red-400">{error}</p>}
