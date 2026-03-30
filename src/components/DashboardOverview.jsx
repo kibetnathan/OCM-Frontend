@@ -419,7 +419,7 @@ function DashboardOverview() {
                 onChange={(e) => setTitle(e.target.value)}
                 required
                 placeholder="Post title…"
-                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-200 placeholder:text-stone-400 transition-colors rounded-sm"
+                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-800 placeholder:text-stone-400 transition-colors rounded-sm"
               />
             </div>
 
@@ -433,7 +433,7 @@ function DashboardOverview() {
                 onChange={(e) => setText(e.target.value)}
                 required
                 placeholder="What's on your heart?"
-                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-200 placeholder:text-stone-400 transition-colors resize-none min-h-24 rounded-sm"
+                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-800 placeholder:text-stone-400 transition-colors resize-none min-h-24 rounded-sm"
               />
             </div>
 
@@ -448,7 +448,7 @@ function DashboardOverview() {
                 onChange={(e) => setTags(e.target.value)}
                 required
                 placeholder="worship, prayer…"
-                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-200 placeholder:text-stone-400 transition-colors rounded-sm"
+                className="bg-white/15 border border-white/35 focus:border-amber-400/60 focus:outline-none px-3 py-2.5 text-sm text-stone-800 placeholder:text-stone-400 transition-colors rounded-sm"
               />
             </div>
 
