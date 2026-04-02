@@ -77,7 +77,7 @@ function LoginForm() {
 
             <div className="flex flex-col gap-1.5">
               <label className="font-coptic text-[0.6rem] uppercase tracking-widest text-stone-500">
-                Username
+                Email
               </label>
               <input
                 type="text"
